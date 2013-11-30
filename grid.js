@@ -38,8 +38,8 @@ if (Meteor.isClient) {
                 },
                 //Select All
                 'super+a': function(e) {
-                	a.preventDefault();
-                	
+                    a.preventDefault();
+
                     Squares.find({}, {
                         transform: function(e) {
                             Squares.update(e._id, {
@@ -259,7 +259,15 @@ if (Meteor.isClient) {
         },
 
         'click .text-button': function() {
-            bootbox.prompt('Input', function(input) {
+            var original;
+
+            if (Grid.startSelect.fn !== undefined) {
+                original = Grid.startSelect.fn;
+            } else {
+                original = "";
+            }
+
+            bootbox.prompt('Input', 'Cancel', 'Save', function(input) {
 
                 if (!isNaN(parseFloat(input)) && isFinite(input)) {
                     input = parseFloat(input)
@@ -271,7 +279,7 @@ if (Meteor.isClient) {
                     }
                 });
 
-            });
+            }, original);
         },
 
         'click .function-button': function() {
@@ -321,9 +329,9 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
     Meteor.startup(function() {
         // Squares.remove({})
-        // code to run on server at startup
-        if (Squares.find().count() == 0) {
 
+        // Initialize empty cells
+        if (Squares.find().count() == 0) {
             for (var i = 0; i < 15; i++) {
                 for (var j = 0; j < 10; j++) {
                     Squares.insert({
@@ -332,7 +340,7 @@ if (Meteor.isServer) {
                         height: 1,
                         width: 1,
                         selected: false
-                    })
+                    });
                 };
             };
         }

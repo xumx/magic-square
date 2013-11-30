@@ -1,8 +1,13 @@
 <head>
-    <title>grid</title>
+    <title>Magic Square</title>
 </head>
 
 <body>
+    <div class="github-fork-ribbon-wrapper right fixed">
+        <div class="github-fork-ribbon">
+            <a href="https://github.com/xumx/magicsquare">Fork me on GitHub</a>
+        </div>
+    </div>
     <div class="main-container">
         {{> hello}}
     </div>
@@ -12,15 +17,10 @@
 
     {{#each grid}}
     <div class="square {{#if selected}}selected{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px">
-        {{#if value}}
-            {{value}}
-        {{else}}
-            {{fn}}
-        {{/if}}
+        {{#if value}} {{value}} {{else}} {{fn}} {{/if}}
     </div>
-    {{/each}}
+    {{/each}} {{> menu}}
 
-    {{> menu}}
 </template>
 
 
