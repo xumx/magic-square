@@ -1,0 +1,33 @@
+{
+  "meteor": {},
+  "dependencies": {
+    "basePackages": {
+      "bootstrap-3": {},
+      "animate-css": {},
+      "bootboxjs": {},
+      "keybindings": {}
+    },
+    "packages": {
+      "bootstrap-3": {
+        "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
+        "tag": "v0.3.6",
+        "commit": "711dbcabe333c8714298b2fd1de97fdcdae6efa7"
+      },
+      "animate-css": {
+        "git": "https://github.com/nate-strauser/meteor-animate-css.git",
+        "tag": "v2.1.0",
+        "commit": "08d7d98ce292d528f05eab91bfb220b3a355c1d5"
+      },
+      "bootboxjs": {
+        "git": "https://github.com/TimHeckel/meteor-bootboxjs.git",
+        "tag": "v3.2.2",
+        "commit": "580adfebfa12b4d2186a80cec1109dab74ad6228"
+      },
+      "keybindings": {
+        "git": "https://github.com/matteodem/meteor-keybindings.git",
+        "tag": "v0.3.8",
+        "commit": "7102c7329453c18c63846d74d0b51ef35a23e945"
+      }
+    }
+  }
+}
