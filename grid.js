@@ -261,14 +261,17 @@ if (Meteor.isClient) {
         'click .text-button': function() {
             var original;
 
-            if (Grid.startSelect.fn !== undefined) {
-                original = Grid.startSelect.fn;
+            if (Grid.startSelect.value !== undefined) {
+                original = Grid.startSelect.value;
             } else {
                 original = "";
             }
 
             bootbox.prompt('Input', 'Cancel', 'Save', function(input) {
-
+            	if (input == null) {
+            		return;
+            	}
+            	
                 if (!isNaN(parseFloat(input)) && isFinite(input)) {
                     input = parseFloat(input)
                 }
