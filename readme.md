@@ -19,10 +19,10 @@ Features Overview
 * 'Cmd + V' to Paste
 * 'Cmd + X' to Cut
 * 'Backspace' to clear cell's value
-* 'e' to edit text
+* 'Enter' to edit text
 * 'f' to edit function
 * 'r' to re-compute value
-
+* Use arrow keys to move cursor
 * Merge multiple selected cells
 * Accept javascript code as input. (requires 'return' statement)
 
@@ -30,13 +30,15 @@ Features Overview
 In the pipeline
 ----------------
 * Serverside execution
-* Refresh cell data
-* Sidebar features
 * Style for individual cells
-* Multiple canvas instance (pastebin style)
-* Option for password protected canvas
+
 * Increase canvas size (1024 * 1024)?
 * Panning feature for the canvas
+* Sidebar features
+
+* Multiple canvas instance (pastebin style)
+* Option for password protected canvas
+
 
 
 Copyright 2013 Max Xu

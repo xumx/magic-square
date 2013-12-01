@@ -195,40 +195,6 @@ a.ctrl:focus {
     filter: alpha(opacity=0);
     opacity: 0;
 }
-/* the ends of the menu */
- .tip:before, .tip:after {
-    position: absolute;
-    top: 34.3%;
-    width: .5em;
-    height: 14%;
-    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
-    filter: alpha(opacity=80);
-    opacity: .80;
-    background: #c9353b;
-    content:'';
-}
-.tip:before {
-    left: 5.4%;
-    border-radius: .25em 0 0 .25em;
-    -webkit-box-shadow: -1px 0 1px dimgrey, inset 1px 0 1px white, inset -1px 0 1px grey, inset 0 1px 1px white, inset 0 -1px 1px white;
-    box-shadow: -1px 0 1px dimgrey, inset 1px 0 1px white, inset -1px 0 1px grey, inset 0 1px 1px white, inset 0 -1px 1px white;
-    -webkit-transform: rotate(-75deg);
-    -moz-transform: rotate(-75deg);
-    -o-transform: rotate(-75deg);
-    -ms-transform: rotate(-75deg);
-    transform: rotate(-75deg);
-}
-.tip:after {
-    right: 5.4%;
-    border-radius: 0 .25em .25em 0;
-    -webkit-box-shadow: 1px 0 1px dimgrey, inset -1px 0 1px white, inset 1px 0 1px grey, inset 0 1px 1px white, inset 0 -1px 1px white;
-    box-shadow: 1px 0 1px dimgrey, inset -1px 0 1px white, inset 1px 0 1px grey, inset 0 1px 1px white, inset 0 -1px 1px white;
-    -webkit-transform: rotate(75deg);
-    -moz-transform: rotate(75deg);
-    -o-transform: rotate(75deg);
-    -ms-transform: rotate(75deg);
-    transform: rotate(75deg);
-}
 /* make the menu appear on click */
  .open-close-button:focus + .tip {
     -webkit-transform: scale(1);
@@ -325,19 +291,17 @@ give them a red background to see them */
     width: 200%;
     height: 200%;
     border-radius: 50%;
-    -webkit-box-shadow: 0 0 3px dimgrey, inset 0 0 4px white;
-    box-shadow: 0 0 3px dimgrey, inset 0 0 4px white;
     /* "unskew" & rotate by -A°/2 */
     -webkit-transform: skewY(-60deg) rotate(-15deg);
     -moz-transform: skewY(-60deg) rotate(-15deg);
     -o-transform: skewY(-60deg) rotate(-15deg);
     -ms-transform: skewY(-60deg) rotate(-15deg);
     transform: skewY(-60deg) rotate(-15deg);
-    background: -webkit-linear-gradient(75deg, transparent 50%, grey 50%, transparent 54%) no-repeat 36.5% 0, -webkit-linear-gradient(-75deg, transparent 50%, grey 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
-    background: -moz-linear-gradient(75deg, transparent 50%, grey 50%, transparent 54%) no-repeat 36.5% 0, -moz-linear-gradient(-75deg, transparent 50%, grey 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
-    background: -o-linear-gradient(75deg, transparent 50%, grey 50%, transparent 54%) no-repeat 36.5% 0, -o-linear-gradient(-75deg, transparent 50%, grey 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
-    background: -ms-linear-gradient(75deg, transparent 50%, grey 50%, transparent 54%) no-repeat 36.5% 0, -ms-linear-gradient(-75deg, transparent 50%, grey 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
-    background: linear-gradient(75deg, transparent 50%, grey 50%, transparent 54%) no-repeat 36.5% 0, linear-gradient(-75deg, transparent 50%, grey 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
+    background: -webkit-linear-gradient(75deg, transparent 50%, white 50%, transparent 54%) no-repeat 36.5% 0, -webkit-linear-gradient(-75deg, transparent 50%, white 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
+    background: -moz-linear-gradient(75deg, transparent 50%, white 50%, transparent 54%) no-repeat 36.5% 0, -moz-linear-gradient(-75deg, transparent 50%, white 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
+    background: -o-linear-gradient(75deg, transparent 50%, white 50%, transparent 54%) no-repeat 36.5% 0, -o-linear-gradient(-75deg, transparent 50%, white 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
+    background: -ms-linear-gradient(75deg, transparent 50%, white 50%, transparent 54%) no-repeat 36.5% 0, -ms-linear-gradient(-75deg, transparent 50%, white 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
+    background: linear-gradient(75deg, transparent 50%, white 50%, transparent 54%) no-repeat 36.5% 0, linear-gradient(-75deg, transparent 50%, white 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
     -webkit-background-size: 15% 15%, 15% 15%, cover;
     -moz-background-size: 15% 15%, 15% 15%, cover;
     background-size: 15% 15%, 15% 15%, cover;
@@ -351,13 +315,13 @@ give them a red background to see them */
     margin: -.25em;
     width: .5em;
     height: .5em;
-    -webkit-box-shadow: 2px 2px 2px white;
-    box-shadow: 2px 2px 2px white;
+
     -webkit-transform: rotate(45deg);
     -moz-transform: rotate(45deg);
     -o-transform: rotate(45deg);
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
+
     background: -webkit-linear-gradient(-45deg, #c9353b 50%, transparent 50%);
     background: -moz-linear-gradient(-45deg, #c9353b 50%, transparent 50%);
     background: -o-linear-gradient(-45deg, #c9353b 50%, transparent 50%);

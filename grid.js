@@ -180,6 +180,26 @@ if (Meteor.isClient) {
 
             }, original);
         },
+        editStyle: function() {
+            var original;
+
+            if (Grid.startSelect.style !== undefined) {
+                original = Grid.startSelect.style;
+            } else {
+                original = "";
+            }
+
+            bootbox.promptFn('Custom Style', 'Cancel', 'Save', function(css) {
+
+                css = css.replace(/\n/g,'');
+
+                Squares.update(Grid.startSelect._id, {
+                    $set: {
+                        style: css,
+                    }
+                });
+            }, original);
+        },
         merge: function() {
             var toMerge = Squares.find({
                 selected: true
@@ -222,8 +242,10 @@ if (Meteor.isClient) {
             });
 
             Grid.startSelect = null;
+        },
+        scrape: function(url) {
+            Meteor.call('scrape', url, Grid.startSelect.fn, Grid.startSelect._id)
         }
-
     }
 
 
@@ -331,7 +353,8 @@ if (Meteor.isClient) {
         'click li.merge-button': Action.merge,
         'click li.edit-button': Action.edit,
         'click li.function-button': Action.editFunction,
-        'click li.delete-button': Action.delete
+        'click li.delete-button': Action.delete,
+        'click li.style-button': Action.editStyle
     };
 
 
@@ -422,6 +445,21 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
+    var cheerio = Meteor.require('cheerio');
+
+    Meteor.methods({
+        scrape: function(url, statements, _id) {
+            var $ = cheerio.load(Meteor.http.get(url).content);
+            var fn = new Function('$', statements);
+
+            Squares.update(_id, {
+                $set: {
+                    value: fn($)
+                }
+            });
+        }
+    });
+
     Meteor.startup(function() {
         // Squares.remove({})
 

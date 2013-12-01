@@ -3,6 +3,7 @@
     "bootstrap-3": {},
     "animate-css": {},
     "bootboxjs": {},
-    "keybindings": {}
+    "keybindings": {},
+    "npm": {}
   }
 }

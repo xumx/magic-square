@@ -16,7 +16,7 @@
 <template name="hello">
 
     {{#each grid}}
-    <div class="square {{#if selected}}selected{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px">
+    <div class="square {{#if selected}}selected{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px;{{style}}">
         {{#if value}} {{value}} {{else}} {{fn}} {{/if}}
     </div>
     {{/each}} {{> menu}}
@@ -31,21 +31,23 @@
 
         <ul class='tip ctrl'>
             <li class='slice edit-button'>
-                <div><i class="glyphicon glyphicon-edit"></i>
+                <div>
+                    <i class="glyphicon glyphicon-edit"></i>
                 </div>
             </li>
             <li class='slice function-button'>
                 <div>ƒ(x)</div>
             </li>
-            <li class='slice delete-button'>
-                <div><i class="glyphicon glyphicon-trash"></i>
-                </div>
+            <li class='slice style-button'>
+                <div>CSS</div>
             </li>
             <li class='slice merge-button'>
-                <div>Merge</div>
+                <div>Join</div>
             </li>
-            <li class='slice'>
-                <div>☀</div>
+            <li class='slice delete-button'>
+                <div>
+                    <i class="glyphicon glyphicon-trash"></i>
+                </div>
             </li>
         </ul>
     </div>
