@@ -2,59 +2,6 @@ Squares = new Meteor.Collection('square');
 
 if (Meteor.isClient) {
 
-    Meteor.startup(function() {
-
-        //No idea when this will load.
-        setTimeout(function() {
-            Meteor.Keybindings.add({
-                'delete': function(e) {
-                    e.preventDefault();
-                    Squares.update(Grid.startSelect._id, {
-                        $unset: {
-                            value: 1,
-                            fn: 1
-                        }
-                    });
-                },
-                //Delete
-                'backspace': function(e) {
-                    e.preventDefault();
-                    Squares.update(Grid.startSelect._id, {
-                        $unset: {
-                            value: 1,
-                            fn: 1
-                        }
-                    });
-                },
-                //Copy
-                'super+c': function() {
-                    Grid.copy = _.pick(Grid.startSelect, 'fn', 'value');
-                },
-                //Paste
-                'super+v': function() {
-                    Squares.update(Grid.startSelect._id, {
-                        $set: Grid.copy
-                    });
-                },
-                //Select All
-                'super+a': function(e) {
-                    a.preventDefault();
-
-                    Squares.find({}, {
-                        transform: function(e) {
-                            Squares.update(e._id, {
-                                $set: {
-                                    selected: true
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }, 500);
-
-    });
-
     Template.hello.grid = function() {
         return Squares.find({}, {
             sort: {
@@ -86,9 +33,198 @@ if (Meteor.isClient) {
 
     Grid = {
         startSelect: null,
-        endSelect: null
+        endSelect: null,
+        copy: null,
+        cut: null
     }
 
+    Action = {
+        copy: function() {
+            Grid.copy = _.pick(Grid.startSelect, 'fn', 'value');
+        },
+        paste: function() {
+            Squares.update(Grid.startSelect._id, {
+                $set: Grid.copy
+            });
+        },
+        cut: function() {
+            Action.copy();
+            Action.delete();
+        },
+        delete: function() {
+            Squares.update(Grid.startSelect._id, {
+                $unset: {
+                    value: 1,
+                    fn: 1
+                }
+            });
+        },
+        refresh: function() {
+            var fn = new Function('$', Grid.startSelect.fn);
+
+            Squares.update(Grid.startSelect._id, {
+                $set: {
+                    value: fn($),
+                }
+            });
+        },
+        refreshAll: function() {
+            //Placeholder
+        },
+        moveCursor: function(direction) {
+            var newX = Grid.startSelect.x,
+                newY = Grid.startSelect.y;
+
+            if (!(direction == 'up' || direction == 'down' || direction == 'left' || direction == 'right')) {
+                return;
+            }
+
+            switch (direction) {
+                case 'up':
+                    newY--;
+                    break;
+                case 'down':
+                    newY++;
+                    break;
+                case 'left':
+                    newX--;
+                    break;
+
+                case 'right':
+                    newX++;
+                    break;
+
+            }
+
+            var newSquare = Squares.findOne({
+                x: newX,
+                y: newY
+            });
+
+            if (newSquare) {
+                Squares.update(Grid.startSelect._id, {
+                    $set: {
+                        selected: false
+                    }
+                });
+
+                Squares.update(newSquare._id, {
+                    $set: {
+                        selected: true
+                    }
+                });
+
+                Grid.startSelect = newSquare;
+
+                Session.set('menu.x', Grid.startSelect.x + (Grid.startSelect.width - 1) / 2);
+                Session.set('menu.y', Grid.startSelect.y + (Grid.startSelect.height - 1) / 2);
+
+                Session.set('singleSelection', true); //temp
+            }
+        },
+        edit: function() {
+            var original;
+
+            if (Grid.startSelect.value !== undefined) {
+                original = Grid.startSelect.value;
+            } else {
+                original = "";
+            }
+
+            bootbox.prompt('Input', 'Cancel', 'Save', function(input) {
+                if (input == null) {
+                    return;
+                }
+
+                if (!isNaN(parseFloat(input)) && isFinite(input)) {
+                    input = parseFloat(input)
+                }
+
+                Squares.update(Grid.startSelect._id, {
+                    $set: {
+                        value: input
+                    }
+                });
+
+            }, original);
+        },
+        editFunction: function() {
+            var original;
+
+            if (Grid.startSelect.fn !== undefined) {
+                original = Grid.startSelect.fn;
+            } else {
+                original = "var a = $(window).height()\nreturn a;";
+            }
+
+            bootbox.promptFn('Attach Javascript Function', 'Cancel', 'Save', function(statements) {
+                if (statements == null) {
+                    return;
+                }
+
+                //TODO
+                //replace with cell reference
+
+                var fn = new Function('$', statements);
+
+                if (typeof fn == 'function') {
+                    Squares.update(Grid.startSelect._id, {
+                        $set: {
+                            fn: statements,
+                            value: fn($)
+                        }
+                    });
+                } else {
+                    alert('Invalid function');
+                }
+
+            }, original);
+        },
+        merge: function() {
+            var toMerge = Squares.find({
+                selected: true
+            }).fetch();
+
+            var result = _.reduce(toMerge, function(memo, e) {
+                //Memo [maxX, maxY, minX, minY]
+                if (memo[0] == null || e.x > memo[0]) {
+                    memo[0] = e.x;
+                }
+                if (memo[1] == null || e.y > memo[1]) {
+                    memo[1] = e.y;
+                }
+
+                if (memo[2] == null || e.x < memo[2]) {
+                    memo[2] = e.x;
+                }
+                if (memo[3] == null || e.y < memo[3]) {
+                    memo[3] = e.y;
+                }
+
+                return memo;
+            }, [null, null, null, null]);
+
+            var width = result[0] - result[2] + 1;
+            var height = result[1] - result[3] + 1;;
+
+            _.each(toMerge, function(e) {
+                if (e.x == result[2] && e.y == result[3]) {
+                    Squares.update(e._id, {
+                        $set: {
+                            height: height,
+                            width: width,
+                            selected: false
+                        }
+                    });
+                } else {
+                    Squares.remove(e._id);
+                }
+            });
+
+            Grid.startSelect = null;
+        }
+
+    }
 
 
     Template.hello.events({
@@ -153,8 +289,8 @@ if (Meteor.isClient) {
 
                 Grid.startSelect = this;
 
-                Session.set('menu.x', this.x);
-                Session.set('menu.y', this.y);
+                Session.set('menu.x', this.x + (this.width - 1) / 2);
+                Session.set('menu.y', this.y + (this.height - 1) / 2);
 
                 Session.set('singleSelection', true); //temp
 
@@ -176,32 +312,10 @@ if (Meteor.isClient) {
                     }
                 });
             }
-
-            //Same as original
-            // if (this == Grid.startSelect) {
-            //     Grid.startSelect = null;
-            //     Session.set('menu.x', -1000);
-            //     Session.set('menu.y', -1000);
-
-            //     Squares.find({
-            //         selected: true
-            //     }, {
-            //         transform: function(e) {
-            //             Squares.update(e._id, {
-            //                 $set: {
-            //                     selected: false
-            //                 }
-            //             });
-            //         }
-            //     }).fetch();
-            //     return;
-            // }
         }
     });
 
     Template.menu.xpos = function() {
-        // var offset = parseInt($('.main-container').css('margin-left'));
-
         return Session.get('menu.x') * 100;
     };
 
@@ -214,119 +328,97 @@ if (Meteor.isClient) {
     }
 
     Template.menu.events = {
-        'click .merge-button': function() {
-            var toMerge = Squares.find({
-                selected: true
-            }).fetch();
-
-            var result = _.reduce(toMerge, function(memo, e) {
-                //Memo [maxX, maxY, minX, minY]
-                if (memo[0] == null || e.x > memo[0]) {
-                    memo[0] = e.x;
-                }
-                if (memo[1] == null || e.y > memo[1]) {
-                    memo[1] = e.y;
-                }
-
-                if (memo[2] == null || e.x < memo[2]) {
-                    memo[2] = e.x;
-                }
-                if (memo[3] == null || e.y < memo[3]) {
-                    memo[3] = e.y;
-                }
-
-                return memo;
-            }, [null, null, null, null]);
-
-            var width = result[0] - result[2] + 1;
-            var height = result[1] - result[3] + 1;;
-
-            _.each(toMerge, function(e) {
-                if (e.x == result[2] && e.y == result[3]) {
-                    Squares.update(e._id, {
-                        $set: {
-                            height: height,
-                            width: width,
-                            selected: false
-                        }
-                    });
-                } else {
-                    Squares.remove(e._id);
-                }
-            });
-
-            Grid.startSelect = null;
-        },
-
-        'click .text-button': function() {
-            var original;
-
-            if (Grid.startSelect.value !== undefined) {
-                original = Grid.startSelect.value;
-            } else {
-                original = "";
-            }
-
-            bootbox.prompt('Input', 'Cancel', 'Save', function(input) {
-            	if (input == null) {
-            		return;
-            	}
-            	
-                if (!isNaN(parseFloat(input)) && isFinite(input)) {
-                    input = parseFloat(input)
-                }
-
-                Squares.update(Grid.startSelect._id, {
-                    $set: {
-                        value: input
-                    }
-                });
-
-            }, original);
-        },
-
-        'click .function-button': function() {
-            var original;
-
-            if (Grid.startSelect.fn !== undefined) {
-                original = Grid.startSelect.fn;
-            } else {
-                original = "var a = $(window).height()\nreturn a;";
-            }
-
-            bootbox.promptFn('Attach Javascript Function', 'Cancel', 'Save', function(statements) {
-                if (statements == null) {
-                    return;
-                }
-
-                //TODO
-                //replace with cell reference
-
-                var fn = new Function('$', statements);
-
-                if (typeof fn == 'function') {
-                    Squares.update(Grid.startSelect._id, {
-                        $set: {
-                            fn: statements,
-                            value: fn($)
-                        }
-                    });
-                } else {
-                    alert('Invalid function');
-                }
-
-            }, original);
-        },
-
-        'click .delete-button': function() {
-            Squares.update(Grid.startSelect._id, {
-                $unset: {
-                    value: 1,
-                    fn: 1
-                }
-            });
-        }
+        'click li.merge-button': Action.merge,
+        'click li.edit-button': Action.edit,
+        'click li.function-button': Action.editFunction,
+        'click li.delete-button': Action.delete
     };
+
+
+    Meteor.startup(function() {
+        //No idea when this will load.
+        setTimeout(function() {
+            Meteor.Keybindings.add({
+                'delete': function(e) {
+                    if ($(e.target).is('body')) {
+                        e.preventDefault();
+                        Action.delete();
+                    }
+                },
+                'backspace': function(e) {
+                    if ($(e.target).is('body')) {
+                        e.preventDefault();
+                        Action.delete();
+                    }
+                },
+                'super+c': function() {
+                    if ($(e.target).is('body')) {
+                        Action.copy();
+                    }
+                },
+                'ctrl+c': function() {
+                    if ($(e.target).is('body')) {
+                        Action.copy();
+                    }
+                },
+                'super+v': function() {
+                    if ($(e.target).is('body')) {
+                        Action.paste();
+                    }
+                },
+                'ctrl+v': function() {
+                    if ($(e.target).is('body')) {
+                        Action.paste();
+                    }
+                },
+                'super+x': function() {
+                    if ($(e.target).is('body')) {
+                        Action.cut();
+                    }
+                },
+                'ctrl+x': function() {
+                    if ($(e.target).is('body')) {
+                        Action.cut();
+                    }
+                },
+                'f': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.editFunction();
+                    }
+                },
+                'enter': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.edit();
+                    }
+                },
+                'r': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.refresh();
+                    }
+                },
+                'up': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.moveCursor('up');
+                    }
+                },
+                'down': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.moveCursor('down');
+                    }
+                },
+                'left': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.moveCursor('left');
+                    }
+                },
+                'right': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.moveCursor('right');
+                    }
+                }
+            });
+        }, 500);
+    });
 }
 
 if (Meteor.isServer) {

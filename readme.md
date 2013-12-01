@@ -17,7 +17,11 @@ Features Overview
 * 'Shift + Click' to select multiple cells
 * 'Cmd + C' to Copy
 * 'Cmd + V' to Paste
+* 'Cmd + X' to Cut
 * 'Backspace' to clear cell's value
+* 'e' to edit text
+* 'f' to edit function
+* 'r' to re-compute value
 
 * Merge multiple selected cells
 * Accept javascript code as input. (requires 'return' statement)

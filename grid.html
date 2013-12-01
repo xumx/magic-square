@@ -26,6 +26,30 @@
 
 <template name="menu">
 
+    <div style="position:absolute; top:{{ypos}}px;left:{{xpos}}px">
+        <a class='open-close-button ctrl' tabindex='1'></a>
+
+        <ul class='tip ctrl'>
+            <li class='slice edit-button'>
+                <div><i class="glyphicon glyphicon-edit"></i>
+                </div>
+            </li>
+            <li class='slice function-button'>
+                <div>ƒ(x)</div>
+            </li>
+            <li class='slice delete-button'>
+                <div><i class="glyphicon glyphicon-trash"></i>
+                </div>
+            </li>
+            <li class='slice merge-button'>
+                <div>Merge</div>
+            </li>
+            <li class='slice'>
+                <div>☀</div>
+            </li>
+        </ul>
+    </div>
+    <!-- 
     <div class="menu-container" style="top:{{ypos}}px;left:{{xpos}}px">
         <button type="button" class="btn btn-default merge-button {{#if singleSelection}}hide{{/if}}">
             <span class="glyphicon glyphicon-compressed"></span>
@@ -42,6 +66,6 @@
         <button type="button" class="btn btn-danger delete-button">
             <span class="glyphicon glyphicon-trash"></span>
         </button>
-    </div>
+    </div> -->
 
 </template>
