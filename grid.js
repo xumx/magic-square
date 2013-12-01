@@ -40,7 +40,7 @@ if (Meteor.isClient) {
 
     Action = {
         copy: function() {
-            Grid.copy = _.pick(Grid.startSelect, 'fn', 'value');
+            Grid.copy = _.pick(Grid.startSelect, 'fn', 'value', 'style');
         },
         paste: function() {
             Squares.update(Grid.startSelect._id, {
@@ -55,18 +55,23 @@ if (Meteor.isClient) {
             Squares.update(Grid.startSelect._id, {
                 $unset: {
                     value: 1,
-                    fn: 1
+                    fn: 1,
+                    style: 1
                 }
             });
         },
         refresh: function() {
             var fn = new Function('$', Grid.startSelect.fn);
 
-            Squares.update(Grid.startSelect._id, {
-                $set: {
-                    value: fn($),
-                }
-            });
+            if (Grid.startSelect.url) {
+                Action.scrape(Grid.startSelect.url);
+            } else {
+                Squares.update(Grid.startSelect._id, {
+                    $set: {
+                        value: fn($),
+                    }
+                });
+            }
         },
         refreshAll: function() {
             //Placeholder
@@ -164,18 +169,33 @@ if (Meteor.isClient) {
 
                 //TODO
                 //replace with cell reference
-
                 var fn = new Function('$', statements);
 
                 if (typeof fn == 'function') {
                     Squares.update(Grid.startSelect._id, {
                         $set: {
-                            fn: statements,
-                            value: fn($)
+                            fn: statements
                         }
                     });
                 } else {
                     alert('Invalid function');
+                }
+
+
+                if (Grid.startSelect.url) {
+
+                    //Run function on server
+                    Action.scrape(Grid.startSelect.url);
+
+                } else {
+
+                    //Run function locally
+                    Squares.update(Grid.startSelect._id, {
+                        $set: {
+                            value: fn($)
+                        }
+                    });
+
                 }
 
             }, original);
@@ -194,7 +214,7 @@ if (Meteor.isClient) {
                     return;
                 }
 
-                css = css.replace(/\n/g,'');
+                css = css.replace(/\n/g, '');
 
                 Squares.update(Grid.startSelect._id, {
                     $set: {

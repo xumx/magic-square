@@ -4,9 +4,11 @@
     margin: 0;
     display: block;
     position: absolute;
+    
     font-size: 2em;
-    text-align: center;
     line-height: 100px;
+    text-align: center;
+    
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -178,6 +180,8 @@ a.ctrl:focus {
 }
 /* circular menu */
  .tip {
+    font-size: 2em;
+
     position: absolute;
     top: 50px;
     left: 50px;
@@ -308,13 +312,13 @@ give them a red background to see them */
     line-height: 1.4;
 }
 /* arrow for middle link */
- .slice:nth-child(3) div:after {
+ .slice:hover div:after {
     position: absolute;
     top: 13%;
     left: 50%;
     margin: -.25em;
-    width: .5em;
-    height: .5em;
+    width: .7em;
+    height: .7em;
 
     -webkit-transform: rotate(45deg);
     -moz-transform: rotate(45deg);
