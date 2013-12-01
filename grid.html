@@ -17,7 +17,7 @@
 
     {{#each grid}}
     <div class="square {{#if selected}}selected{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px;{{style}}">
-        {{#if value}} {{value}} {{else}} {{fn}} {{/if}}
+        {{#if value}} {{read value}} {{/if}}
     </div>
     {{/each}} {{> menu}}
 

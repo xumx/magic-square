@@ -27,8 +27,12 @@ if (Meteor.isClient) {
         return this.width * 100;
     }
 
-    Template.hello.evaluate = function(fn) {
-        return fn();
+    Template.hello.read = function(value) {
+        if (value.match(/^https?:\/\/(?:[a-z\-]+\.)+[a-z]{2,6}(?:\/[^\/#?]+)+\.(?:jpe?g|gif|png)$/)) {
+            return new Handlebars.SafeString('<img src="' + value + '">');
+        }
+
+        return value;
     }
 
     Grid = {
@@ -136,13 +140,21 @@ if (Meteor.isClient) {
                 original = "";
             }
 
-            bootbox.prompt('Input', 'Cancel', 'Save', function(input) {
+            bootbox.prompt('Raw Input or URL to crawl', 'Cancel', 'Save', function(input) {
                 if (input == null) {
                     return;
                 }
 
                 if (!isNaN(parseFloat(input)) && isFinite(input)) {
                     input = parseFloat(input)
+                }
+
+                if (input.match(/^(http|https):\/\/[^"]+$/)) {
+                    Squares.update(Grid.startSelect._id, {
+                        $set: {
+                            url: input
+                        }
+                    });
                 }
 
                 Squares.update(Grid.startSelect._id, {
@@ -267,6 +279,12 @@ if (Meteor.isClient) {
             Grid.startSelect = null;
         },
         scrape: function(url) {
+            Squares.update(Grid.startSelect._id, {
+                $set: {
+                    url: url
+                }
+            });
+
             Meteor.call('scrape', url, Grid.startSelect.fn, Grid.startSelect._id)
         }
     }
@@ -397,32 +415,32 @@ if (Meteor.isClient) {
                         Action.delete();
                     }
                 },
-                'super+c': function() {
+                'super+c': function(e) {
                     if ($(e.target).is('body')) {
                         Action.copy();
                     }
                 },
-                'ctrl+c': function() {
+                'ctrl+c': function(e) {
                     if ($(e.target).is('body')) {
                         Action.copy();
                     }
                 },
-                'super+v': function() {
+                'super+v': function(e) {
                     if ($(e.target).is('body')) {
                         Action.paste();
                     }
                 },
-                'ctrl+v': function() {
+                'ctrl+v': function(e) {
                     if ($(e.target).is('body')) {
                         Action.paste();
                     }
                 },
-                'super+x': function() {
+                'super+x': function(e) {
                     if ($(e.target).is('body')) {
                         Action.cut();
                     }
                 },
-                'ctrl+x': function() {
+                'ctrl+x': function(e) {
                     if ($(e.target).is('body')) {
                         Action.cut();
                     }
