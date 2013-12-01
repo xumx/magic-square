@@ -26,19 +26,19 @@ Features Overview
 * Merge multiple selected cells
 * Accept javascript code as input. (requires 'return' statement)
 * Accept CSS style for each individual cell
+* Accept Server side web crawling using input URL and Javascript function
+
 
 In the pipeline
 ----------------
-* Serverside execution
+* Multiple canvas instance (pastebin style)
+* Option for password protected canvas
 
+* Accept Youtube URL?
 
 * Increase canvas size (1024 * 1024)?
 * Panning feature for the canvas
 * Sidebar features
-
-* Multiple canvas instance (pastebin style)
-* Option for password protected canvas
-
 
 
 Copyright 2013 Max Xu
