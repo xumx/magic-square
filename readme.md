@@ -25,12 +25,12 @@ Features Overview
 * Use arrow keys to move cursor
 * Merge multiple selected cells
 * Accept javascript code as input. (requires 'return' statement)
-
+* Accept CSS style for each individual cell
 
 In the pipeline
 ----------------
 * Serverside execution
-* Style for individual cells
+
 
 * Increase canvas size (1024 * 1024)?
 * Panning feature for the canvas

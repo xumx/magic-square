@@ -186,10 +186,13 @@ if (Meteor.isClient) {
             if (Grid.startSelect.style !== undefined) {
                 original = Grid.startSelect.style;
             } else {
-                original = "";
+                original = "font-size: 2em;\nline-height: 100px;\ntext-align: center;";
             }
 
             bootbox.promptFn('Custom Style', 'Cancel', 'Save', function(css) {
+                if (css == null) {
+                    return;
+                }
 
                 css = css.replace(/\n/g,'');
 
