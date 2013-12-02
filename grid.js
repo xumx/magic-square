@@ -54,6 +54,8 @@ if (Meteor.isClient) {
             if (value.match(/(crawl|scrape) ^(http|https):\/\/[^"]+$/)) {
                 return new Handlebars.SafeString('<span class="glyphicon glyphicon-link">');
             }
+
+            return new Handlebars.SafeString(value);
         }
 
         return value;
@@ -72,7 +74,7 @@ if (Meteor.isClient) {
 
     Action = {
         copy: function() {
-            Grid.copy = _.pick(Grid.startSelect, 'fn', 'value', 'style');
+            Grid.copy = _.pick(Grid.startSelect, 'fn', 'value', 'style', 'link', 'url');
         },
         paste: function() {
             Squares.update(Grid.startSelect._id, {
@@ -112,10 +114,10 @@ if (Meteor.isClient) {
             bootbox.prompt(options);
         },
         refresh: function() {
-            var fn = new Function(['$', 'link', 'get'], Grid.startSelect.fn);
+            var fn = new Function(['$', 'link'], Grid.startSelect.fn);
 
             if (Grid.startSelect.url) {
-                Action.scrape(Grid.startSelect.url);
+                Action.fetch(Grid.startSelect.url);
             } else {
                 Squares.update(Grid.startSelect._id, {
                     $set: {
@@ -206,16 +208,16 @@ if (Meteor.isClient) {
                                 var fn = new Function(['$', 'link'], e.fn);
 
                                 if (e.url) {
-                                    Action.scrape(e.url);
+                                    Action.fetch(e.url);
                                 } else {
                                     Squares.update(e._id, {
                                         $set: {
-                                            value: fn($, Grid.startSelect),
+                                            value: fn($, Squares.findOne(Grid.startSelect._id)),
                                         }
                                     });
                                 }
                             }
-                        });
+                        }).fetch();
                     }
                 }
             }
@@ -250,7 +252,7 @@ if (Meteor.isClient) {
                     if (Grid.startSelect.url) {
 
                         //Run function on server
-                        Action.scrape(Grid.startSelect.url);
+                        Action.fetch(Grid.startSelect.url);
 
                     } else {
 
@@ -334,14 +336,14 @@ if (Meteor.isClient) {
 
             Grid.startSelect = null;
         },
-        scrape: function(url) {
+        fetch: function(url) {
             Squares.update(Grid.startSelect._id, {
                 $set: {
                     url: url
                 }
             });
 
-            Meteor.call('scrape', url, Grid.startSelect.fn, Grid.startSelect._id)
+            Meteor.call('fetch', url, Grid.startSelect.fn, Grid.startSelect._id)
         }
     }
 
@@ -550,14 +552,28 @@ if (Meteor.isServer) {
     var cheerio = Meteor.require('cheerio');
 
     Meteor.methods({
-        scrape: function(url, statements, _id) {
-            var $ = cheerio.load(Meteor.http.get(url).content);
-            var fn = new Function('$', statements);
+        fetch: function(url, statements, _id) {
 
-            Squares.update(_id, {
-                $set: {
-                    value: fn($, Squares.findOne(Grid.startSelect.link)),
+            Meteor.http.get(url, function(error, response) {
+                var $, data, fn;
+
+                if (response.headers['content-type'].match(/text\/html/)) {
+
+                    $ = cheerio.load(response.content);
+                    fn = new Function('$', statements);
+
+                } else if (response.headers['content-type'].match(/application\/json/)) {
+
+                    $ = JSON.parse(response.content)
+                    fn = new Function('data', statements);
+
                 }
+
+                Squares.update(_id, {
+                    $set: {
+                        value: fn($),
+                    }
+                });
             });
         },
         clear: function() {
