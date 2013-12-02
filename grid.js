@@ -112,14 +112,14 @@ if (Meteor.isClient) {
             bootbox.prompt(options);
         },
         refresh: function() {
-            var fn = new Function('$', Grid.startSelect.fn);
+            var fn = new Function(['$', 'link', 'get'], Grid.startSelect.fn);
 
             if (Grid.startSelect.url) {
                 Action.scrape(Grid.startSelect.url);
             } else {
                 Squares.update(Grid.startSelect._id, {
                     $set: {
-                        value: fn($),
+                        value: fn($, Squares.findOne(Grid.startSelect.link)),
                     }
                 });
             }
@@ -189,11 +189,34 @@ if (Meteor.isClient) {
                         });
                     }
 
-                    Squares.update(Grid.startSelect._id, {
-                        $set: {
-                            value: input
-                        }
-                    });
+                    //if there is a change
+                    if (input != Grid.startSelect.value) {
+                        Squares.update(Grid.startSelect._id, {
+                            $set: {
+                                value: input
+                            }
+                        });
+
+                        //TODO Recursive propagation
+                        //Propagate changes
+                        Squares.find({
+                            link: Grid.startSelect._id
+                        }, {
+                            transform: function(e) {
+                                var fn = new Function(['$', 'link'], e.fn);
+
+                                if (e.url) {
+                                    Action.scrape(e.url);
+                                } else {
+                                    Squares.update(e._id, {
+                                        $set: {
+                                            value: fn($, Grid.startSelect),
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
                 }
             }
 
@@ -211,9 +234,7 @@ if (Meteor.isClient) {
                         return;
                     }
 
-                    //TODO
-                    //replace with cell reference
-                    var fn = new Function('$', statements);
+                    var fn = new Function(['$', 'link'], statements);
 
                     if (typeof fn == 'function') {
                         Squares.update(Grid.startSelect._id, {
@@ -236,7 +257,7 @@ if (Meteor.isClient) {
                         //Run function locally
                         Squares.update(Grid.startSelect._id, {
                             $set: {
-                                value: fn($)
+                                value: fn($, Squares.findOne(Grid.startSelect.link)),
                             }
                         });
                     }
@@ -326,6 +347,7 @@ if (Meteor.isClient) {
 
     Template.canvas.events({
         'click .square': function(e) {
+
             if (e.shiftKey) {
                 Grid.endSelect = this;
 
@@ -382,6 +404,12 @@ if (Meteor.isClient) {
                 Session.set('menu.x', (Grid.startSelect.x + Grid.endSelect.x) / 2);
                 Session.set('menu.y', (Grid.startSelect.y + Grid.endSelect.y) / 2);
 
+            } else if (e.metaKey || e.ctrlKey) {
+                Squares.update(Grid.startSelect._id, {
+                    $set: {
+                        link: this._id
+                    }
+                });
             } else {
 
                 Grid.startSelect = this;
@@ -389,7 +417,7 @@ if (Meteor.isClient) {
                 Session.set('menu.x', this.x + (this.width - 1) / 2);
                 Session.set('menu.y', this.y + (this.height - 1) / 2);
 
-                
+
             }
         }
     });
@@ -528,7 +556,7 @@ if (Meteor.isServer) {
 
             Squares.update(_id, {
                 $set: {
-                    value: fn($)
+                    value: fn($, Squares.findOne(Grid.startSelect.link)),
                 }
             });
         },
