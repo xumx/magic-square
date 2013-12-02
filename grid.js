@@ -158,15 +158,13 @@ if (Meteor.isClient) {
             });
 
             if (newSquare) {
-                Grid.startSelect.selected = false;
-                newSquare.selected = true;
+                // Grid.startSelect.selected = false;
+                // newSquare.selected = true;
 
                 Grid.startSelect = newSquare;
 
                 Session.set('menu.x', Grid.startSelect.x + (Grid.startSelect.width - 1) / 2);
                 Session.set('menu.y', Grid.startSelect.y + (Grid.startSelect.height - 1) / 2);
-
-                Session.set('singleSelection', true); //temp
             }
         },
         edit: function() {
@@ -174,7 +172,7 @@ if (Meteor.isClient) {
             var options = {
                 title: 'Raw Input or URL to crawl',
                 inputType: 'text',
-                message: '<b>You can try these examples:</b><br><ul><li>map of singapore management university</li><li>http://www.youtube.com/watch?v=tqgO-SwnIEY</li><li>http://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png</li></ul>',
+                instruction: $('<b>You can try these examples:</b><br><ul><li>map of singapore management university</li><li>http://www.youtube.com/watch?v=tqgO-SwnIEY</li><li>http://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png</li></ul>'),
                 value: Grid.startSelect.value,
                 callback: function(input) {
                     if (input == null) {
@@ -183,9 +181,7 @@ if (Meteor.isClient) {
 
                     if (!isNaN(parseFloat(input)) && isFinite(input)) {
                         input = parseFloat(input)
-                    }
-
-                    if (input.match(/^(http|https):\/\/[^"]+$/)) {
+                    } else if (input.match(/^(http|https):\/\/[^"]+$/)) {
                         Squares.update(Grid.startSelect._id, {
                             $set: {
                                 url: input
@@ -198,7 +194,6 @@ if (Meteor.isClient) {
                             value: input
                         }
                     });
-
                 }
             }
 
@@ -334,8 +329,6 @@ if (Meteor.isClient) {
             if (e.shiftKey) {
                 Grid.endSelect = this;
 
-                Session.set('singleSelection', false); //temp
-
                 var largerX, largerY, smallerX, smallerY;
 
                 if (Grid.endSelect.x > Grid.startSelect.x) {
@@ -396,27 +389,7 @@ if (Meteor.isClient) {
                 Session.set('menu.x', this.x + (this.width - 1) / 2);
                 Session.set('menu.y', this.y + (this.height - 1) / 2);
 
-                Session.set('singleSelection', true); //temp
-
-                Grid.startSelect.selected = true;
-
-                // Squares.find({
-                //     selected: true
-                // }, {
-                //     transform: function(e) {
-                //         Squares.update(e._id, {
-                //             $set: {
-                //                 selected: false
-                //             }
-                //         });
-                //     }
-                // }).fetch();
-
-                // Squares.update(this._id, {
-                //     $set: {
-                //         selected: true
-                //     }
-                // });
+                
             }
         }
     });
@@ -428,10 +401,6 @@ if (Meteor.isClient) {
     Template.menu.ypos = function() {
         return Session.get('menu.y') * 100;
     };
-
-    Template.menu.singleSelection = function() {
-        return Session.get('singleSelection');
-    }
 
     Template.menu.events = {
         'click li.merge-button': Action.merge,
