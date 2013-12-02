@@ -1,8 +1,9 @@
 Squares = new Meteor.Collection('square');
+Stencils = new Meteor.Collection('stencil');
 
 if (Meteor.isClient) {
 
-    Template.hello.grid = function() {
+    Template.canvas.squares = function() {
         return Squares.find({}, {
             sort: {
                 y: 1,
@@ -11,28 +12,55 @@ if (Meteor.isClient) {
         });
     };
 
-    Template.hello.xpos = function() {
+    Template.canvas.xpos = function() {
         return this.x * 100
     }
 
-    Template.hello.ypos = function() {
+    Template.canvas.ypos = function() {
         return this.y * 100
     }
 
-    Template.hello.heightpx = function() {
+    Template.canvas.heightpx = function() {
         return this.height * 100;
     }
 
-    Template.hello.widthpx = function() {
+    Template.canvas.widthpx = function() {
         return this.width * 100;
     }
 
-    Template.hello.read = function(value) {
-        if (value.match(/^https?:\/\/(?:[a-z\-]+\.)+[a-z]{2,6}(?:\/[^\/#?]+)+\.(?:jpe?g|gif|png)$/)) {
-            return new Handlebars.SafeString('<img src="' + value + '">');
+    Template.canvas.read = function(value) {
+        var query;
+
+        if (typeof value == 'string') {
+            if (value.match(/^https?:\/\/(?:[a-z\-]+\.)+[a-z]{2,6}(?:\/[^\/#?]+)+\.(?:jpe?g|gif|png)$/)) {
+                return new Handlebars.SafeString('<img src="' + value + '">');
+            }
+
+            if (value.match(/^(map|map of) /)) {
+                query = value.replace(/^(map|map of) /, '');
+
+                return new Handlebars.SafeString('<img src="http://maps.googleapis.com/maps/api/staticmap?center=' + query + '&markers=color:green|' + query + '&zoom=14&size=' + this.height * 100 + 'x' + this.width * 100 + '&sensor=false">');
+            }
+
+            if (value.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/)) {
+                var match = value.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+                if (match && match[2].length == 11) {
+                    return new Handlebars.SafeString('<iframe width="' + this.width * 100 + '" height="' + this.height * 100 + '" src="//www.youtube.com/embed/' + match[2] + '" frameborder="0" allowfullscreen></iframe>');
+                } else {
+                    return value;
+                }
+            }
+
+            if (value.match(/(crawl|scrape) ^(http|https):\/\/[^"]+$/)) {
+                return new Handlebars.SafeString('<span class="glyphicon glyphicon-link">');
+            }
         }
 
         return value;
+    }
+
+    Template.toolbox.stencils = function() {
+        return Stencils.find({});
     }
 
     Grid = {
@@ -63,6 +91,25 @@ if (Meteor.isClient) {
                     style: 1
                 }
             });
+        },
+        clearCanvas: function() {
+            Meteor.call('clear');
+        },
+        addStencil: function() {
+            options = {
+                title: 'Title for Stencil',
+                inputType: 'text',
+                callback: function(title) {
+                    if (title == null) return;
+
+                    var stencil = _.pick(Grid.startSelect, 'fn', 'value', 'style');
+                    stencil.title = title;
+
+                    Stencils.insert(stencil);
+                }
+            }
+
+            bootbox.prompt(options);
         },
         refresh: function() {
             var fn = new Function('$', Grid.startSelect.fn);
@@ -111,17 +158,8 @@ if (Meteor.isClient) {
             });
 
             if (newSquare) {
-                Squares.update(Grid.startSelect._id, {
-                    $set: {
-                        selected: false
-                    }
-                });
-
-                Squares.update(newSquare._id, {
-                    $set: {
-                        selected: true
-                    }
-                });
+                Grid.startSelect.selected = false;
+                newSquare.selected = true;
 
                 Grid.startSelect = newSquare;
 
@@ -132,108 +170,110 @@ if (Meteor.isClient) {
             }
         },
         edit: function() {
-            var original;
 
-            if (Grid.startSelect.value !== undefined) {
-                original = Grid.startSelect.value;
-            } else {
-                original = "";
-            }
+            var options = {
+                title: 'Raw Input or URL to crawl',
+                inputType: 'text',
+                message: '<b>You can try these examples:</b><br><ul><li>map of singapore management university</li><li>http://www.youtube.com/watch?v=tqgO-SwnIEY</li><li>http://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png</li></ul>',
+                value: Grid.startSelect.value,
+                callback: function(input) {
+                    if (input == null) {
+                        return;
+                    }
 
-            bootbox.prompt('Raw Input or URL to crawl', 'Cancel', 'Save', function(input) {
-                if (input == null) {
-                    return;
-                }
+                    if (!isNaN(parseFloat(input)) && isFinite(input)) {
+                        input = parseFloat(input)
+                    }
 
-                if (!isNaN(parseFloat(input)) && isFinite(input)) {
-                    input = parseFloat(input)
-                }
+                    if (input.match(/^(http|https):\/\/[^"]+$/)) {
+                        Squares.update(Grid.startSelect._id, {
+                            $set: {
+                                url: input
+                            }
+                        });
+                    }
 
-                if (input.match(/^(http|https):\/\/[^"]+$/)) {
                     Squares.update(Grid.startSelect._id, {
                         $set: {
-                            url: input
+                            value: input
                         }
                     });
+
                 }
+            }
 
-                Squares.update(Grid.startSelect._id, {
-                    $set: {
-                        value: input
-                    }
-                });
-
-            }, original);
+            bootbox.prompt(options);
         },
         editFunction: function() {
-            var original;
 
-            if (Grid.startSelect.fn !== undefined) {
-                original = Grid.startSelect.fn;
-            } else {
-                original = "var a = $(window).height()\nreturn a;";
+            var options = {
+                title: 'Attach a Javascript Function',
+                inputType: 'function',
+                mode: 'javascript',
+                value: Grid.startSelect.fn || "var a = $(window).height()\nreturn a;",
+                callback: function(statements) {
+                    if (statements == null) {
+                        return;
+                    }
+
+                    //TODO
+                    //replace with cell reference
+                    var fn = new Function('$', statements);
+
+                    if (typeof fn == 'function') {
+                        Squares.update(Grid.startSelect._id, {
+                            $set: {
+                                fn: statements
+                            }
+                        });
+                    } else {
+                        alert('Invalid function');
+                    }
+
+
+                    if (Grid.startSelect.url) {
+
+                        //Run function on server
+                        Action.scrape(Grid.startSelect.url);
+
+                    } else {
+
+                        //Run function locally
+                        Squares.update(Grid.startSelect._id, {
+                            $set: {
+                                value: fn($)
+                            }
+                        });
+                    }
+                }
             }
 
-            bootbox.promptFn('Attach Javascript Function', 'Cancel', 'Save', function(statements) {
-                if (statements == null) {
-                    return;
-                }
+            bootbox.prompt(options);
 
-                //TODO
-                //replace with cell reference
-                var fn = new Function('$', statements);
-
-                if (typeof fn == 'function') {
-                    Squares.update(Grid.startSelect._id, {
-                        $set: {
-                            fn: statements
-                        }
-                    });
-                } else {
-                    alert('Invalid function');
-                }
-
-
-                if (Grid.startSelect.url) {
-
-                    //Run function on server
-                    Action.scrape(Grid.startSelect.url);
-
-                } else {
-
-                    //Run function locally
-                    Squares.update(Grid.startSelect._id, {
-                        $set: {
-                            value: fn($)
-                        }
-                    });
-
-                }
-
-            }, original);
         },
         editStyle: function() {
-            var original;
+            var options = {
+                title: 'Custom CSS Style',
+                inputType: 'function',
+                mode: 'css',
+                value: Grid.startSelect.style || "font-size: 2em;\nline-height: 100px;\ntext-align: center;",
+                callback: function(css) {
+                    if (css == null) {
+                        return;
+                    }
 
-            if (Grid.startSelect.style !== undefined) {
-                original = Grid.startSelect.style;
-            } else {
-                original = "font-size: 2em;\nline-height: 100px;\ntext-align: center;";
+                    // css = css.replace(/\n/g, '');
+
+                    Squares.update(Grid.startSelect._id, {
+                        $set: {
+                            style: css,
+                        }
+                    });
+                }
             }
 
-            bootbox.promptFn('Custom Style', 'Cancel', 'Save', function(css) {
-                if (css == null) {
-                    return;
-                }
+            bootbox.prompt(options);
 
-                css = css.replace(/\n/g, '');
-
-                Squares.update(Grid.startSelect._id, {
-                    $set: {
-                        style: css,
-                    }
-                });
-            }, original);
         },
         merge: function() {
             var toMerge = Squares.find({
@@ -289,8 +329,7 @@ if (Meteor.isClient) {
         }
     }
 
-
-    Template.hello.events({
+    Template.canvas.events({
         'click .square': function(e) {
             if (e.shiftKey) {
                 Grid.endSelect = this;
@@ -315,7 +354,9 @@ if (Meteor.isClient) {
                     largerY = Grid.startSelect.y;
                 }
 
-                Squares.find({}, {
+                Squares.find({
+                    selected: true
+                }, {
                     transform: function(e) {
                         Squares.update(e._id, {
                             $set: {
@@ -357,23 +398,25 @@ if (Meteor.isClient) {
 
                 Session.set('singleSelection', true); //temp
 
-                Squares.find({
-                    selected: true
-                }, {
-                    transform: function(e) {
-                        Squares.update(e._id, {
-                            $set: {
-                                selected: false
-                            }
-                        });
-                    }
-                }).fetch();
+                Grid.startSelect.selected = true;
 
-                Squares.update(this._id, {
-                    $set: {
-                        selected: true
-                    }
-                });
+                // Squares.find({
+                //     selected: true
+                // }, {
+                //     transform: function(e) {
+                //         Squares.update(e._id, {
+                //             $set: {
+                //                 selected: false
+                //             }
+                //         });
+                //     }
+                // }).fetch();
+
+                // Squares.update(this._id, {
+                //     $set: {
+                //         selected: true
+                //     }
+                // });
             }
         }
     });
@@ -398,8 +441,24 @@ if (Meteor.isClient) {
         'click li.style-button': Action.editStyle
     };
 
+    Template.toolbox.events = {
+        'click button.add-stencil-button': Action.addStencil,
+        'click button.clear-canvas-button': Action.clearCanvas
+    }
 
     Meteor.startup(function() {
+        Squares.find({
+            selected: true
+        }, {
+            transform: function(e) {
+                Squares.update(e._id, {
+                    $set: {
+                        selected: false
+                    }
+                });
+            }
+        }).fetch();
+
         //No idea when this will load.
         setTimeout(function() {
             Meteor.Keybindings.add({
@@ -460,6 +519,11 @@ if (Meteor.isClient) {
                         Action.refresh();
                     }
                 },
+                'c': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.editStyle();
+                    }
+                },
                 'up': function(e) {
                     if ($(e.target).is('body')) {
                         Action.moveCursor('up');
@@ -498,16 +562,32 @@ if (Meteor.isServer) {
                     value: fn($)
                 }
             });
+        },
+        clear: function() {
+            Squares.remove({});
+            // Initialize empty cells
+            if (Squares.find().count() == 0) {
+                for (var i = 0; i < 15; i++) {
+                    for (var j = 0; j < 15; j++) {
+                        Squares.insert({
+                            x: i,
+                            y: j,
+                            height: 1,
+                            width: 1,
+                            selected: false
+                        });
+                    };
+                };
+            }
         }
     });
 
     Meteor.startup(function() {
-        // Squares.remove({})
 
         // Initialize empty cells
         if (Squares.find().count() == 0) {
             for (var i = 0; i < 15; i++) {
-                for (var j = 0; j < 10; j++) {
+                for (var j = 0; j < 15; j++) {
                     Squares.insert({
                         x: i,
                         y: j,

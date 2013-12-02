@@ -8,14 +8,43 @@
             <a href="https://github.com/xumx/magic-square">Fork me on GitHub</a>
         </div>
     </div>
-    <div class="main-container">
-        {{> hello}}
+
+    <div class="navmenu navmenu-default navmenu-fixed-left offcanvas" style="width:100px;">
+        {{> toolbox}}
     </div>
+
+    <div class="btn btn-danger sidebar-toggle" data-toggle="offcanvas" data-target=".navmenu" data-canvas="body">
+        <span class="glyphicon glyphicon-forward"></span>
+    </div>
+
+    <div class="main-container">
+        {{> canvas}}
+    </div>
+
+
 </body>
 
-<template name="hello">
+<template name="toolbox">
+    <ul class="nav navmenu-nav">
+        <li>
+            <button class="btn btn-danger clear-canvas-button" style="height:100px;width:100px;border-radius:0;">Clear All</button>
+        </li>
+        <li>
+            <button class="btn btn-warning add-stencil-button" style="height:100px;width:100px;border-radius:0;">Add Stencil</button>
+        </li>
+        {{#each stencils}}
+        <li>
+            <div class="square" style="position:relative; {{style}}">
+                {{title}}
+            </div>
+        </li>
+        {{/each}}
+    </ul>
+</template>
 
-    {{#each grid}}
+<template name="canvas">
+
+    {{#each squares}}
     <div class="square {{#if selected}}selected{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px;{{style}}">
         {{#if value}} {{read value}} {{/if}}
     </div>
@@ -51,23 +80,5 @@
             </li>
         </ul>
     </div>
-    <!-- 
-    <div class="menu-container" style="top:{{ypos}}px;left:{{xpos}}px">
-        <button type="button" class="btn btn-default merge-button {{#if singleSelection}}hide{{/if}}">
-            <span class="glyphicon glyphicon-compressed"></span>
-        </button>
-
-        <button type="button" class="btn btn-default text-button {{#unless singleSelection}}hide{{/unless}}">
-            <span class="glyphicon glyphicon-font"></span>
-        </button>
-
-        <button type="button" class="btn btn-default function-button {{#unless singleSelection}}hide{{/unless}}">
-            <span class="glyphicon">fn</span>
-        </button>
-
-        <button type="button" class="btn btn-danger delete-button">
-            <span class="glyphicon glyphicon-trash"></span>
-        </button>
-    </div> -->
 
 </template>
