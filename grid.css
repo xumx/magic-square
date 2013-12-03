@@ -23,8 +23,11 @@
 .square.selected {
     background-color: #d7ffd5;
 }
+.square.linked {
+    background-color: #faff8f;
+}
 .sidebar-toggle {
-    position: absolute;
+    position: fixed;
     top:65px;
     left: -20px;
     width: 60px;
@@ -42,6 +45,7 @@ body, html, .main-container {
     padding: 0;
     margin: 0;
 }
+
 /*====*/
 
 /* Left will inherit from right (so we don't need to duplicate code */
