@@ -51,10 +51,6 @@ if (Meteor.isClient) {
                 }
             }
 
-            if (value.match(/(crawl|scrape) (http|https):\/\/[^"]+$/)) {
-                return new Handlebars.SafeString('<span class="glyphicon glyphicon-link">');
-            }
-
             return new Handlebars.SafeString(value);
         }
 
@@ -97,21 +93,23 @@ if (Meteor.isClient) {
         resetCanvas: function() {
             Meteor.call('reset');
         },
+
         addStencil: function() {
-            options = {
+            bootbox.prompt({
                 title: 'Title for Stencil',
                 inputType: 'text',
                 callback: function(title) {
                     if (title == null) return;
-
-                    var stencil = _.pick(Grid.startSelect, 'fn', 'value', 'style');
+                    var stencil = _.pick(Grid.startSelect, 'fn', 'value', 'style', 'url');
                     stencil.title = title;
 
                     Stencils.insert(stencil);
                 }
-            }
+            });
+        },
 
-            bootbox.prompt(options);
+        copyStencil: function(square) {
+            Grid.copy = _.pick(square, 'fn', 'value', 'style', 'url');
         },
         refresh: function(target) {
             if (target.url) {
@@ -214,9 +212,8 @@ if (Meteor.isClient) {
             }
         },
         edit: function() {
-
-            var options = {
-                title: 'Raw Input or URL to crawl',
+            bootbox.prompt({
+                title: 'Cell Value',
                 inputType: 'text',
                 instruction: $('<b>You can try these examples:</b><br><ul><li>map of singapore management university</li><li>http://www.youtube.com/watch?v=tqgO-SwnIEY</li><li>http://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png</li></ul>'),
                 value: Grid.startSelect.value,
@@ -227,12 +224,6 @@ if (Meteor.isClient) {
 
                     if (!isNaN(parseFloat(input)) && isFinite(input)) {
                         input = parseFloat(input)
-                    } else if (input.match(/^(http|https):\/\/[^"]+$/)) {
-                        Squares.update(Grid.startSelect._id, {
-                            $set: {
-                                url: input
-                            }
-                        });
                     }
 
                     //if there is a change
@@ -256,16 +247,41 @@ if (Meteor.isClient) {
                         }).fetch();
                     }
                 }
-            }
+            });
+        },
+        editURL: function() {
+            bootbox.prompt({
+                title: 'What is the URL to call?',
+                inputType: 'text',
+                instruction: $('<div class="well">If this URL points to a standard HTML page, the result will be wrapped in a $ object. You can then use the standard jQuery style CSS selector and traversal to extract the information you are interested in. If the URL points to a RESTful webservice endpoint, the JSON response will be wrapped in an object named as "data". </div>'),
+                value: Grid.startSelect.url,
+                callback: function(input) {
+                    if (input == null) {
+                        return;
+                    }
 
-            bootbox.prompt(options);
+                    if (input.match(/^(http|https):\/\/[^"]+$/)) {
+                        if (input != Grid.startSelect.url) {
+                            Squares.update(Grid.startSelect._id, {
+                                $set: {
+                                    url: input
+                                }
+                            });
+
+                            Action.refresh(Grid.startSelect);
+                        }
+                    } else {
+                        bootbox.alert('Invalid URL');
+                    }
+                }
+            });
         },
         editFunction: function() {
-
-            var options = {
+            bootbox.prompt({
                 title: 'Attach a Javascript Function',
                 inputType: 'function',
                 mode: 'javascript',
+                instruction: $('<b>Objects available: </b><br><ul><li>$: jQuery Object</li><li>link: javascript array of linked cells</li><li>data: JSON response from webservice</li></ul>'),
                 value: Grid.startSelect.fn || "var a = $(window).height()\nreturn a;",
                 callback: function(statements) {
                     if (statements == null) {
@@ -286,13 +302,10 @@ if (Meteor.isClient) {
                         bootbox.alert(error.message);
                     }
                 }
-            }
-
-            bootbox.prompt(options);
-
+            });
         },
         editStyle: function() {
-            var options = {
+            bootbox.prompt({
                 title: 'Custom CSS Style',
                 inputType: 'function',
                 mode: 'css',
@@ -310,10 +323,7 @@ if (Meteor.isClient) {
                         }
                     });
                 }
-            }
-
-            bootbox.prompt(options);
-
+            });
         },
         merge: function() {
             var toMerge = Squares.find({
@@ -351,12 +361,12 @@ if (Meteor.isClient) {
                             selected: false
                         }
                     });
+                    
+                    Grid.startSelect = e;
                 } else {
                     Squares.remove(e._id);
                 }
             });
-
-            Grid.startSelect = null;
         },
         fetch: function(url) {
             Squares.update(Grid.startSelect._id, {
@@ -521,21 +531,24 @@ if (Meteor.isClient) {
 
     Template.menu.events = {
         //Page 1
-        'click li.merge-button': Action.merge,
-        'click li.edit-button': Action.edit,
-        'click li.function-button': Action.editFunction,
-        'click li.style-button': Action.editStyle,
-        'click li.next-page-button': Template.menu.nextPage,
+        'click .edit-button': Action.edit,
+        'click .function-button': Action.editFunction,
+        'click .url-button': Action.editURL,
+        'click .link-button': Action.editLinks,
+        'click .next-page-button': Template.menu.nextPage,
 
         //Page 2
-        'click li.previous-page-button': Template.menu.prevPage,
-        'click li.link-button': Action.editLinks,
-        'click li.delete-button': Action.delete
+        'click .previous-page-button': Template.menu.prevPage,
+        'click .style-button': Action.editStyle,
+        'click .merge-button': Action.merge,
+
+        'click .delete-button': Action.delete
     };
 
     Template.toolbox.events = {
         'click button.add-stencil-button': Action.addStencil,
-        'click button.clear-canvas-button': Action.resetCanvas
+        'click button.clear-canvas-button': Action.resetCanvas,
+        'click .square': Action.copyStencil
     }
 
     Meteor.startup(function() {

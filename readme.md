@@ -15,19 +15,31 @@ Features Overview
 
 * 'Click' to select a cell
 * 'Shift + Click' to select multiple cells
+
+
+* 'f' to edit function
+* 'r' to re-compute value
+* 'c' to edit css
+* 'l' to edit links
+* 'm' to merge multiple selected cells
+
 * 'Cmd + C' to Copy
 * 'Cmd + V' to Paste
 * 'Cmd + X' to Cut
 * 'Backspace' to clear cell's value
 * 'Enter' to edit text
-* 'f' to edit function
-* 'r' to re-compute value
+
 * Use arrow keys to move cursor
-* Merge multiple selected cells
+
 * Accept javascript code as input. (requires 'return' statement)
-* Accept CSS style for each individual cell
+* Javascript can access Underscore (_), jQuery ($), linked cells as an array (link)
+
+* Accept special CSS style for each individual cell
 * Accept Server side web crawling using input URL and Javascript function
 
+* Toolbox to save a cell for later use
+
+* Pan the canvas using mouse drag
 
 In the pipeline
 ----------------
@@ -37,7 +49,7 @@ In the pipeline
 * Accept Youtube URL?
 
 * Increase canvas size (1024 * 1024)?
-* Panning feature for the canvas
+
 * Sidebar features
 
 
