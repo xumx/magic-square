@@ -43,7 +43,7 @@
     <div class="main-container">
         {{#each squares}}
         <div class="square {{#if selected}}selected{{/if}} {{#if linked}}linked flash animated{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px;{{style}}">
-            {{#if value}} {{read value}} {{/if}}
+            {{#if value}} {{read}} {{/if}}
         </div>
         {{/each}} {{> menu}}
 

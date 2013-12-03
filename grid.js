@@ -1,6 +1,10 @@
 Squares = new Meteor.Collection('square');
 Stencils = new Meteor.Collection('stencil');
 
+_.templateSettings = {
+    interpolate: /(link\[[0-9]+\])/g
+};
+
 if (Meteor.isClient) {
 
     Template.canvas.squares = function() {
@@ -28,33 +32,70 @@ if (Meteor.isClient) {
         return this.width * 100;
     }
 
-    Template.canvas.read = function(value) {
-        var query;
+    Template.canvas.read = function() {
+        var query, value = this.value;
 
-        if (typeof value == 'string') {
-            if (value.match(/^https?:\/\/(?:[a-z\-]+\.)+[a-z]{2,6}(?:\/[^\/#?]+)+\.(?:jpe?g|gif|png)$/)) {
-                return new Handlebars.SafeString('<img src="' + value + '">');
+        if (typeof value == 'string' && value.match(/^https?:\/\/(?:[a-z\-]+\.)+[a-z]{2,6}(?:\/[^\/#?]+)+\.(?:jpe?g|gif|png)$/i)) {
+            return new Handlebars.SafeString('<img src="' + value + '">');
+        }
+
+        if (typeof value == 'string' && value.match(/^(map|map of) /i)) {
+            query = value.replace(/^(map|map of) /, '');
+
+            return new Handlebars.SafeString('<img src="http://maps.googleapis.com/maps/api/staticmap?center=' + query + '&markers=color:green|' + query + '&zoom=14&size=' + this.height * 100 + 'x' + this.width * 100 + '&sensor=false">');
+        }
+
+        if (typeof value == 'string' && value.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/i)) {
+            var match = value.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            if (match && match[2].length == 11) {
+                return new Handlebars.SafeString('<iframe width="' + this.width * 100 + '" height="' + this.height * 100 + '" src="//www.youtube.com/embed/' + match[2] + '" frameborder="0" allowfullscreen></iframe>');
+            } else {
+                return value;
             }
+        }
 
-            if (value.match(/^(map|map of) /)) {
-                query = value.replace(/^(map|map of) /, '');
+        if (typeof value == 'string' && value.match(/link\[[0-9]+\]/)) {
 
-                return new Handlebars.SafeString('<img src="http://maps.googleapis.com/maps/api/staticmap?center=' + query + '&markers=color:green|' + query + '&zoom=14&size=' + this.height * 100 + 'x' + this.width * 100 + '&sensor=false">');
-            }
+            var linkArray = _.map(this.link, function(link) {
+                return Squares.findOne(link).value;
+            });
 
-            if (value.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/)) {
-                var match = value.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-                if (match && match[2].length == 11) {
-                    return new Handlebars.SafeString('<iframe width="' + this.width * 100 + '" height="' + this.height * 100 + '" src="//www.youtube.com/embed/' + match[2] + '" frameborder="0" allowfullscreen></iframe>');
-                } else {
-                    return value;
-                }
-            }
+            value = _.template(value, linkArray, {
+                variable: 'link'
+            });
 
             return new Handlebars.SafeString(value);
         }
 
-        return value;
+        //# Detect Array and build List UI
+        //Expected format ["London" ,"Tokyo" ,"Paris"]
+        //Alternate format [{text:"Appple", href:"http://apple.com"} , {text:"Amazon",href:"http://amazon.com"}]
+
+        if (Array.isArray(value)) {
+
+            result = '<ul class="' + _.sample(['fly', 'cards', 'grow', 'wave', 'curl', 'papercut']) + '">\n';
+
+            _.each(value, function(row) {
+                if (typeof row == 'object') {
+                    if (typeof row.href == 'string' && typeof row.text == 'string') {
+                        result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
+                    }
+                } else {
+                    result += '<li>' + row + '</li>\n'
+                }
+            })
+
+            result += '</ul>'
+
+            _.defer(function() {
+                stroll.bind('.square ul');
+            });
+
+            return new Handlebars.SafeString(result);
+
+        }
+
+        return new Handlebars.SafeString(value);
     }
 
     Template.toolbox.stencils = function() {
@@ -107,9 +148,11 @@ if (Meteor.isClient) {
                 }
             });
         },
-
-        copyStencil: function(square) {
-            Grid.copy = _.pick(square, 'fn', 'value', 'style', 'url');
+        copyStencil: function() {
+            Grid.copy = _.pick(this, 'fn', 'value', 'style', 'url');
+        },
+        deleteStencil: function () {
+            Stencils.remove(this._id);
         },
         refresh: function(target) {
             if (target.url) {
@@ -222,8 +265,10 @@ if (Meteor.isClient) {
                         return;
                     }
 
-                    if (!isNaN(parseFloat(input)) && isFinite(input)) {
-                        input = parseFloat(input)
+                    try {
+                        input = JSON.parse(input);
+                    } catch (e) {
+
                     }
 
                     //if there is a change
@@ -237,9 +282,7 @@ if (Meteor.isClient) {
                         //TODO Recursive propagation
                         //Propagate changes
                         Squares.find({
-                            link: {
-                                $elemMatch: Grid.startSelect._id
-                            }
+                            link: Grid.startSelect._id
                         }, {
                             transform: function(e) {
                                 Action.refresh(e);
@@ -361,7 +404,7 @@ if (Meteor.isClient) {
                             selected: false
                         }
                     });
-                    
+
                     Grid.startSelect = e;
                 } else {
                     Squares.remove(e._id);
@@ -548,7 +591,8 @@ if (Meteor.isClient) {
     Template.toolbox.events = {
         'click button.add-stencil-button': Action.addStencil,
         'click button.clear-canvas-button': Action.resetCanvas,
-        'click .square': Action.copyStencil
+        'click .square': Action.copyStencil,
+        'dblclick .square': Action.deleteStencil
     }
 
     Meteor.startup(function() {
@@ -639,6 +683,11 @@ if (Meteor.isClient) {
                         Action.editStyle();
                     }
                 },
+                'u': function (e) {
+                    if ($(e.target).is('body')) {
+                        Action.editURL();
+                    }
+                },
                 'up': function(e) {
                     if ($(e.target).is('body')) {
                         Action.moveCursor('up');
@@ -709,6 +758,7 @@ if (Meteor.isServer) {
                             y: j,
                             height: 1,
                             width: 1,
+                            link: [],
                             selected: false
                         });
                     };
