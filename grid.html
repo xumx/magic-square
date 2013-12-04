@@ -16,7 +16,7 @@
     <div class="btn btn-danger sidebar-toggle" data-toggle="offcanvas" data-target=".navmenu" data-canvas="html">
         <span class="glyphicon glyphicon-forward"></span>
     </div>
-
+    
     {{> canvas}}
 </body>
 
@@ -42,7 +42,7 @@
 
     <div class="main-container">
         {{#each squares}}
-        <div class="square {{#if selected}}selected{{/if}} {{#if linked}}linked flash animated{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px;{{style}}">
+        <div id="{{_id}}" class="square {{#if selected}}selected{{/if}} {{#if linked}}linked flash animated{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px;{{style}}">
             {{#if value}} {{read}} {{/if}}
         </div>
         {{/each}} {{> menu}}
@@ -74,7 +74,7 @@
                     <i class="glyphicon glyphicon-link"></i>
                 </div>
             </li>
-           
+
             <li class='slice next-page-button'>
                 <div>
                     <i class="glyphicon glyphicon-forward"></i>

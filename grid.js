@@ -35,6 +35,20 @@ if (Meteor.isClient) {
     Template.canvas.read = function() {
         var query, value = this.value;
 
+        //Priority
+        if (typeof value == 'string' && value.match(/link\[[0-9]+\]/)) {
+
+            var linkArray = _.map(this.link, function(link) {
+                return Squares.findOne(link).value;
+            });
+
+            value = _.template(value, linkArray, {
+                variable: 'link'
+            });
+
+            //No return, so that the value is carried forward
+        }
+
         if (typeof value == 'string' && value.match(/^https?:\/\/(?:[a-z\-]+\.)+[a-z]{2,6}(?:\/[^\/#?]+)+\.(?:jpe?g|gif|png)$/i)) {
             return new Handlebars.SafeString('<img src="' + value + '">');
         }
@@ -42,7 +56,7 @@ if (Meteor.isClient) {
         if (typeof value == 'string' && value.match(/^(map|map of) /i)) {
             query = value.replace(/^(map|map of) /, '');
 
-            return new Handlebars.SafeString('<img src="http://maps.googleapis.com/maps/api/staticmap?center=' + query + '&markers=color:green|' + query + '&zoom=14&size=' + this.height * 100 + 'x' + this.width * 100 + '&sensor=false">');
+            return new Handlebars.SafeString('<img src="http://maps.googleapis.com/maps/api/staticmap?center=' + query + '&markers=color:green|' + query + '&zoom=14&size=' + this.width * 100 + 'x' + this.height * 100 + '&sensor=false">');
         }
 
         if (typeof value == 'string' && value.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/i)) {
@@ -54,26 +68,13 @@ if (Meteor.isClient) {
             }
         }
 
-        if (typeof value == 'string' && value.match(/link\[[0-9]+\]/)) {
-
-            var linkArray = _.map(this.link, function(link) {
-                return Squares.findOne(link).value;
-            });
-
-            value = _.template(value, linkArray, {
-                variable: 'link'
-            });
-
-            return new Handlebars.SafeString(value);
-        }
-
         //# Detect Array and build List UI
         //Expected format ["London" ,"Tokyo" ,"Paris"]
         //Alternate format [{text:"Appple", href:"http://apple.com"} , {text:"Amazon",href:"http://amazon.com"}]
 
         if (Array.isArray(value)) {
 
-            result = '<ul class="' + _.sample(['fly', 'cards', 'grow', 'wave', 'curl', 'papercut']) + '">\n';
+            result = '<ul class="' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
 
             _.each(value, function(row) {
                 if (typeof row == 'object') {
@@ -123,13 +124,54 @@ if (Meteor.isClient) {
             Action.delete();
         },
         delete: function() {
-            Squares.update(Grid.startSelect._id, {
-                $unset: {
-                    value: 1,
-                    fn: 1,
-                    style: 1
+
+            if (Grid.startSelect.value != undefined) {
+
+                Squares.update(Grid.startSelect._id, {
+                    $unset: {
+                        value: 1,
+                        fn: 1,
+                        style: 1,
+                        url: 1
+                    },
+                    $set: {
+                        link: [],
+                    }
+                });
+
+            } else {
+
+                var height = Grid.startSelect.height
+                var width = Grid.startSelect.width
+
+                var x = Grid.startSelect.x
+                var y = Grid.startSelect.y
+
+                var id = Grid.startSelect._id;
+
+                for (yoffset = 0; yoffset < height; yoffset++) {
+                    for (xoffset = 0; xoffset < width; xoffset++) {
+
+                        if (xoffset == 0 && yoffset == 0) {
+                            Squares.update(id, {
+                                $set: {
+                                    height: 1,
+                                    width: 1
+                                }
+                            });
+                        } else {
+                            Squares.insert({
+                                x: x + xoffset,
+                                y: y + yoffset,
+                                height: 1,
+                                width: 1,
+                                link: [],
+                                selected: false
+                            });
+                        }
+                    }
                 }
-            });
+            }
         },
         resetCanvas: function() {
             Meteor.call('reset');
@@ -151,7 +193,7 @@ if (Meteor.isClient) {
         copyStencil: function() {
             Grid.copy = _.pick(this, 'fn', 'value', 'style', 'url');
         },
-        deleteStencil: function () {
+        deleteStencil: function() {
             Stencils.remove(this._id);
         },
         refresh: function(target) {
@@ -159,7 +201,7 @@ if (Meteor.isClient) {
                 Action.fetch(target.url);
             } else {
                 try {
-                    var fn = new Function(['$', 'link'], target.fn);
+                    var fn = new Function(['$', 'link', 'ID'], target.fn);
 
                     var linkArray = _.map(target.link, function(link) {
                         return Squares.findOne(link);
@@ -167,7 +209,7 @@ if (Meteor.isClient) {
 
                     Squares.update(target._id, {
                         $set: {
-                            value: fn($, linkArray),
+                            value: fn($, linkArray, target._id),
                         }
                     });
                 } catch (error) {
@@ -267,8 +309,9 @@ if (Meteor.isClient) {
 
                     try {
                         input = JSON.parse(input);
+                        console.log(input)
                     } catch (e) {
-
+                        console.warn("Cannot parse value as JSON: " + e.message);
                     }
 
                     //if there is a change
@@ -410,6 +453,19 @@ if (Meteor.isClient) {
                     Squares.remove(e._id);
                 }
             });
+
+            // TODO            
+            // //Remove self from other cells linking to it. 
+            // Squares.find({
+            //     link: id
+            // }, {
+            //     transform: function(e) {
+            //         Squares.update(e._id)
+            //     }
+            // })
+
+            // Squares.remove(id);
+
         },
         fetch: function(url) {
             Squares.update(Grid.startSelect._id, {
@@ -531,6 +587,8 @@ if (Meteor.isClient) {
                         }
                     });
 
+
+
                 }
             } else {
 
@@ -596,6 +654,7 @@ if (Meteor.isClient) {
     }
 
     Meteor.startup(function() {
+
         Squares.find({
             selected: true
         }, {
@@ -683,7 +742,12 @@ if (Meteor.isClient) {
                         Action.editStyle();
                     }
                 },
-                'u': function (e) {
+                's': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.editStyle();
+                    }
+                },
+                'u': function(e) {
                     if ($(e.target).is('body')) {
                         Action.editURL();
                     }
@@ -709,6 +773,9 @@ if (Meteor.isClient) {
                     }
                 }
             });
+
+            // $('.loading').remove();
+
         }, 500);
     });
 }
@@ -725,18 +792,18 @@ if (Meteor.isServer) {
                 if (response.headers['content-type'].match(/text\/html/)) {
 
                     $ = cheerio.load(response.content);
-                    fn = new Function('$', statements);
+                    fn = new Function(['$', 'ID'], statements);
 
                 } else if (response.headers['content-type'].match(/application\/json/)) {
 
                     $ = JSON.parse(response.content)
-                    fn = new Function('data', statements);
+                    fn = new Function(['data', 'ID'], statements);
 
                 }
 
                 Squares.update(_id, {
                     $set: {
-                        value: fn($),
+                        value: fn($, _id),
                     }
                 });
             });
