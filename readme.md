@@ -39,11 +39,13 @@ Features Overview
 * `l` to edit links
 * `u` to edit url
 * `m` to merge multiple selected cells
+* `m` again to unmerge the single selected cell
 
 * `Cmd + C` to Copy
 * `Cmd + V` to Paste
 * `Cmd + X` to Cut
 * `Backspace` to clear cell's value
+* `Backspace` again on a empty big merged cell will split the cell
 
 * Arrow keys to move cursor
 
@@ -62,25 +64,25 @@ Features Overview
 
 ## Advanced Function examples
 `
-//Use underscore defer to delay a function's execution
-_.defer(function() {
-    var bryantPark = new google.maps.LatLng(37.869260, -122.254811);
-    var panoramaOptions = {
-        position: bryantPark,
-        pov: {
-            heading: 165,
-            pitch: 0
-        },
-        zoom: 1
-    };
+	//Use underscore defer to delay a function's execution
+	_.defer(function() {
+	    var bryantPark = new google.maps.LatLng(37.869260, -122.254811);
+	    var panoramaOptions = {
+	        position: bryantPark,
+	        pov: {
+	            heading: 165,
+	            pitch: 0
+	        },
+	        zoom: 1
+	    };
 
-    var myPano = new google.maps.StreetViewPanorama(
-        $('#streetview-' + ID)[0], //reference to an element that 
-        panoramaOptions);
-    myPano.setVisible(true);
-});
+	    var myPano = new google.maps.StreetViewPanorama(
+	        $('#streetview-' + ID)[0], //reference to an element that 
+	        panoramaOptions);
+	    myPano.setVisible(true);
+	});
 
-return '<div id="streetview-' + ID + '"></div>'
+	return '<div id="streetview-' + ID + '"></div>'
 `
 
 ### Style
@@ -93,7 +95,6 @@ return '<div id="streetview-' + ID + '"></div>'
 ## In the pipeline
 * Multiple canvas instance (pastebin style)
 * Option for password protected canvas
-* Delete to unmerge
 * Increase canvas size (1024 * 1024)?
 * Intro Tour
 * More sidebar features
