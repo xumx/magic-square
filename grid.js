@@ -141,36 +141,8 @@ if (Meteor.isClient) {
 
             } else {
 
-                var height = Grid.startSelect.height
-                var width = Grid.startSelect.width
+                Action.split();
 
-                var x = Grid.startSelect.x
-                var y = Grid.startSelect.y
-
-                var id = Grid.startSelect._id;
-
-                for (yoffset = 0; yoffset < height; yoffset++) {
-                    for (xoffset = 0; xoffset < width; xoffset++) {
-
-                        if (xoffset == 0 && yoffset == 0) {
-                            Squares.update(id, {
-                                $set: {
-                                    height: 1,
-                                    width: 1
-                                }
-                            });
-                        } else {
-                            Squares.insert({
-                                x: x + xoffset,
-                                y: y + yoffset,
-                                height: 1,
-                                width: 1,
-                                link: [],
-                                selected: false
-                            });
-                        }
-                    }
-                }
             }
         },
         resetCanvas: function() {
@@ -410,6 +382,42 @@ if (Meteor.isClient) {
                     });
                 }
             });
+        },
+        split: function() {
+
+            var height = Grid.startSelect.height
+            var width = Grid.startSelect.width
+
+            if (height > 1 || width > 1) {
+
+                var x = Grid.startSelect.x
+                var y = Grid.startSelect.y
+
+                var id = Grid.startSelect._id;
+
+                for (yoffset = 0; yoffset < height; yoffset++) {
+                    for (xoffset = 0; xoffset < width; xoffset++) {
+
+                        if (xoffset == 0 && yoffset == 0) {
+                            Squares.update(id, {
+                                $set: {
+                                    height: 1,
+                                    width: 1
+                                }
+                            });
+                        } else {
+                            Squares.insert({
+                                x: x + xoffset,
+                                y: y + yoffset,
+                                height: 1,
+                                width: 1,
+                                link: [],
+                                selected: false
+                            });
+                        }
+                    }
+                }
+            }
         },
         merge: function() {
             var toMerge = Squares.find({
@@ -719,7 +727,16 @@ if (Meteor.isClient) {
                 },
                 'm': function(e) {
                     if ($(e.target).is('body')) {
-                        Action.merge();
+                        var count = Squares.find({
+                            selected: true
+                        }).count();
+
+                        if (count > 1) {
+                            Action.merge();
+                        } else {
+
+                            Action.split();
+                        }
                     }
                 },
                 'f': function(e) {
