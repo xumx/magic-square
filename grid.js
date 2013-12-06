@@ -6,6 +6,8 @@ _.templateSettings = {
 };
 
 if (Meteor.isClient) {
+    
+    // Meteor.subscribe('All');
 
     Template.canvas.squares = function() {
         return Squares.find({}, {
@@ -324,9 +326,10 @@ if (Meteor.isClient) {
                                 $set: {
                                     url: input
                                 }
+                            }, function () {
+                                Grid.startSelect.url = input;
+                                Action.refresh(Grid.startSelect);
                             });
-
-                            Action.refresh(Grid.startSelect);
                         }
                     } else {
                         bootbox.alert('Invalid URL');
@@ -476,12 +479,6 @@ if (Meteor.isClient) {
 
         },
         fetch: function(url) {
-            Squares.update(Grid.startSelect._id, {
-                $set: {
-                    url: url
-                }
-            });
-
             Meteor.call('fetch', url, Grid.startSelect.fn, Grid.startSelect._id)
         }
     }
@@ -851,8 +848,13 @@ if (Meteor.isServer) {
         }
     });
 
+    // Meteor.publish('All', function() {
+    //     return [Squares.find({}), Stencils.find({})];
+    // })
+
     Meteor.startup(function() {
         // Meteor.call('clear');
         Meteor.call('initialize');
+
     });
 }

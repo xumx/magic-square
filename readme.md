@@ -10,27 +10,43 @@ v0.1 by @xumx
 http://grid.meteor.com
 
 ### How to run the app on your own machine
+
 Step 1: Install Meteor
+
 `curl https://install.meteor.com | /bin/sh`
+
 
 Step 2: download this repository, unzip, and navigate to the directory
 
+
 Step 3: Start the server
+
 `meteor`
 
 
-Demo 1: (Move cursor, Menu, Hotkeys, Merge Cell, Copy, Paste)
+#### Demo 1: (Move cursor, Menu, Hotkeys, Merge Cell, Copy, Paste)
+
 Hello World!
 
-Demo 2: (Function, Links, Remove Links)
+
+#### Demo 2: (Function, Links, Remove Links)
+
 Window height
+
 X^2
+
 Fibonacci
 
-Demo 3: Full Example
+
+
+#### Demo 3: Full Example
+
 map of London bridge
+
 map of Tokyo Station
+
 streetview stencil
+
 music search
 
 
