@@ -6,8 +6,17 @@ Magic Square reimagines Excel for the web, and accept javascript as a cell's for
 
 v0.1 by @xumx
 
-Demo Link:
+### Demo
 http://grid.meteor.com
+
+### How to run the app on your own machine
+Step 1: Install Meteor
+`curl https://install.meteor.com | /bin/sh`
+
+Step 2: download this repository, unzip, and navigate to the directory
+
+Step 3: Start the server
+`meteor`
 
 
 Demo 1: (Move cursor, Menu, Hotkeys, Merge Cell, Copy, Paste)
@@ -100,6 +109,15 @@ Features Overview
 * More sidebar features
 * Auto parsing of objects
 * Add full Google Maps Javascript features
+
+## Architecture and Technology Stack
+Magic Square is a web application running on top of the Meteor Framework http://meteor.com 
+Client and Server share the same database API (MongoDB). Every client includes an in-memory database cache (minimongo). To manage the client cache, the server publishes sets of JSON documents, and the client subscribes to those sets. As documents in a set change, the server patches each client's cache. Details of how Meteor works can be found on http://docs.meteor.com/
+
+
+## Security
+Magic Square makes use of multiple javascript techniques that are considered insecure. The author is well aware of the security issues with allowing eval(), new Function(), and user generated HTML. However, as the dynamic modifiability of javascript functions, css, and HTML is a core feature of this application, it does not make sense to enforce strict browser policy. Hacking techniques like cross-site scripting and clickjacking are likely to occur on the publicly hosted version of this app. Infact, users are encouraged to utilize these techniques to augment the application's functionalities. Do not use this site for sensitive transactions.
+
 
 
 Copyright 2013 Max Xu
