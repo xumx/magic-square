@@ -4,7 +4,6 @@
 # but you can also edit it by hand.
 
 standard-app-packages
-autopublish
 insecure
 preserve-inputs
 underscore
@@ -14,3 +13,5 @@ animate-css
 keybindings
 npm
 http
+houston
+iron-router

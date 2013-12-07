@@ -1,13 +1,12 @@
 Squares = new Meteor.Collection('square');
 Stencils = new Meteor.Collection('stencil');
+Canvas = new Meteor.Collection('canvas');
 
 _.templateSettings = {
     interpolate: /(link\[[0-9]+\])/g
 };
 
 if (Meteor.isClient) {
-    
-    // Meteor.subscribe('All');
 
     Template.canvas.squares = function() {
         return Squares.find({}, {
@@ -51,7 +50,7 @@ if (Meteor.isClient) {
             //No return, so that the value is carried forward
         }
 
-        if (typeof value == 'string' && value.match(/^https?:\/\/(?:[a-z\-]+\.)+[a-z]{2,6}(?:\/[^\/#?]+)+\.(?:jpe?g|gif|png)$/i)) {
+        if (typeof value == 'string' && value.match(/^https?:\/\/.+\.(?:jpe?g|gif|png)$/i)) {
             return new Handlebars.SafeString('<img src="' + value + '">');
         }
 
@@ -113,6 +112,47 @@ if (Meteor.isClient) {
     }
 
     Action = {
+        trySubscribe: function(error) {
+            var password = null;
+
+            if (error) {
+                console.error(error);
+                bootbox.prompt('Password', function(p) {
+
+                    if (p == null) {
+                        bootbox.alert('Unable to view canvas because it is secured by a canvas password.');
+                        return;
+                    } else {
+                        password = p;
+
+                        Meteor.subscribe('canvas', Session.get('canvasId'), password, {
+                            onError: Action.trySubscribe,
+                            onReady: Action.subscribeReady
+                        });
+                    }
+
+                });
+            } else {
+
+                Meteor.subscribe('canvas', Session.get('canvasId'), password, {
+                    onError: Action.trySubscribe,
+                    onReady: Action.subscribeReady
+                });
+            }
+        },
+        subscribeReady: function() {
+            Squares.find({
+                selected: true
+            }, {
+                transform: function(e) {
+                    Squares.update(e._id, {
+                        $set: {
+                            selected: false
+                        }
+                    });
+                }
+            }).fetch();
+        },
         copy: function() {
             Grid.copy = _.pick(Grid.startSelect, 'fn', 'value', 'style', 'link', 'url');
         },
@@ -147,8 +187,35 @@ if (Meteor.isClient) {
 
             }
         },
+
+        newCanvas: function() {
+            bootbox.prompt('Canvas Name (Optional)', function(name) {
+                if (name !== null && name !== '') {
+
+                    bootbox.prompt('Password (Optional)', function(password) {
+
+                        Meteor.call('create', name, password, function(error) {
+                            if (error) {
+                                console.error(error);
+                                bootbox.alert('Name already taken. Please choose another name.', Action.newCanvas)
+                            } else {
+                                Router.go('home', {
+                                    canvasId: name
+                                });
+                            }
+                        });
+
+                    });
+                }
+            })
+
+        },
+
         resetCanvas: function() {
-            Meteor.call('reset');
+            var canvasId = Session.get('canvasId');
+            if (canvasId) {
+                Meteor.call('reset', canvasId);
+            }
         },
 
         addStencil: function() {
@@ -283,8 +350,8 @@ if (Meteor.isClient) {
 
                     try {
                         input = JSON.parse(input);
-                        console.log(input)
                     } catch (e) {
+                        console.log(input)
                         console.warn("Cannot parse value as JSON: " + e.message);
                     }
 
@@ -326,7 +393,7 @@ if (Meteor.isClient) {
                                 $set: {
                                     url: input
                                 }
-                            }, function () {
+                            }, function() {
                                 Grid.startSelect.url = input;
                                 Action.refresh(Grid.startSelect);
                             });
@@ -415,7 +482,8 @@ if (Meteor.isClient) {
                                 height: 1,
                                 width: 1,
                                 link: [],
-                                selected: false
+                                selected: false,
+                                canvasId: Session.get('canvasId')
                             });
                         }
                     }
@@ -652,6 +720,7 @@ if (Meteor.isClient) {
     };
 
     Template.toolbox.events = {
+        'click button.new-canvas-button': Action.newCanvas,
         'click button.add-stencil-button': Action.addStencil,
         'click button.clear-canvas-button': Action.resetCanvas,
         'click .square': Action.copyStencil,
@@ -660,17 +729,36 @@ if (Meteor.isClient) {
 
     Meteor.startup(function() {
 
-        Squares.find({
-            selected: true
-        }, {
-            transform: function(e) {
-                Squares.update(e._id, {
-                    $set: {
-                        selected: false
+        // Basic Router
+        Router.map(function() {
+            this.route('home', {
+                path: '/:canvasId',
+                before: [
+                    function() {
+
+                        var reservedNames = ['about', 'canvas', 'admin']
+
+                        if (_.contains(reservedNames, this.params.canvasId)) {
+                            console.error('reserved name');
+                            return;
+                        }
+
+                        Session.set('canvasId', this.params.canvasId);
+                        Action.trySubscribe();
                     }
-                });
-            }
-        }).fetch();
+                ]
+            });
+
+            this.route('public', {
+                path: '/',
+                before: [
+                    function() {
+                        Session.set('canvasId', 'public');
+                        Action.trySubscribe();
+                    }
+                ]
+            })
+        })
 
         //No idea when this will load.
         setTimeout(function() {
@@ -822,16 +910,58 @@ if (Meteor.isServer) {
                 });
             });
         },
-        reset: function() {
-            Meteor.call('clear');
-            Meteor.call('initialize');
+        create: function(canvasId, password) {
+
+            if (Canvas.findOne(canvasId) !== undefined) {
+
+                return new Meteor.Error(null, "Canvas name already taken", null);
+
+            } else {
+
+                if (password) {
+
+                    Canvas.insert({
+                        _id: canvasId,
+                        created: new Date(),
+                        password: password
+                    });
+
+                } else {
+
+                    Canvas.insert({
+                        _id: canvasId,
+                        created: new Date(),
+                    });
+
+                }
+
+                Meteor.call('initialize', canvasId);
+            }
         },
-        clear: function() {
+        reset: function(canvasId) {
+            Meteor.call('clear', canvasId);
+            Meteor.call('initialize', canvasId);
+        },
+        clear: function(canvasId) {
+            Squares.remove({
+                canvasId: canvasId
+            });
+        },
+        clearAll: function() {
             Squares.remove({});
+
+            Stencils.update({}, {
+                $set: {
+                    canvasId: 'public'
+                }
+            })
         },
-        initialize: function() {
+        //'canvasId: public' will be used as public demo
+        initialize: function(canvasId) {
             // Initialize empty cells
-            if (Squares.find().count() == 0) {
+            if (Squares.find({
+                canvasId: canvasId
+            }).count() == 0) {
                 for (var i = 0; i < 15; i++) {
                     for (var j = 0; j < 15; j++) {
                         Squares.insert({
@@ -840,7 +970,8 @@ if (Meteor.isServer) {
                             height: 1,
                             width: 1,
                             link: [],
-                            selected: false
+                            selected: false,
+                            canvasId: canvasId
                         });
                     };
                 };
@@ -848,13 +979,33 @@ if (Meteor.isServer) {
         }
     });
 
-    // Meteor.publish('All', function() {
-    //     return [Squares.find({}), Stencils.find({})];
-    // })
+    Meteor.publish('canvas', function(canvasId, password) {
+
+        var canvas = Canvas.findOne({
+            _id: canvasId
+        });
+
+        if (canvas) {
+
+            if (canvas.password == undefined || canvas.password === password) {
+
+                return [Squares.find({
+                    canvasId: canvasId
+                }), Stencils.find({
+                    // canvasId: canvasId
+                })];
+
+            } else {
+                this.error(new Meteor.Error(null, "Invalid Password", "Try again."));
+            }
+
+        } else {
+            this.error(new Meteor.Error(null, "Canvas not found", "need to check pub/sub"));
+        }
+    })
 
     Meteor.startup(function() {
-        // Meteor.call('clear');
-        Meteor.call('initialize');
-
+        Meteor.call('clearAll');
+        Meteor.call('initialize', 'public');
     });
 }

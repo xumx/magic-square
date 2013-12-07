@@ -2,8 +2,8 @@
   "packages": {
     "bootstrap-3": {},
     "animate-css": {},
-    "bootboxjs": {},
     "keybindings": {},
-    "npm": {}
+    "npm": {},
+    "houston": {}
   }
 }

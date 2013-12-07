@@ -4,9 +4,9 @@
     "basePackages": {
       "bootstrap-3": {},
       "animate-css": {},
-      "bootboxjs": {},
       "keybindings": {},
-      "npm": {}
+      "npm": {},
+      "houston": {}
     },
     "packages": {
       "bootstrap-3": {
@@ -19,11 +19,6 @@
         "tag": "v2.1.0",
         "commit": "08d7d98ce292d528f05eab91bfb220b3a355c1d5"
       },
-      "bootboxjs": {
-        "git": "https://github.com/TimHeckel/meteor-bootboxjs.git",
-        "tag": "v3.2.2",
-        "commit": "580adfebfa12b4d2186a80cec1109dab74ad6228"
-      },
       "keybindings": {
         "git": "https://github.com/matteodem/meteor-keybindings.git",
         "tag": "v0.3.8",
@@ -33,6 +28,26 @@
         "git": "https://github.com/arunoda/meteor-npm.git",
         "tag": "v0.2.6",
         "commit": "177ab6118de5bf8cffb19481343d5762ff7a2aaf"
+      },
+      "houston": {
+        "git": "https://github.com/gterrono/meteor-admin-ui.git",
+        "tag": "v1.0.0",
+        "commit": "e98660af09cb3e4e90848abfe943a06e7068cccc"
+      },
+      "paginated-subscription": {
+        "git": "https://github.com/tmeasday/meteor-paginated-subscription.git",
+        "tag": "v0.1.2",
+        "commit": "35e0c6112df2b4cfeb60b559276a93cac5ee2dd6"
+      },
+      "spin": {
+        "git": "https://github.com/SachaG/meteor-spin.git",
+        "tag": "v0.2.0",
+        "commit": "fd3a2871a69442848b4b4e74f5e1ae28fa4a95a4"
+      },
+      "iron-router": {
+        "git": "https://github.com/EventedMind/iron-router.git",
+        "tag": "v0.6.1",
+        "commit": "4e1ee0581d68bff422a915dacb0bd30eae10fe08"
       }
     }
   }
