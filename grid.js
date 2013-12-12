@@ -708,15 +708,24 @@ if (Meteor.isClient) {
         'click .edit-button': Action.edit,
         'click .function-button': Action.editFunction,
         'click .url-button': Action.editURL,
-        'click .link-button': Action.editLinks,
+        'click .style-button': Action.editStyle,
         'click .next-page-button': Template.menu.nextPage,
 
         //Page 2
         'click .previous-page-button': Template.menu.prevPage,
-        'click .style-button': Action.editStyle,
+        'click .link-button': Action.editLinks,
         'click .merge-button': Action.merge,
+        'click .pin-button': Action.addStencil,
+        'click .next-page-button': Template.menu.nextPage,
 
+        //Page 3
+        'click .previous-page-button': Template.menu.prevPage,
+        'click .cut-button': Action.cut,
+        'click .copy-button': Action.copy,
+        'click .paste-button': Action.paste,
         'click .delete-button': Action.delete
+
+        
     };
 
     Template.toolbox.events = {

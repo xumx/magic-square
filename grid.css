@@ -26,12 +26,10 @@
 .square.linked {
     background-color: #faff8f;
 }
-
 .square img {
     max-width: 100%;
     max-height: 100%;
 }
-
 .sidebar-toggle {
     position: fixed;
     top:65px;
@@ -44,6 +42,12 @@
 .sidebar-toggle:hover {
     transition: 0.5s;
     left: -3px;
+}
+.navmenu-nav > li > button {
+    height:100px;
+    width:100px;
+    border-radius:0;
+    white-space: normal;
 }
 body, html, .main-container {
     width: 100%;
@@ -395,8 +399,6 @@ give them a red background to see them */
 .square ul li:nth-child(odd) {
     background: #d35400;
 }
-
-
 /*!
  * stroll.js 1.2 - CSS scroll effects
  * http://lab.hakim.se/scroll-effects
@@ -599,8 +601,8 @@ give them a red background to see them */
     -o-transform: skewY(30deg);
     transform: skewY(30deg);
 }
-
 /*Loading Animation*/
+
 /*@keyframes "loading" {
  0% {
     -webkit-transform: rotate(0deg);

@@ -23,13 +23,13 @@
 <template name="toolbox">
     <ul class="nav navmenu-nav">
         <li>
-            <button class="btn btn-warning new-canvas-button" style="height:100px;width:100px;border-radius:0;">Create New Canvas</button>
+            <button class="btn btn-warning new-canvas-button">Create New Canvas</button>
         </li>
         <li>
-            <button class="btn btn-danger clear-canvas-button" style="height:100px;width:100px;border-radius:0;">Clear All</button>
+            <button class="btn btn-danger clear-canvas-button">Clear All</button>
         </li>
         <li>
-            <button class="btn btn-warning add-stencil-button" style="height:100px;width:100px;border-radius:0;">Add Stencil</button>
+            <button class="btn btn-warning add-stencil-button">Add Stencil</button>
         </li>
         {{#each stencils}}
         <li>
@@ -63,7 +63,7 @@
             {{#if isPage 1}}
             <li class='slice edit-button'>
                 <div>
-                    <i class="glyphicon glyphicon-edit"></i>
+                    <i class="glyphicon glyphicon-pencil"></i>
                 </div>
             </li>
             <li class='slice function-button'>
@@ -72,18 +72,39 @@
             <li class='slice url-button'>
                 <div>URL</div>
             </li>
-            <li class='slice link-button'>
-                <div>
-                    <i class="glyphicon glyphicon-link"></i>
-                </div>
+            <li class='slice style-button'>
+                <div>CSS</div>
             </li>
-
             <li class='slice next-page-button'>
                 <div>
                     <i class="glyphicon glyphicon-forward"></i>
                 </div>
             </li>
             {{/if}} {{#if isPage 2}}
+            <li class='slice previous-page-button'>
+                <div>
+                    <i class="glyphicon glyphicon-backward"></i>
+                </div>
+            </li>
+            <li class='slice merge-button'>
+                <div>merge</div>
+            </li>
+            <li class='slice link-button'>
+                <div>
+                    link
+                </div>
+            </li>
+            <li class='slice pin-button'>
+                <div>
+                    <i class="glyphicon glyphicon-pushpin"></i>
+                </div>
+            </li>
+            <li class='slice next-page-button'>
+                <div>
+                    <i class="glyphicon glyphicon-forward"></i>
+                </div>
+            </li>
+            {{/if}} {{#if isPage 3}}
 
             <li class='slice previous-page-button'>
                 <div>
@@ -91,20 +112,24 @@
                 </div>
             </li>
 
-            <li class='slice style-button'>
-                <div>CSS</div>
-            </li>
-            <li class='slice merge-button'>
-                <div>Join</div>
-            </li>
-            <li class='slice delete-button'>
+            <li class='slice cut-button'>
                 <div>
-                    <i class="glyphicon glyphicon-trash"></i>
+                    cut
+                </div>
+            </li>
+            <li class='slice copy-button'>
+                <div>
+                    copy
+                </div>
+            </li>
+            <li class='slice paste-button'>
+                <div>
+                    paste
                 </div>
             </li>
             <li class='slice delete-button'>
                 <div>
-
+                    <i class="glyphicon glyphicon-trash"></i>
                 </div>
             </li>
             {{/if}}
