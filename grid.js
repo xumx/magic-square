@@ -2,6 +2,14 @@ Squares = new Meteor.Collection('square');
 Stencils = new Meteor.Collection('stencil');
 Canvas = new Meteor.Collection('canvas');
 
+API = {
+    embedly: "1b7350d8cb894d1f9b5fffd18cc0ba56",
+    google: {
+        server: "AIzaSyCXobbe29WEsE7k1nxAXj5w",
+        client: "AIzaSyBbEd2KpEdLZYMSxcQzhxD0mDHtab3nne0"
+    }
+}
+
 _.templateSettings = {
     interpolate: /(link\[[0-9]+\])/g
 };
@@ -60,13 +68,9 @@ if (Meteor.isClient) {
             return new Handlebars.SafeString('<img src="http://maps.googleapis.com/maps/api/staticmap?center=' + query + '&markers=color:green|' + query + '&zoom=14&size=' + this.width * 100 + 'x' + this.height * 100 + '&sensor=false">');
         }
 
-        if (typeof value == 'string' && value.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/i)) {
-            var match = value.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-            if (match && match[2].length == 11) {
-                return new Handlebars.SafeString('<iframe width="' + this.width * 100 + '" height="' + this.height * 100 + '" src="//www.youtube.com/embed/' + match[2] + '" frameborder="0" allowfullscreen></iframe>');
-            } else {
-                return value;
-            }
+        // push url to url 
+        if (typeof value == 'string' && value.match(/^https?:\/\/.+/)) {
+            // return new Handlebars.SafeString('<img src="' + value + '">');
         }
 
         //# Detect Array and build List UI
@@ -237,9 +241,53 @@ if (Meteor.isClient) {
         deleteStencil: function() {
             Stencils.remove(this._id);
         },
+
+        //TODO think about how to reduce refresh
         refresh: function(target) {
-            if (target.url) {
-                Action.fetch(target.url);
+            var value, linkArray, url;
+
+            if (_(target).has('url')) {
+                url = target.url;
+
+                //Fill references with link data
+                if (typeof target.url == 'string' && target.url.match(/link\[[0-9]+\]/)) {
+
+                    linkArray = _.map(target.link, function(link) {
+                        return Squares.findOne(link).value;
+                    });
+
+                    url = _.template(url, linkArray, {
+                        variable: 'link'
+                    });
+                }
+
+                $.embedly.oembed(url, {
+                    key: API.embedly,
+                    query: {
+                        autoplay: 'true'
+                    }
+                }).done(function(results) {
+                    if (results.length > 0) {
+
+                        
+
+                        if (results[0].data) {
+                            value = results[0].data;
+                        } else if (results[0].html) {
+                            value = results[0].html;
+                        } else if (results[0].thumbnail_url) {
+                            value = '<a target="_blank" href="' + results[0].url + '"><img src="' + results[0].thumbnail_url + '"></a>';
+                        }
+
+                        Squares.update(target._id, {
+                            $set: {
+                                value: value
+                            }
+                        });
+                    }
+                });
+
+                // Action.fetch(target.url);
             } else {
                 try {
                     var fn = new Function(['$', 'link', 'ID'], target.fn);
@@ -341,7 +389,7 @@ if (Meteor.isClient) {
             bootbox.prompt({
                 title: 'Cell Value',
                 inputType: 'text',
-                instruction: $('<b>You can try these examples:</b><br><ul><li>map of singapore management university</li><li>http://www.youtube.com/watch?v=tqgO-SwnIEY</li><li>http://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png</li></ul>'),
+                instruction: $('<b>You can try these examples:</b><br><ul><li>map of singapore management university</li></ul>'),
                 value: Grid.startSelect.value,
                 callback: function(input) {
                     if (input == null) {
@@ -380,11 +428,17 @@ if (Meteor.isClient) {
             bootbox.prompt({
                 title: 'What is the URL to call?',
                 inputType: 'text',
-                instruction: $('<div class="well">If this URL points to a standard HTML page, the result will be wrapped in a $ object. You can then use the standard jQuery style CSS selector and traversal to extract the information you are interested in. If the URL points to a RESTful webservice endpoint, the JSON response will be wrapped in an object named as "data". </div>'),
+                instruction: $('<div class="well">If this URL points to a standard HTML page, the result will be wrapped in a $ object. You can then use the standard jQuery style CSS selector and traversal to extract the information you are interested in. If the URL points to a RESTful webservice endpoint, the JSON response will be wrapped in an object named as "data". <br><b>You can try these examples:</b><br><ul><li>map of singapore management university</li><li>http://www.youtube.com/watch?v=tqgO-SwnIEY</li><li>http://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png</li></ul></div>'),
                 value: Grid.startSelect.url,
                 callback: function(input) {
+
+
                     if (input == null) {
                         return;
+                    }
+
+                    if (input.match(/^www/)) {
+                        input = 'http://' + input;
                     }
 
                     if (input.match(/^(http|https):\/\/[^"]+$/)) {
@@ -410,7 +464,7 @@ if (Meteor.isClient) {
                 inputType: 'function',
                 mode: 'javascript',
                 instruction: $('<b>Objects available: </b><br><ul><li>$: jQuery Object</li><li>link: javascript array of linked cells</li><li>data: JSON response from webservice</li></ul>'),
-                value: Grid.startSelect.fn || "var a = $(window).height()\nreturn a;",
+                value: Grid.startSelect.fn || "return null;",
                 callback: function(statements) {
                     if (statements == null) {
                         return;
@@ -725,7 +779,7 @@ if (Meteor.isClient) {
         'click .paste-button': Action.paste,
         'click .delete-button': Action.delete
 
-        
+
     };
 
     Template.toolbox.events = {
@@ -912,9 +966,13 @@ if (Meteor.isServer) {
 
                 }
 
+                var result = fn($, _id);
+
+                if (result === undefined || result === null) return;
+
                 Squares.update(_id, {
                     $set: {
-                        value: fn($, _id),
+                        value: result,
                     }
                 });
             });
@@ -1014,7 +1072,7 @@ if (Meteor.isServer) {
     })
 
     Meteor.startup(function() {
-        Meteor.call('clearAll');
+        // Meteor.call('clearAll');
         Meteor.call('initialize', 'public');
     });
 }

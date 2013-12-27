@@ -360,6 +360,13 @@ give them a red background to see them */
     background: linear-gradient(-45deg, #c9353b 50%, transparent 50%);
     content:'';
 }
+
+/*Sizing Embedly*/
+.square > iframe {
+    height: 100% !important;
+    width: 100% !important;
+}
+
 /* Stroll.js */
  .square ul {
     position: relative;
