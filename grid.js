@@ -269,14 +269,14 @@ if (Meteor.isClient) {
                 }).done(function(results) {
                     if (results.length > 0) {
 
-                        
+
 
                         if (results[0].data) {
                             value = results[0].data;
                         } else if (results[0].html) {
                             value = results[0].html;
                         } else if (results[0].thumbnail_url) {
-                            value = '<a target="_blank" href="' + results[0].url + '"><img src="' + results[0].thumbnail_url + '"></a>';
+                            value = '<a target="_blank" data-toggle="tooltip" title="first tooltip" href="' + results[0].url + '"><img src="' + results[0].thumbnail_url + '"></a>';
                         }
 
                         Squares.update(target._id, {
@@ -431,7 +431,6 @@ if (Meteor.isClient) {
                 instruction: $('<div class="well">If this URL points to a standard HTML page, the result will be wrapped in a $ object. You can then use the standard jQuery style CSS selector and traversal to extract the information you are interested in. If the URL points to a RESTful webservice endpoint, the JSON response will be wrapped in an object named as "data". <br><b>You can try these examples:</b><br><ul><li>map of singapore management university</li><li>http://www.youtube.com/watch?v=tqgO-SwnIEY</li><li>http://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png</li></ul></div>'),
                 value: Grid.startSelect.url,
                 callback: function(input) {
-
 
                     if (input == null) {
                         return;
@@ -606,23 +605,23 @@ if (Meteor.isClient) {
     }
 
     Template.canvas.events({
-        'mousedown .main-container': function(e) {
-            Grid.drag = _.pick(e, 'x', 'y');
-            Grid.drag.scrollTop = $('body').scrollTop();
-            Grid.drag.scrollLeft = $('body').scrollLeft();
+        // 'mousedown .main-container': function(e) {
+        //     Grid.drag = _.pick(e, 'x', 'y');
+        //     Grid.drag.scrollTop = $('body').scrollTop();
+        //     Grid.drag.scrollLeft = $('body').scrollLeft();
 
-        },
-        'mousemove .main-container': function(e) {
-            var sensitivity = 10;
+        // },
+        // 'mousemove .main-container': function(e) {
+        //     var sensitivity = 10;
 
-            if (Grid.drag != null) {
-                if (Math.abs(e.x - Grid.drag.x) > sensitivity || Math.abs(e.y - Grid.drag.y) > sensitivity) {
-                    $('body').css('cursor', 'move');
-                    $('body').scrollTop(Grid.drag.scrollTop - e.y + Grid.drag.y);
-                    $('body').scrollLeft(Grid.drag.scrollLeft - e.x + Grid.drag.x);
-                }
-            }
-        },
+        //     if (Grid.drag != null) {
+        //         if (Math.abs(e.x - Grid.drag.x) > sensitivity || Math.abs(e.y - Grid.drag.y) > sensitivity) {
+        //             $('body').css('cursor', 'move');
+        //             $('body').scrollTop(Grid.drag.scrollTop - e.y + Grid.drag.y);
+        //             $('body').scrollLeft(Grid.drag.scrollLeft - e.x + Grid.drag.x);
+        //         }
+        //     }
+        // },
         'mouseup .main-container': function(e) {
             Grid.drag = null;
             $('body').css('cursor', 'default');
@@ -726,6 +725,35 @@ if (Meteor.isClient) {
 
 
             }
+        },
+
+        'dragover .square': function(event) {
+            event.preventDefault()
+        },
+
+        'drop .square': function(event) {
+            var value = event.dataTransfer.getData('text');
+
+            console.log(event.target.id);
+
+            Grid.startSelect = Squares.findOne(event.target.id);
+
+            if (value.match(/^www/)) {
+                value = 'http://' + value;
+            }
+
+            if (typeof value == 'string' && value.match(/^https?:\/\/.+/)) {
+                Squares.update(Grid.startSelect._id, {
+                    $set: {
+                        url: value
+                    }
+                }, function() {
+                    Grid.startSelect.url = value;
+                    Action.refresh(Grid.startSelect);
+                });
+            }
+
+            event.preventDefault();
         }
     });
 
@@ -848,16 +876,16 @@ if (Meteor.isClient) {
                         Action.copy();
                     }
                 },
-                'super+v': function(e) {
-                    if ($(e.target).is('body')) {
-                        Action.paste();
-                    }
-                },
-                'ctrl+v': function(e) {
-                    if ($(e.target).is('body')) {
-                        Action.paste();
-                    }
-                },
+                // 'super+v': function(e) {
+                //     if ($(e.target).is('body')) {
+                //         Action.paste();
+                //     }
+                // },
+                // 'ctrl+v': function(e) {
+                //     if ($(e.target).is('body')) {
+                //         Action.paste();
+                //     }
+                // },
                 'super+x': function(e) {
                     if ($(e.target).is('body')) {
                         Action.cut();
@@ -939,6 +967,27 @@ if (Meteor.isClient) {
                 }
             });
 
+            $('body').bind('paste', function(e) {
+
+                var value = e.originalEvent.clipboardData.getData('text');
+
+                if (value.match(/^www/)) {
+                    value = 'http://' + value;
+                }
+
+                if (typeof value == 'string' && value.match(/^https?:\/\/.+/)) {
+                    Squares.update(Grid.startSelect._id, {
+                        $set: {
+                            url: value
+                        }
+                    }, function() {
+                        Grid.startSelect.url = value;
+                        Action.refresh(Grid.startSelect);
+                    });
+                } else {
+                    Action.paste()
+                }
+            });
             // $('.loading').remove();
 
         }, 500);
@@ -1029,8 +1078,8 @@ if (Meteor.isServer) {
             if (Squares.find({
                 canvasId: canvasId
             }).count() == 0) {
-                for (var i = 0; i < 15; i++) {
-                    for (var j = 0; j < 15; j++) {
+                for (var i = 0; i < 10; i++) {
+                    for (var j = 0; j < 10; j++) {
                         Squares.insert({
                             x: i,
                             y: j,
