@@ -605,23 +605,24 @@ if (Meteor.isClient) {
     }
 
     Template.canvas.events({
-        // 'mousedown .main-container': function(e) {
-        //     Grid.drag = _.pick(e, 'x', 'y');
-        //     Grid.drag.scrollTop = $('body').scrollTop();
-        //     Grid.drag.scrollLeft = $('body').scrollLeft();
+        'mousedown .main-container': function(e) {
+            console.log(e);
+            
+            Grid.drag = _.pick(e, 'x', 'y');
+            Grid.drag.scrollTop = $('body').scrollTop();
+            Grid.drag.scrollLeft = $('body').scrollLeft();
+        },
+        'mousemove .main-container': function(e) {
+            var sensitivity = 10;
 
-        // },
-        // 'mousemove .main-container': function(e) {
-        //     var sensitivity = 10;
-
-        //     if (Grid.drag != null) {
-        //         if (Math.abs(e.x - Grid.drag.x) > sensitivity || Math.abs(e.y - Grid.drag.y) > sensitivity) {
-        //             $('body').css('cursor', 'move');
-        //             $('body').scrollTop(Grid.drag.scrollTop - e.y + Grid.drag.y);
-        //             $('body').scrollLeft(Grid.drag.scrollLeft - e.x + Grid.drag.x);
-        //         }
-        //     }
-        // },
+            if (Grid.drag != null) {
+                if (Math.abs(e.x - Grid.drag.x) > sensitivity || Math.abs(e.y - Grid.drag.y) > sensitivity) {
+                    $('body').css('cursor', 'move');
+                    $('body').scrollTop(Grid.drag.scrollTop - e.y + Grid.drag.y);
+                    $('body').scrollLeft(Grid.drag.scrollLeft - e.x + Grid.drag.x);
+                }
+            }
+        },
         'mouseup .main-container': function(e) {
             Grid.drag = null;
             $('body').css('cursor', 'default');
@@ -751,6 +752,8 @@ if (Meteor.isClient) {
                     Grid.startSelect.url = value;
                     Action.refresh(Grid.startSelect);
                 });
+            } else {
+                //swap
             }
 
             event.preventDefault();
