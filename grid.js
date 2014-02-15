@@ -21,7 +21,9 @@ FUNCTION_BANK = {
     "^(favourite music of)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;}Meteor.call('getFavouriteMusic', facebookUserID, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
     "^(people attending)": "if (link[0].value._type == 'fb_event') {var fbEventId = link[0].value.id} else {fbEventId = link[0].value;}Meteor.call('getEventAttendees', fbEventId, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
     "^(users called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
-    "^(event called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'event'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});"
+    "^(event called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'event'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
+    "^(count)": "if (Array.isArray(link[0].value)) {\n\treturn link[0].value.length;\n}",
+    "^(spotify)": "var query;\nif (Array.isArray(link[0].value)) {\n\tquery = link[0].value[0].name;\n} else {\n\tquery = link[0].value;\n}\n\n\nMeteor.http.get('http://ws.spotify.com/search/1/track.json?q=' + query, function(data) {\n\tvar array = _.map(data.tracks, function(element) {\n\t\treturn {\n\t\t\t_type: 'spotify_track',\n\t\t\ttext: element.name,\n\t\t\thref: element.href\n\t\t}\n\t});\n\n\tSquares.update(id, {\n\t\t$set: {\n\t\t\tvalue: array\n\t\t}\n\t});\n});"
 }
 
 Utility = {
@@ -416,9 +418,6 @@ if (Meteor.isClient) {
                     }
                 }).done(function(results) {
                     if (results.length > 0) {
-
-
-
                         if (results[0].data) {
                             value = results[0].data;
                         } else if (results[0].html) {
@@ -434,8 +433,6 @@ if (Meteor.isClient) {
                         });
                     }
                 });
-
-                // Action.fetch(target.url);
             } else {
                 try {
                     var fn = new Function(['$', 'link', 'id'], target.fn);
