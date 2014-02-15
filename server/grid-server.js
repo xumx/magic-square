@@ -288,6 +288,13 @@ if (Meteor.isServer) {
             groupedMusicArray = groupedMusicArray.slice(0,Math.min(groupedMusicArray.length, 10));
             
             return groupedMusicArray;
+        },
+        getEventMetaData: function(eventID) {
+            var response = HTTP.get("https://graph.facebook.com/" + eventID
+                + "?access_token=" + FB_ACCESS_TOKEN);
+            var eventObj = response.data;
+            var eventMeta = _.pick(eventObj, "id", "name", "owner", "start_time", "end_time", "location", "venue");
+            return eventMeta;
         }
     });
 
