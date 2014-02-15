@@ -4,6 +4,26 @@ Magic Square
 Magic Square reimagines Excel for the web, and accept javascript as a cell's formula.
 
 
+
+### Facebook Hackathon Demo
+
+Demo use case
+1. People going to Facebook Singapore Hackathon
+2. FQL -> SELECT people FROM event....
+3. Render photos within selected area
+4. Hover name (Low priority)
+
+5. Detect input on the left
+6. Auto replicate question downwards
+
+7. Profile block that takes a person object as input
+8. Drag drop person square to input
+
+
+
+
+==
+
 v0.1 by @xumx
 
 ### Demo
