@@ -6,7 +6,8 @@
       "animate-css": {},
       "keybindings": {},
       "npm": {},
-      "houston": {}
+      "houston": {},
+      "jquery-ui": {}
     },
     "packages": {
       "bootstrap-3": {
@@ -33,6 +34,11 @@
         "git": "https://github.com/gterrono/meteor-admin-ui.git",
         "tag": "v1.0.0",
         "commit": "e98660af09cb3e4e90848abfe943a06e7068cccc"
+      },
+      "jquery-ui": {
+        "git": "https://github.com/TimHeckel/meteor-jquery-ui.git",
+        "tag": "v1.9.2",
+        "commit": "c437d45edcf1367df8d5ffa8bad2867758030bd2"
       },
       "paginated-subscription": {
         "git": "https://github.com/tmeasday/meteor-paginated-subscription.git",
