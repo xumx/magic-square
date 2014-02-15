@@ -1,6 +1,6 @@
 if (Meteor.isServer) {
     var cheerio = Meteor.require('cheerio');
-    var FB_ACCESS_TOKEN = "CAACEdEose0cBAPsxgKscZAtC8iqQpSv9LYfLomBl6mdTJXDUczCjOY265reA4zn43aQgVjRjFPH9nKh98JD3f6d9bo26yC4VqkZBQjiceOM8uZCX6Fxc9UPQU0hbQVEq0KoZBzxyyWSljryc82HQZCIm1THdaqzksTgeKo5oZBO6FFiIo8nOKKRvUSkp9LS3oZD";
+    var FB_ACCESS_TOKEN = "CAACEdEose0cBABAHkbhceC7SmNlZBapcGmlhPJDFYoMCeFl8r9ns3kHTf1gSrmkGiCX92qRemQApFMuf8juvqCsqtYO54QoCneOJXKp8RmO7L0wZC7RqNzBAxkdCZCL8ADqa6NRS9pwrSVdXEKZCxkZC63jZC4OTkxEm46ZBJh6hlykp8lbXVWTHNZC66SrugQIZD";
 
     Meteor.methods({
         fetch: function(url, statements, _id) {
@@ -134,8 +134,14 @@ if (Meteor.isServer) {
         FACEBOOK API METHODS
     *********************************************************************/
     Meteor.methods({
-        'test': function(input) {
-            aggregateMusicLikes(input);
+        test: function() {
+            console.log("Method is called");
+            var attendees = Meteor.call("getEventAttendees", "Facebook Singapore Hackathon");
+            var attendeeIDs = _.map(attendees, function (attendee) {
+                return attendee.id;
+            });
+            var aggregatedMusic = Meteor.call("aggregateMusicLikes", attendeeIDs);
+            console.log(aggregatedMusic);
             return;
         },
         'search-fb': function(input) {
@@ -189,17 +195,47 @@ if (Meteor.isServer) {
             var mergedArr = _.union(tvShowsFound, moviesFound);
             return mergedArr;
         },
+        getFavouriteMusicBatched: function(usersArray) { //Method to get music likes for all users through batching
+            if (usersArray.length > 50) {
+                console.log("Batch query limit exceeded. Max 50 only.");
+                return;
+            }
+
+            var batchJSONArray = new Array();
+
+            _.each(usersArray, function(userID) {
+                var requestObj = {
+                    method: "GET",
+                    relative_url: userID + "/music"
+                };
+                batchJSONArray.push(requestObj);
+            });
+
+            var batchRequestURL = "https://graph.facebook.com/"
+                + "?batch=" + JSON.stringify(batchJSONArray)
+                + "&access_token=" + FB_ACCESS_TOKEN;
+
+            var batchResponse = HTTP.post(batchRequestURL);
+            console.log(batchResponse);
+            return batchResponse;
+        },
         aggregateMusicLikes: function (userIDArray) {
+            var startTime = new Date();
             if (!userIDArray && userIDArray.length === 0) return null;
             
             var userMusicLikes = new Array();
+            var batchUserIDs = new Array(); //Array to store the user IDs to make the batched API call
 
             //Get music likes for each individual user
-            _.each(userIDArray, function(userID) {
-                var musicLikes = getFavouriteMusic(userID);
-                _.each(musicLikes, function(like) {
-                    userMusicLikes.push(like);
-                });
+            _.each(userIDArray, function(userID, index, list) {
+                batchUserIDs.push(userID);
+                if (batchUserIDs.length === 50 || index === (list.length - 1)) {
+                    var musicLikes = Meteor.call("getFavouriteMusicBatched", batchUserIDs);
+                    batchUserIDs = new Array(); //resetting the array to store new user IDs
+                    // _.each(musicLikes, function(like) {
+                    //     userMusicLikes.push(like);
+                    // });
+                }
             });
 
             var groupedMusicObj = _.groupBy(userMusicLikes, function(like) {
@@ -223,6 +259,9 @@ if (Meteor.isServer) {
             });
             
             groupedMusicArray = groupedMusicArray.slice(0,Math.min(groupedMusicArray.length, 10));
+
+            var endTime = new Date();
+            console.log("Time Taken = " + (endTime - startTime));
             
             return groupedMusicArray;
         }
