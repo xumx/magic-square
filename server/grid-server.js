@@ -1,6 +1,6 @@
 if (Meteor.isServer) {
     var cheerio = Meteor.require('cheerio');
-    var FB_ACCESS_TOKEN = "CAACEdEose0cBAMG8C0yRtnthcLLVwwZCymeQgy4NeDtEi37BFxyRcVUd7P3nLfkzHHJjghGCUvSDT27XsJuTZArsyfnMVKQs3DM8SNKfvz3WWAB4Q86RtEeTwXFAzlcpiAY6usPosXeqgP5ZANXpZAMF8HUiZCme9vItE25okcnkZAjscsHVzC9bAGd8AZAZCgYZD";
+    var FB_ACCESS_TOKEN = "CAACEdEose0cBAH0ZANILMOPhNN8bibfGkFj5ihA2ZCRLl4feubjwV9bcqAjxUGaSo8mlIJG2oNwfzgZBTO9hBogtQH8cRpCMjYRLQGzBxLZBsH4ygzkLGjlOacWB9RWdsmLKCS44qjvZBoxX2OwBPVZBGZC9bSX5ozqI0IQVOZA6RSeZB8DYXV6Ad8hND8r58Oq4ZD";
 
     Meteor.methods({
         fetch: function(url, statements, _id) {
@@ -268,6 +268,12 @@ if (Meteor.isServer) {
             });
             return dataParts;
         },
+        getPeopleWhoLike: function(data) {
+            var searchUsers = data.users;
+            var artistId = data.id;
+            var usersWhoLike = new Array();
+            return usersWhoLike;
+        },
         aggregateMusicLikes: function (userIDArray) {
             if (!userIDArray && userIDArray.length === 0) return null;
             
@@ -280,7 +286,7 @@ if (Meteor.isServer) {
                 
                 if (batchUserIDs.length === 50 || index === (list.length - 1)) {
                     var musicLikes = Meteor.call("getFavouriteMusicBatched", batchUserIDs);
-                    
+
                     batchUserIDs = new Array(); //resetting the array to store new user IDs
 
                     _.each(musicLikes, function(likesPerUser) {
