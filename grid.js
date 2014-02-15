@@ -454,6 +454,9 @@ if (Meteor.isClient) {
                     bootbox.alert(error.message);
                 }
             }
+            
+            //TODO: Make this work
+	        setTimeout(refreshDraggable, 500);
         },
         refreshAll: function() {
             //Placeholder
@@ -1383,6 +1386,43 @@ if (Meteor.isClient) {
             });
             // $('.loading').remove();
 
+            refreshDraggable();
+
         }, 500);
     });
+
+	function refreshDraggable() {
+		$('body').find('.objectarray > li').each(function(){
+			$(this).draggable({
+				appendTo: 'body',
+				containment: $('body'),
+				helper: 'clone'
+			});
+		});
+	    $('body').find('.square').each(function(){
+	    	$(this).droppable({
+		      	drop: function(event, ui) {
+		      		var newSquare = Squares.findOne($(this).attr('id'));
+		      		var $li = $(ui.draggable); /////
+		      		var oldSquare = Squares.findOne($li.closest('.square').attr('id'));
+		        	var arrItem = oldSquare.value[$li.index()];
+		        	var newItem = {
+		        		"_type": 'fb_object', //HARDCODED
+		        		"id": arrItem.id,
+		        		"name": arrItem.name
+		        	};
+		            Squares.update(newSquare._id, {
+		                $unset: {fn:null},
+		                $set: {value: newItem}
+		            }, (function(id) {
+		                return function() {
+		                    Action.refresh(Squares.findOne(id));
+		                }
+		            })(newSquare._id));
+		        	return false;
+	  			}
+		    });
+	    });
+	}
+
 }
