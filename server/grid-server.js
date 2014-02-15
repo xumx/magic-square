@@ -138,9 +138,9 @@ if (Meteor.isServer) {
     });
 }
 
-/*
-    FACEBOOK METHODS
-*/
+/*********************************************************************
+    FACEBOOK API METHODS
+*********************************************************************/
 function getEventAttendees(eventName) {
     //Search for the ID of the event
     var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";
