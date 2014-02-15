@@ -17,6 +17,12 @@ _.templateSettings = {
     interpolate: /(link\[[0-9]+\])/g
 };
 
+FUNCTION_BANK = {
+    "^(favourite music of )": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;}Meteor.call('getFavouriteMusic', facebookUserID, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
+    "^(friend of )": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
+    "^(event of )": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'event'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});"
+}
+
 Utility = {
     deselect: function() {
         Squares.find({
@@ -183,7 +189,7 @@ if (Meteor.isClient) {
 
         //Render object TODO
         if (value._type == "fb_user") {
-            return new Handlebars.SafeString('<img src="http://graph.facebook.com/' + value.id + '/picture?type=large" width="'+this.width * 100 +'" height="'+this.height * 100 +'" ><div class="overlay">'+value.name+'</div>');
+            return new Handlebars.SafeString('<img src="http://graph.facebook.com/' + value.id + '/picture?type=large" width="' + this.width * 100 + '" height="' + this.height * 100 + '" ><div class="overlay">' + value.name + '</div>');
         }
 
 
@@ -647,68 +653,47 @@ if (Meteor.isClient) {
                         return;
                     }
 
-                    if (typeof input == 'string' && input.match(/^me$/i)) {
-                        var value = _.extend(Meteor.user().services.facebook, {_type:'fb_user'});
-                        Squares.update(Grid.startSelect._id, {
-                            $set: {
-                                value: value
+
+                    if (typeof input == 'string') {
+
+                        if (input.match(/^me$/i)) {
+                            var value = _.extend(Meteor.user().services.facebook, {
+                                _type: 'fb_user'
+                            });
+                            Squares.update(Grid.startSelect._id, {
+                                $set: {
+                                    value: value
+                                }
+                            });
+                        }
+
+                        //TESTING FACEBOOK
+                        _.each(FUNCTION_BANK, function(value, key) {
+                            var re = new RegExp(key, 'i');
+
+                            if (input.match(re)) {
+                                var query = input.replace(re, '');
+                                var statements = value;
+
+                                try {
+                                    var fn = new Function(['$', 'link', 'id'], statements);
+
+                                    Squares.update(Grid.startSelect._id, {
+                                        $set: {
+                                            fn: statements
+                                        }
+                                    }, function() {
+                                        Action.refresh(Grid.startSelect);
+                                    });
+                                } catch (error) {
+                                    bootbox.alert(error.message);
+                                }
+
                             }
                         });
                     }
 
-                    //TESTING FACEBOOK
-                    if (typeof input == 'string' && input.match(/^(friends of) /i)) {
-                        var query = input.replace(/^(friends of) /, '');
 
-                        if (query.match(/(link\[[0-9]+\])/)) {
-                            query = query + '.value';
-                        } else {
-                            query = '\'' + query + '\'';
-                        }
-
-                        var statements = "var data = {q: " + query + " ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});";
-
-                        try {
-                            var fn = new Function(['$', 'link', 'id'], statements);
-
-                            Squares.update(Grid.startSelect._id, {
-                                $set: {
-                                    fn: statements
-                                }
-                            }, function() {
-                                Action.refresh(Grid.startSelect);
-                            });
-                        } catch (error) {
-                            bootbox.alert(error.message);
-                        }
-                    }
-
-                    //Music
-                    if (typeof input == 'string' && input.match(/^(favourite music of) /i)) {
-                        var query = input.replace(/^(favourite music of) /, '');
-
-                        if (query.match(/(link\[[0-9]+\])/)) {
-                            query = query + '.value';
-                        } else {
-                            query = '\'' + query + '\'';
-                        }
-
-                        var statements = "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;}Meteor.call('getFavouriteMusic', facebookUserID, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});";
-
-                        try {
-                            var fn = new Function(['$', 'link', 'id'], statements);
-
-                            Squares.update(Grid.startSelect._id, {
-                                $set: {
-                                    fn: statements
-                                }
-                            }, function() {
-                                Action.refresh(Grid.startSelect);
-                            });
-                        } catch (error) {
-                            bootbox.alert(error.message);
-                        }
-                    }
 
                     try {
                         input = JSON.parse(input);
