@@ -23,7 +23,11 @@
 <template name="toolbox">
     <ul class="nav navmenu-nav">
         <li>
-            <button class="btn btn-warning login-button">Login with Facebook</button>
+			{{#if currentUser}}
+				<button class="btn btn-info logout-button">Logout: {{currentUser.profile.name}}</button>
+			{{else}}
+				<button class="btn btn-success login-button">Login with Facebook</button>
+			{{/if}}
         </li>
         <li>
             <button class="btn btn-warning new-canvas-button">Create New Canvas</button>
