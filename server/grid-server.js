@@ -194,6 +194,36 @@ if (Meteor.isServer) {
             var friendsFound = response.data.data;
             return friendsFound;
         },
+        getMutualFriendsBatched: function(usersArray) {
+            if (usersArray.length > 50) {
+                console.log("Batch query limit exceeded. Max 50 only.");
+                return;
+            }
+
+            var batchJSONArray = new Array();
+
+            _.each(usersArray, function(userID) {
+                var requestObj = {
+                    method: "GET",
+                    relative_url: userID + "/mutualfriends"
+                };
+                batchJSONArray.push(requestObj);
+            });
+
+            var batchRequestURL = "https://graph.facebook.com/"
+                + "?batch=" + JSON.stringify(batchJSONArray)
+                + "&access_token=" + FB_ACCESS_TOKEN;
+
+            var batchResponse = HTTP.post(batchRequestURL);
+            var dataChunk = batchResponse.data;
+            var dataParts = new Array();
+            _.each(dataChunk, function(dataChunk) {
+                var dataChunkBody = _.pick(dataChunk, "body");
+                var bodyContent = JSON.parse(dataChunkBody.body);
+                dataParts.push(bodyContent.data);
+            });
+            return dataParts;
+        },
         getFavouriteMusic: function(facebookUserID) {
             var response = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/music"
                 + "?access_token=" + FB_ACCESS_TOKEN
@@ -289,6 +319,25 @@ if (Meteor.isServer) {
             
             return groupedMusicArray;
         },
+        aggregateMutualFriends: function(userArray) {
+            if (!userArray && userArray.length === 0) return null;
+
+            var userMutualFriends = new Array();
+            var batchUsers = new Array(); //Array to store the user IDs to make the batched API call
+
+            //Get mutual friends for each individual user
+            _.each(userArray, function(user, index, list) {
+                batchUserIDs.push(user.id);
+
+                if (batchUserIDs.length === 50 || index === (list.length - 1)) {
+                    var mutualFriendResults = Meteor.call("getFavouriteMusicBatched", batchUserIDs);
+
+                    batchUserIDs = new Array(); //resetting the array to store new user IDs
+
+                }
+            });
+
+        }
         getEventMetaData: function(eventID) {
             var response = HTTP.get("https://graph.facebook.com/" + eventID
                 + "?access_token=" + FB_ACCESS_TOKEN);
