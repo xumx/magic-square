@@ -136,13 +136,16 @@ if (Meteor.isServer) {
             console.log(response);
         },
 		'search-fb': function(input) {
-			return Meteor.http.call("GET", 
+			var result = Meteor.http.call("GET", 
 								'https://graph.facebook.com/search?' + 
 									'q=' + input.q + 
 									'&type=' + input.type +
 									'&limit=' + 20 +
 									'&access_token=' + Meteor.user().services.facebook.accessToken
 								);
+
+            console.log(result);
+            return result;
 		}
     });
 }
