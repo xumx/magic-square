@@ -198,28 +198,7 @@ if (Meteor.isClient) {
 
         return new Handlebars.SafeString(value);
     }
-
-    function renderFBArray(value) {
-        result = '<ul class="' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
-        _.each(value, function(row) {
-            if (typeof row == 'object' && row.href && row.text) {
-                if (typeof row.href == 'string' && typeof row.text == 'string') {
-                    result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
-                }
-            } else if (typeof row == 'object' && row.name) {
-                //This is an FB user result
-                result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.name + '</li>\n'
-            } else {
-                result += '<li>' + row + '</li>\n'
-            }
-        })
-        result += '</ul>'
-        _.defer(function() {
-            stroll.bind('.square ul');
-        });
-        return result;
-    }
-
+    
     Template.toolbox.stencils = function() {
         return Stencils.find({});
     }
