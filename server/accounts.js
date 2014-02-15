@@ -1,10 +1,14 @@
 var facebook = {
-    appID: 726903517340062,
-    appSecret: "d085baf22691cc4f59efaf0815162bb4"
+    appId: "726903517340062",
+    secret: "d085baf22691cc4f59efaf0815162bb4"
 };
+
+Accounts.loginServiceConfiguration.remove({
+	service: "facebook"
+});
 
 Accounts.loginServiceConfiguration.insert({
 	service: "facebook",
-	appID: facebook.appID,
-	secret: facebook.appSecret
+	appId: facebook.appId,
+	secret: facebook.secret
 });
