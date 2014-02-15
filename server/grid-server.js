@@ -1,6 +1,6 @@
 if (Meteor.isServer) {
     var cheerio = Meteor.require('cheerio');
-    var FB_ACCESS_TOKEN = "CAACEdEose0cBAPsxgKscZAtC8iqQpSv9LYfLomBl6mdTJXDUczCjOY265reA4zn43aQgVjRjFPH9nKh98JD3f6d9bo26yC4VqkZBQjiceOM8uZCX6Fxc9UPQU0hbQVEq0KoZBzxyyWSljryc82HQZCIm1THdaqzksTgeKo5oZBO6FFiIo8nOKKRvUSkp9LS3oZD";
+    var FB_ACCESS_TOKEN = "CAACEdEose0cBACupbUdgZCZB34JmHKeHeOZAPO7VaYrtPdfycH9ZBjYYRYZCZBfP70SoiJs5ZCBTIZBnaVun9BWmKoSD3o5S46ZCmkGSD0ZCQEAYNwv1rx0plClhY9QzHnY8JQyZBNmIp9vDwHQVEEOlRPTzrW9wrfJcES7p7NrRW8oEeyyqwN540XRkTPThf68hooZD";
 
     Meteor.methods({
         fetch: function(url, statements, _id) {
@@ -150,7 +150,23 @@ if (Meteor.isServer) {
             console.log(result);
             return result;
         },
-        getEventAttendees: function(eventName) {
+        getEventAttendees: function(eventID) {
+            // if (!eventName || eventName.length === 0) return null; //No event name found
+            // //Search for the ID of the event
+            // var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";
+            // var eventIDresponse = HTTP.get("https://graph.facebook.com/fql?q=" + eventIDquery
+            //     + "&access_token=" + FB_ACCESS_TOKEN);
+            // var eventsFound = eventIDresponse.data.data;
+            // var eventID = eventsFound[0].eid;
+            // console.log("Event ID: " + eventID);
+
+            //Get the attendees for the event
+            var eventAttendeesResponse = HTTP.get("https://graph.facebook.com/" + eventID + "/attending"
+                + "?access_token=" + FB_ACCESS_TOKEN);
+            var eventAttendeesArray = eventAttendeesResponse.data.data;
+            return eventAttendeesArray;
+        },
+        getEventAttendeesByEventName: function(eventName) {
             if (!eventName || eventName.length === 0) return null; //No event name found
             //Search for the ID of the event
             var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";

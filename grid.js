@@ -18,9 +18,10 @@ _.templateSettings = {
 };
 
 FUNCTION_BANK = {
-    "^(favourite music of )": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;}Meteor.call('getFavouriteMusic', facebookUserID, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
-    "^(friend of )": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
-    "^(event of )": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'event'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});"
+    "^(favourite music of)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;}Meteor.call('getFavouriteMusic', facebookUserID, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
+    "^(people attending)": "if (link[0].value._type == 'fb_event') {var fbEventId = link[0].value.id} else {fbEventId = link[0].value;}Meteor.call('getEventAttendees', fbEventId, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
+    "^(users called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
+    "^(event called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'event'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});"
 }
 
 Utility = {
@@ -188,7 +189,7 @@ if (Meteor.isClient) {
 
 
         //Render object TODO
-        if (value._type == "fb_user") {
+        if (value._type == "fb_user" || value._type == "fb_event" || value._type == "fb_music") {
             return new Handlebars.SafeString('<img src="http://graph.facebook.com/' + value.id + '/picture?type=large" width="' + this.width * 100 + '" height="' + this.height * 100 + '" ><div class="overlay">' + value.name + '</div>');
         }
 
