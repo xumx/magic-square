@@ -136,7 +136,7 @@ if (Meteor.isServer) {
         'test': function(input) {
             aggregateMusicLikes(input);
             return;
-        }
+        },
         'search-fb': function(input) {
             var result = Meteor.http.call("GET",
                 'https://graph.facebook.com/search?' +
@@ -231,5 +231,5 @@ if (Meteor.isServer) {
         // Meteor.call('clearAll');
         Meteor.call('initialize', 'public');
     });
-    
+
 }
