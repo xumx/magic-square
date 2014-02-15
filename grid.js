@@ -10,6 +10,9 @@ API = {
     }
 }
 
+// Facebook Singapore Hackathon": 574877579268704
+// HACKATHON_EVENTID = ""
+
 _.templateSettings = {
     interpolate: /(link\[[0-9]+\])/g
 };
@@ -73,18 +76,18 @@ Utility = {
 }
 
 if (Meteor.isClient) {
-	
-	Session.setDefault('fb-result', '');
-	Deps.autorun(function() {
-		var result = Session.get('fb-result');
-		if (typeof result == 'object') {
-			Squares.update(result.squareId, {
-				$set: {
-					value: result.value
-				}
-			});
-		}
-	});
+
+    Session.setDefault('fb-result', '');
+    Deps.autorun(function() {
+        var result = Session.get('fb-result');
+        if (typeof result == 'object') {
+            Squares.update(result.squareId, {
+                $set: {
+                    value: result.value
+                }
+            });
+        }
+    });
 
     Template.canvas.squares = function() {
         return Squares.find({}, {
@@ -147,14 +150,20 @@ if (Meteor.isClient) {
         //Alternate format [{text:"Appple", href:"http://apple.com"} , {text:"Amazon",href:"http://amazon.com"}]
 
         if (Array.isArray(value)) {
-			
+
+
+
             result = '<ul class="' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
 
             _.each(value, function(row) {
                 if (typeof row == 'object') {
-                    if (typeof row.href == 'string' && typeof row.text == 'string') {
+
+                    if (row.name) {//This is an FB user result
+                        result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.name + '</li>\n'
+                    } else if (typeof row.href == 'string' && typeof row.text == 'string') {
                         result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
                     }
+
                 } else {
                     result += '<li>' + row + '</li>\n'
                 }
@@ -171,27 +180,27 @@ if (Meteor.isClient) {
         }
         return new Handlebars.SafeString(value);
     }
-	
-	function renderFBArray(value) {
-		result = '<ul class="' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
-		_.each(value, function(row) {
-			if (typeof row == 'object' && row.href && row.text) {
-				if (typeof row.href == 'string' && typeof row.text == 'string') {
-					result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
-				}
-			} else if (typeof row == 'object' && row.name) {
-				//This is an FB user result
-				result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.name + '</li>\n'
-			} else {
-				result += '<li>' + row + '</li>\n'
-			}
-		})
-		result += '</ul>'
-		_.defer(function() {
-			stroll.bind('.square ul');
-		});
-		return result;
-	}
+
+    function renderFBArray(value) {
+        result = '<ul class="' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
+        _.each(value, function(row) {
+            if (typeof row == 'object' && row.href && row.text) {
+                if (typeof row.href == 'string' && typeof row.text == 'string') {
+                    result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
+                }
+            } else if (typeof row == 'object' && row.name) {
+                //This is an FB user result
+                result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.name + '</li>\n'
+            } else {
+                result += '<li>' + row + '</li>\n'
+            }
+        })
+        result += '</ul>'
+        _.defer(function() {
+            stroll.bind('.square ul');
+        });
+        return result;
+    }
 
     Template.toolbox.stencils = function() {
         return Stencils.find({});
@@ -206,18 +215,18 @@ if (Meteor.isClient) {
 
     Action = {
         login: function() {
-			Meteor.loginWithFacebook({
+            Meteor.loginWithFacebook({
                 requestPermissions: [
                     'user_events'
                 ]
-            },function(err){
-				if (err) console.log(err);
-				else console.log('Logged in!');
-			});
+            }, function(err) {
+                if (err) console.log(err);
+                else console.log('Logged in!');
+            });
         },
-		logout: function() {
-			Meteor.logout();
-		},
+        logout: function() {
+            Meteor.logout();
+        },
         trySubscribe: function(error) {
             var password = null;
 
@@ -412,15 +421,19 @@ if (Meteor.isClient) {
                 // Action.fetch(target.url);
             } else {
                 try {
-                    var fn = new Function(['$', 'link', 'ID'], target.fn);
+                    var fn = new Function(['$', 'link', 'id'], target.fn);
 
                     var linkArray = _.map(target.link, function(link) {
                         return Squares.findOne(link);
                     });
 
+                    var result = fn($, linkArray, target._id);
+
+                    if (result == null || result == undefined) return;
+
                     Squares.update(target._id, {
                         $set: {
-                            value: fn($, linkArray, target._id),
+                            value: result
                         }
                     });
                 } catch (error) {
@@ -516,25 +529,33 @@ if (Meteor.isClient) {
                     if (input == null) {
                         return;
                     }
-					
-					//TESTING FACEBOOK
-					if (typeof input == 'string' && input.split('search-fb')[1]) {
-						var data = {
-							q: input.split(' ')[2],
-							type: input.split(' ')[1]
-						};
-						Meteor.apply('search-fb', [data], {wait: true}, function(err, searchReturn){
-							if (err) console.log(err);
-							if (searchReturn && searchReturn.data.data.length > 1) {
-								var arrayResult = $.extend(true, [], searchReturn.data.data);
-								Session.set('fb-result', {
-									squareId: Grid.startSelect._id, 
-									value: renderFBArray(arrayResult)
-								});
-								//Check Deps.autorun for value update
-							}
-						});
-					}
+
+                    //TESTING FACEBOOK
+                    if (typeof input == 'string' && input.match(/^(friends of) /i)) {
+                        var query = input.replace(/^(friends of) /, '');
+                        
+                        if (query.match(/(link\[[0-9]+\])/)) {
+                            query = query + '.value';
+                        } else {
+                            query = '\'' + query + '\'';
+                        }
+
+                        var statements = "var data = {q: "+query+" ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});";
+
+                        try {
+                            var fn = new Function(['$', 'link', 'id'], statements);
+
+                            Squares.update(Grid.startSelect._id, {
+                                $set: {
+                                    fn: statements
+                                }
+                            }, function() {
+                                Action.refresh(Grid.startSelect);
+                            });
+                        } catch (error) {
+                            bootbox.alert(error.message);
+                        }
+                    }
 
                     try {
                         input = JSON.parse(input);
@@ -544,23 +565,23 @@ if (Meteor.isClient) {
                     }
 
                     //if there is a change
-					if (input != Grid.startSelect.value) {
-						Squares.update(Grid.startSelect._id, {
-							$set: {
-								value: input
-							}
-						});
+                    if (input != Grid.startSelect.value) {
+                        Squares.update(Grid.startSelect._id, {
+                            $set: {
+                                value: input
+                            }
+                        });
 
-						//TODO Recursive propagation
-						//Propagate changes
-						Squares.find({
-							link: Grid.startSelect._id
-						}, {
-							transform: function(e) {
-								Action.refresh(e);
-							}
-						}).fetch();
-					}
+                        //TODO Recursive propagation
+                        //Propagate changes
+                        Squares.find({
+                            link: Grid.startSelect._id
+                        }, {
+                            transform: function(e) {
+                                Action.refresh(e);
+                            }
+                        }).fetch();
+                    }
                 }
             });
         },
@@ -794,12 +815,12 @@ if (Meteor.isClient) {
                 for (var i = 0; i < Grid.startSelect.link.length; i++) {
                     link = Squares.findOne(Grid.startSelect.link[i]);
                     nextLink = Utility.findNextSquare(link, direction, offset);
-                    
+
                     //If cell is blank
-                    if(!nextLink.value || typeof nextLink.value !== typeof link.value) {
+                    if (!nextLink.value || typeof nextLink.value !== typeof link.value) {
                         return;
                     }
-                    
+
                     payload.link.push(nextLink._id);
                 }
 
