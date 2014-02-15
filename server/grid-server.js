@@ -135,12 +135,8 @@ if (Meteor.isServer) {
     *********************************************************************/
     Meteor.methods({
         test: function() {
-            var attendees = Meteor.call("getEventAttendees", "574877579268704");
-            var attendeeIDs = _.map(attendees, function (attendee) {
-                return attendee.id;
-            });
-            var aggregatedMusic = Meteor.call("aggregateMusicLikes", attendeeIDs);
-            console.log(aggregatedMusic);
+            var eventObj = Meteor.call("getEventMetaData", "574877579268704");
+            console.log(eventObj);
             return;
         },
         'search-fb': function(input) {
@@ -288,6 +284,13 @@ if (Meteor.isServer) {
             console.log("Time Taken = " + (endTime - startTime));
             
             return groupedMusicArray;
+        },
+        getEventMetaData: function(eventID) {
+            var response = HTTP.get("https://graph.facebook.com/" + eventID
+                + "?access_token=" + FB_ACCESS_TOKEN);
+            var eventObj = response.data;
+            var eventMeta = _.pick(eventObj, "id", "name", "owner", "start_time", "end_time", "location", "venue");
+            return eventMeta;
         }
     });
 
