@@ -131,8 +131,8 @@ if (Meteor.isServer) {
 
     //TESTING CODE
     Meteor.methods({
-        fbTest: function(eventName) {
-            var response = getEventAttendees(eventName);
+        test: function(userID) {
+            var response = getFavouriteMusic(userID);
             console.log(response);
         }
     });
@@ -156,4 +156,30 @@ function getEventAttendees(eventName) {
         + "?access_token=" + Meteor.user().services.facebook.accessToken);
     var eventAttendeesArray = eventAttendeesResponse.data;
     return eventAttendeesArray;
+}
+
+function getMutualFriends(facebookUserID) {
+    var response = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/mutualfriends"
+        + "?access_token=" + Meteor.user().services.facebook.accessToken);
+    var friendsFound = response.data.data;
+    return friendsFound;
+}
+
+function getFavouriteMusic(facebookUserID) {
+    var response = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/music"
+        + "?access_token=" + Meteor.user().services.facebook.accessToken);
+    var artistsFound = response.data.data;
+    return artistsFound;
+}
+
+function getFavouriteMoviesAndTVShows(facebookUserID) {
+    var tvResponse = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/television"
+        + "?access_token=" + Meteor.user().services.facebook.accessToken);
+    var tvShowsFound = tvResponse.data.data;
+    
+    var movieResponse = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/movies"
+        + "?access_token=" + Meteor.user().services.facebook.accessToken);
+    var moviesFound = movieResponse.data.data;
+    var mergedArr = _.union(tvShowsFound, moviesFound);
+    return mergedArr;
 }
