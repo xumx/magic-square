@@ -117,7 +117,7 @@ if (Meteor.isClient) {
     Template.canvas.read = function() {
         var query, value = this.value;
 
-        //Priority
+        //Priority Resolving Links
         if (typeof value == 'string' && value.match(/link\[[0-9]+\]/)) {
 
             var linkArray = _.map(this.link, function(link) {
@@ -131,24 +131,25 @@ if (Meteor.isClient) {
             //No return, so that the value is carried forward
         }
 
+        if (typeof value == 'string' && value.match(/^".+"$/)) {
+            return value.substr(1, value.length - 2);
+        }
+
+        //Render Images
         if (typeof value == 'string' && value.match(/^https?:\/\/.+\.(?:jpe?g|gif|png)$/i)) {
             return new Handlebars.SafeString('<img src="' + value + '">');
         }
 
+        //Keyword based static render
         if (typeof value == 'string' && value.match(/^(map|map of) /i)) {
             query = value.replace(/^(map|map of) /, '');
             return new Handlebars.SafeString('<img src="http://maps.googleapis.com/maps/api/staticmap?center=' + query + '&markers=color:green|' + query + '&zoom=14&size=' + this.width * 100 + 'x' + this.height * 100 + '&sensor=false">');
         }
 
-        // push url to url 
-        if (typeof value == 'string' && value.match(/^https?:\/\/.+/)) {
-            // return new Handlebars.SafeString('<img src="' + value + '">');
-        }
 
         //# Detect Array and build List UI
         //Expected format ["London" ,"Tokyo" ,"Paris"]
         //Alternate format [{text:"Appple", href:"http://apple.com"} , {text:"Amazon",href:"http://amazon.com"}]
-
         if (Array.isArray(value)) {
 
 
@@ -178,6 +179,14 @@ if (Meteor.isClient) {
             return new Handlebars.SafeString(result);
 
         }
+
+
+        //Render object TODO
+        if (value._type == "fb_user") {
+            return new Handlebars.SafeString('<img src="http://graph.facebook.com/' + value.id + '/picture?type=large" width="'+this.width * 100 +'" height="'+this.height * 100 +'" ><div class="overlay">'+value.name+'</div>');
+        }
+
+
         return new Handlebars.SafeString(value);
     }
 
@@ -638,6 +647,15 @@ if (Meteor.isClient) {
                         return;
                     }
 
+                    if (typeof input == 'string' && input.match(/^me$/i)) {
+                        var value = _.extend(Meteor.user().services.facebook, {_type:'fb_user'});
+                        Squares.update(Grid.startSelect._id, {
+                            $set: {
+                                value: value
+                            }
+                        });
+                    }
+
                     //TESTING FACEBOOK
                     if (typeof input == 'string' && input.match(/^(friends of) /i)) {
                         var query = input.replace(/^(friends of) /, '');
@@ -649,6 +667,33 @@ if (Meteor.isClient) {
                         }
 
                         var statements = "var data = {q: " + query + " ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});";
+
+                        try {
+                            var fn = new Function(['$', 'link', 'id'], statements);
+
+                            Squares.update(Grid.startSelect._id, {
+                                $set: {
+                                    fn: statements
+                                }
+                            }, function() {
+                                Action.refresh(Grid.startSelect);
+                            });
+                        } catch (error) {
+                            bootbox.alert(error.message);
+                        }
+                    }
+
+                    //Music
+                    if (typeof input == 'string' && input.match(/^(favourite music of) /i)) {
+                        var query = input.replace(/^(favourite music of) /, '');
+
+                        if (query.match(/(link\[[0-9]+\])/)) {
+                            query = query + '.value';
+                        } else {
+                            query = '\'' + query + '\'';
+                        }
+
+                        var statements = "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;}Meteor.call('getFavouriteMusic', facebookUserID, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});";
 
                         try {
                             var fn = new Function(['$', 'link', 'id'], statements);
@@ -1157,6 +1202,8 @@ if (Meteor.isClient) {
     }
 
     Meteor.startup(function() {
+
+        Meteor.subscribe('users');
 
         // Basic Router
         Router.map(function() {

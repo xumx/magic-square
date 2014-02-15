@@ -99,6 +99,10 @@ if (Meteor.isServer) {
         }
     });
 
+    Meteor.publish('users', function() {
+        return Meteor.users.find({});
+    })
+
     Meteor.publish('canvas', function(canvasId, password) {
 
         var canvas = Canvas.findOne({
@@ -124,81 +128,69 @@ if (Meteor.isServer) {
         }
     })
 
-    Meteor.startup(function() {
-        // Meteor.call('clearAll');
-        Meteor.call('initialize', 'public');
-    });
 
-    //TESTING CODE
+    /*********************************************************************
+        FACEBOOK API METHODS
+    *********************************************************************/
     Meteor.methods({
-        'test': function(userID) {
-            var response = getFavouriteMusic(userID);
-            console.log(response);
-        },
-		'search-fb': function(input) {
-			var result = Meteor.http.call("GET", 
-								'https://graph.facebook.com/search?' + 
-									'q=' + input.q + 
-									'&type=' + input.type +
-									'&limit=' + 20 +
-									'&access_token=' + Meteor.user().services.facebook.accessToken
-								);
+        'search-fb': function(input) {
+            var result = Meteor.http.call("GET",
+                'https://graph.facebook.com/search?' +
+                'q=' + input.q +
+                '&type=' + input.type +
+                '&limit=' + 20 +
+                '&access_token=' + Meteor.user().services.facebook.accessToken
+            );
 
             console.log(result);
             return result;
-		}
+        },
+        getEventAttendees: function(eventName) {
+            //Search for the ID of the event
+            var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";
+            console.log("Event search Query: " + eventIDquery);
+            var eventIDresponse = HTTP.get("https://graph.facebook.com/fql?q=" + eventIDquery + "&access_token=" + Meteor.user().services.facebook.accessToken);
+            var eventsFound = eventIDresponse.data.data;
+            var eventID = eventsFound[0].eid;
+            console.log("Event ID: " + eventID);
+
+            //Get the attendees for the event
+            var eventAttendeesResponse = HTTP.get("https://graph.facebook.com/" + eventID + "/attending" + "?access_token=" + Meteor.user().services.facebook.accessToken);
+            var eventAttendeesArray = eventAttendeesResponse.data;
+            return eventAttendeesArray;
+        },
+        getMutualFriends: function(facebookUserID) {
+            var response = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/mutualfriends" + "?access_token=" + Meteor.user().services.facebook.accessToken);
+            var friendsFound = response.data.data;
+            return friendsFound;
+        },
+        getFavouriteMusic: function(facebookUserID) {
+            var response = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/music" + "?access_token=" + Meteor.user().services.facebook.accessToken);
+            var artistsFound = response.data.data;
+            return artistsFound;
+        },
+        getFavouriteMoviesAndTVShows: function(facebookUserID) {
+            var tvResponse = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/television" + "?access_token=" + Meteor.user().services.facebook.accessToken);
+            var tvShowsFound = tvResponse.data.data;
+
+            var movieResponse = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/movies" + "?access_token=" + Meteor.user().services.facebook.accessToken);
+            var moviesFound = movieResponse.data.data;
+            var mergedArr = _.union(tvShowsFound, moviesFound);
+            return mergedArr;
+        }
+    });
+
+
+    Meteor.startup(function() {
+        // Meteor.call('clearAll');
+        Meteor.call('initialize', 'public');
     });
 }
 
 /*********************************************************************
     SEARCH QUERY PROCESSING
 *********************************************************************/
+
 function processSearchQuery(query) {
-    
-}
 
-/*********************************************************************
-    FACEBOOK API METHODS
-*********************************************************************/
-function getEventAttendees(eventName) {
-    //Search for the ID of the event
-    var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";
-    console.log("Event search Query: " + eventIDquery);
-    var eventIDresponse = HTTP.get("https://graph.facebook.com/fql?q=" + eventIDquery
-        + "&access_token=" + Meteor.user().services.facebook.accessToken);
-    var eventsFound = eventIDresponse.data.data;
-    var eventID = eventsFound[0].eid;
-    console.log("Event ID: " + eventID);
-
-    //Get the attendees for the event
-    var eventAttendeesResponse = HTTP.get("https://graph.facebook.com/" + eventID + "/attending"
-        + "?access_token=" + Meteor.user().services.facebook.accessToken);
-    var eventAttendeesArray = eventAttendeesResponse.data;
-    return eventAttendeesArray;
-}
-
-function getMutualFriends(facebookUserID) {
-    var response = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/mutualfriends"
-        + "?access_token=" + Meteor.user().services.facebook.accessToken);
-    var friendsFound = response.data.data;
-    return friendsFound;
-}
-
-function getFavouriteMusic(facebookUserID) {
-    var response = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/music"
-        + "?access_token=" + Meteor.user().services.facebook.accessToken);
-    var artistsFound = response.data.data;
-    return artistsFound;
-}
-
-function getFavouriteMoviesAndTVShows(facebookUserID) {
-    var tvResponse = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/television"
-        + "?access_token=" + Meteor.user().services.facebook.accessToken);
-    var tvShowsFound = tvResponse.data.data;
-    
-    var movieResponse = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/movies"
-        + "?access_token=" + Meteor.user().services.facebook.accessToken);
-    var moviesFound = movieResponse.data.data;
-    var mergedArr = _.union(tvShowsFound, moviesFound);
-    return mergedArr;
 }
