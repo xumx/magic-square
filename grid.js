@@ -14,6 +14,64 @@ _.templateSettings = {
     interpolate: /(link\[[0-9]+\])/g
 };
 
+Utility = {
+    deselect: function() {
+        Squares.find({
+            selected: true
+        }, {
+            transform: function(e) {
+                Squares.update(e._id, {
+                    $set: {
+                        selected: false
+                    }
+                });
+            }
+        }).fetch();
+    },
+    findNextSquare: function(currentSquare, direction, offset) {
+        if (offset === undefined) offset = 1;
+
+        //Direction : up down left right
+        switch (direction) {
+            case 'up':
+                return Squares.findOne({
+                    x: currentSquare.x,
+                    y: currentSquare.y - offset
+                })
+                break;
+
+            case 'down':
+                return Squares.findOne({
+                    x: currentSquare.x,
+                    y: currentSquare.y + offset
+                })
+                break;
+
+            case 'left':
+                return Squares.findOne({
+                    x: currentSquare.x - offset,
+                    y: currentSquare.y
+                })
+                break;
+
+            case 'right':
+                return Squares.findOne({
+                    x: currentSquare.x + offset,
+                    y: currentSquare.y
+                })
+                break;
+
+            default:
+                return Squares.findOne({
+                    x: currentSquare.x,
+                    y: currentSquare.y + offset
+                })
+                break;
+
+        }
+    }
+}
+
 if (Meteor.isClient) {
 
     Template.canvas.squares = function() {
@@ -184,7 +242,27 @@ if (Meteor.isClient) {
         },
         delete: function() {
 
-            if (Grid.startSelect.value != undefined) {
+            var toDelete = Squares.find({
+                selected: true
+            }).fetch();
+
+            if (toDelete.length > 1) {
+
+                _.each(toDelete, function(square) {
+                    Squares.update(square._id, {
+                        $unset: {
+                            value: 1,
+                            fn: 1,
+                            style: 1,
+                            url: 1
+                        },
+                        $set: {
+                            link: [],
+                        }
+                    });
+                });
+
+            } else if (Grid.startSelect.value != undefined) {
 
                 Squares.update(Grid.startSelect._id, {
                     $unset: {
@@ -358,7 +436,6 @@ if (Meteor.isClient) {
                         });
                     }
                 }).fetch();
-
             }
         },
         moveCursor: function(direction) {
@@ -437,6 +514,15 @@ if (Meteor.isClient) {
                 }
             });
         },
+
+        escape: function() {
+            Utility.deselect();
+
+            if (Grid.selectLink) {
+                Action.editLinks();
+            }
+        },
+
         editURL: function() {
             bootbox.prompt({
                 title: 'What is the URL to call?',
@@ -489,9 +575,10 @@ if (Meteor.isClient) {
                             $set: {
                                 fn: statements
                             }
+                        }, function() {
+                            Action.refresh(Grid.startSelect);
                         });
 
-                        Action.refresh(Grid.startSelect);
                     } catch (error) {
                         bootbox.alert(error.message);
                     }
@@ -620,7 +707,7 @@ if (Meteor.isClient) {
     Template.canvas.events({
         'mousedown .main-container': function(e) {
             console.log(e);
-            
+
             Grid.drag = _.pick(e, 'x', 'y');
             Grid.drag.scrollTop = $('body').scrollTop();
             Grid.drag.scrollLeft = $('body').scrollLeft();
@@ -639,6 +726,43 @@ if (Meteor.isClient) {
         'mouseup .main-container': function(e) {
             Grid.drag = null;
             $('body').css('cursor', 'default');
+        },
+        'dblclick .square': function(e) {
+            var next, link;
+
+            var direction = 'down';
+            var offset = 0;
+
+            while (true) {
+
+                next = Utility.findNextSquare(Grid.startSelect, direction, offset);
+
+                var payload = _.pick(Grid.startSelect, 'fn', 'value', 'style', 'url');
+
+                payload.link = [];
+
+                for (var i = 0; i < Grid.startSelect.link.length; i++) {
+                    link = Squares.findOne(Grid.startSelect.link[i]);
+                    nextLink = Utility.findNextSquare(link, direction, offset);
+                    
+                    //If cell is blank
+                    if(!nextLink.value || typeof nextLink.value !== typeof link.value) {
+                        return;
+                    }
+                    
+                    payload.link.push(nextLink._id);
+                }
+
+                Squares.update(next._id, {
+                    $set: payload
+                }, (function(id) {
+                    return function() {
+                        Action.refresh(Squares.findOne(id));
+                    }
+                })(next._id));
+
+                offset++;
+            }
         },
         'click .square': function(e) {
 
@@ -663,17 +787,7 @@ if (Meteor.isClient) {
                     largerY = Grid.startSelect.y;
                 }
 
-                Squares.find({
-                    selected: true
-                }, {
-                    transform: function(e) {
-                        Squares.update(e._id, {
-                            $set: {
-                                selected: false
-                            }
-                        });
-                    }
-                }).fetch();
+                Utility.deselect();
 
                 Squares.find({
                     x: {
@@ -698,13 +812,16 @@ if (Meteor.isClient) {
                 Session.set('menu.x', (Grid.startSelect.x + Grid.endSelect.x) / 2);
                 Session.set('menu.y', (Grid.startSelect.y + Grid.endSelect.y) / 2);
 
-            } else if (Grid.selectLink || e.metaKey || e.ctrlKey) {
-                if (this.linked) {
+            } else if (Grid.selectLink) {
 
+                if (this.linked) {
+                    //Remove link
                     Squares.update(Grid.startSelect._id, {
                         $pull: {
                             link: this._id
                         }
+                    }, function() {
+                        Action.refresh(Grid.startSelect);
                     });
 
                     Squares.update(this._id, {
@@ -714,11 +831,13 @@ if (Meteor.isClient) {
                     });
 
                 } else {
-
+                    //Add link
                     Squares.update(Grid.startSelect._id, {
                         $push: {
                             link: this._id
                         }
+                    }, function() {
+                        Action.refresh(Grid.startSelect);
                     });
 
                     Squares.update(this._id, {
@@ -726,10 +845,32 @@ if (Meteor.isClient) {
                             linked: true
                         }
                     });
-
-
-
                 }
+            } else if (e.metaKey || e.ctrlKey) {
+                //Add Link
+                Squares.update(Grid.startSelect._id, {
+                    $push: {
+                        link: this._id
+                    }
+                }, function() {
+                    Action.refresh(Grid.startSelect);
+                });
+
+                Squares.update(this._id, {
+                    $set: {
+                        linked: true
+                    }
+                }, (function(_id) {
+                    return function() {
+                        Meteor.setTimeout(function() {
+                            Squares.update(_id, {
+                                $set: {
+                                    linked: false
+                                }
+                            });
+                        }, 2500);
+                    }
+                })(this._id));
             } else {
 
                 Grid.startSelect = this;
@@ -882,6 +1023,12 @@ if (Meteor.isClient) {
                     if ($(e.target).is('body')) {
                         e.preventDefault();
                         Action.delete();
+                    }
+                },
+                'escape': function(e) {
+                    if ($(e.target).is('body')) {
+                        e.preventDefault();
+                        Action.escape();
                     }
                 },
                 'super+c': function(e) {
