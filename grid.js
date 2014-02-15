@@ -15,6 +15,18 @@ _.templateSettings = {
 };
 
 if (Meteor.isClient) {
+	
+	Session.setDefault('fb-result', '');
+	Deps.autorun(function() {
+		var result = Session.get('fb-result');
+		if (typeof result == 'object') {
+			Squares.update(result.squareId, {
+				$set: {
+					value: result.value
+				}
+			});
+		}
+	});
 
     Template.canvas.squares = function() {
         return Squares.find({}, {
@@ -66,22 +78,6 @@ if (Meteor.isClient) {
             query = value.replace(/^(map|map of) /, '');
             return new Handlebars.SafeString('<img src="http://maps.googleapis.com/maps/api/staticmap?center=' + query + '&markers=color:green|' + query + '&zoom=14&size=' + this.width * 100 + 'x' + this.height * 100 + '&sensor=false">');
         }
-		
-		//TESTING FACEBOOK
-		if (typeof value == 'string' && value.match(/^(search-fb) /i)) {
-			var data = {
-				q: value.split(' ')[2],
-				type: value.split(' ')[1]
-			};
-			Meteor.call('search-fb', data, function(err, searchTest){
-				if (err) console.log(err);
-				if (searchTest) var result = renderFBArray(searchTest.data.data);
-				Session.set('fb-result', result);
-			});
-			if (Session.get('fb-result')) {
-				return new Handlebars.SafeString(Session.get('fb-result'));
-			}
-		}
 
         // push url to url 
         if (typeof value == 'string' && value.match(/^https?:\/\/.+/)) {
@@ -97,14 +93,11 @@ if (Meteor.isClient) {
             result = '<ul class="' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
 
             _.each(value, function(row) {
-                if (typeof row == 'object' && row.href && row.text) {
+                if (typeof row == 'object') {
                     if (typeof row.href == 'string' && typeof row.text == 'string') {
                         result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
                     }
-                } else if (typeof row == 'object' && row.name) {
-					//This is an FB user result
-					result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.text + '</li>\n'
-				} else {
+                } else {
                     result += '<li>' + row + '</li>\n'
                 }
             })
@@ -130,7 +123,7 @@ if (Meteor.isClient) {
 				}
 			} else if (typeof row == 'object' && row.name) {
 				//This is an FB user result
-				result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.text + '</li>\n'
+				result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.name + '</li>\n'
 			} else {
 				result += '<li>' + row + '</li>\n'
 			}
@@ -446,6 +439,25 @@ if (Meteor.isClient) {
                     if (input == null) {
                         return;
                     }
+					
+					//TESTING FACEBOOK
+					if (typeof input == 'string' && input.split('search-fb')[1]) {
+						var data = {
+							q: input.split(' ')[2],
+							type: input.split(' ')[1]
+						};
+						Meteor.apply('search-fb', [data], {wait: true}, function(err, searchReturn){
+							if (err) console.log(err);
+							if (searchReturn && searchReturn.data.data.length > 1) {
+								var arrayResult = $.extend(true, [], searchReturn.data.data);
+								Session.set('fb-result', {
+									squareId: Grid.startSelect._id, 
+									value: renderFBArray(arrayResult)
+								});
+								//Check Deps.autorun for value update
+							}
+						});
+					}
 
                     try {
                         input = JSON.parse(input);
@@ -455,23 +467,23 @@ if (Meteor.isClient) {
                     }
 
                     //if there is a change
-                    if (input != Grid.startSelect.value) {
-                        Squares.update(Grid.startSelect._id, {
-                            $set: {
-                                value: input
-                            }
-                        });
+					if (input != Grid.startSelect.value) {
+						Squares.update(Grid.startSelect._id, {
+							$set: {
+								value: input
+							}
+						});
 
-                        //TODO Recursive propagation
-                        //Propagate changes
-                        Squares.find({
-                            link: Grid.startSelect._id
-                        }, {
-                            transform: function(e) {
-                                Action.refresh(e);
-                            }
-                        }).fetch();
-                    }
+						//TODO Recursive propagation
+						//Propagate changes
+						Squares.find({
+							link: Grid.startSelect._id
+						}, {
+							transform: function(e) {
+								Action.refresh(e);
+							}
+						}).fetch();
+					}
                 }
             });
         },
