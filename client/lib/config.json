@@ -1,0 +1,9 @@
+{
+  "vars": {},
+  "css": [
+    "dropdowns.less"
+  ],
+  "js": [
+    "dropdown.js"
+  ]
+}

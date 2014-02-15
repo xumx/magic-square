@@ -237,6 +237,7 @@ if (Meteor.isClient) {
                 requestPermissions: [
                     'user_events',
                     'user_friends'
+
                 ]
             }, function(err) {
                 if (err) console.log(err);
@@ -394,6 +395,7 @@ if (Meteor.isClient) {
 
         //TODO think about how to reduce refresh
         refresh: function(target) {
+
             var value, linkArray, url;
 
             if (_(target).has('url')) {
@@ -517,6 +519,7 @@ if (Meteor.isClient) {
                 case 'right':
                     newX++;
                     break;
+
             }
 
             var newSquare = Squares.findOne({
@@ -637,8 +640,12 @@ if (Meteor.isClient) {
             if (newSquare) {
                 Grid.startSelect = newSquare;
 
-                Session.set('menu.x', Grid.startSelect.x + (Grid.startSelect.width - 1) / 2);
-                Session.set('menu.y', Grid.startSelect.y + (Grid.startSelect.height - 1) / 2);
+
+                Session.set('menu.x', Grid.startSelect.x + Grid.startSelect.width)
+                Session.set('menu.y', Grid.startSelect.y + Grid.startSelect.height);
+
+                //Session.set('menu.x', Grid.startSelect.x + (Grid.startSelect.width - 1) / 2);
+                //Session.set('menu.y', Grid.startSelect.y + (Grid.startSelect.height - 1) / 2);
             }
         },
         edit: function() {
@@ -849,11 +856,24 @@ if (Meteor.isClient) {
                         }
                     }
                 }
+
+                Grid.startSelect = Squares.findOne({
+                    x: x,
+                    y: y
+                });
+                Session.set('menu.x', Grid.startSelect.x + Grid.startSelect.width)
+                Session.set('menu.y', Grid.startSelect.y + Grid.startSelect.height);
+
             }
         },
         merge: function() {
             var toMerge = Squares.find({
                 selected: true
+            }, {
+                sort: {
+                    x: 1,
+                    y: 2
+                }
             }).fetch();
 
             var result = _.reduce(toMerge, function(memo, e) {
@@ -893,6 +913,13 @@ if (Meteor.isClient) {
                     Squares.remove(e._id);
                 }
             });
+
+            Grid.startSelect = Squares.findOne({
+                x: result[2],
+                y: result[3]
+            });
+            Session.set('menu.x', Grid.startSelect.x + Grid.startSelect.width)
+            Session.set('menu.y', Grid.startSelect.y + Grid.startSelect.height);
 
             // TODO            
             // //Remove self from other cells linking to it. 
@@ -1017,8 +1044,15 @@ if (Meteor.isClient) {
                     }
                 }).fetch();
 
-                Session.set('menu.x', (Grid.startSelect.x + Grid.endSelect.x) / 2);
-                Session.set('menu.y', (Grid.startSelect.y + Grid.endSelect.y) / 2);
+
+                Session.set('menu.x', Grid.endSelect.x + Grid.endSelect.width);
+                Session.set('menu.y', Grid.endSelect.y + Grid.endSelect.height);
+
+                //Session.set('menu.x', Grid.endSelect.x + (Grid.endSelect.width - 1) / 2);
+                //Session.set('menu.y', Grid.endSelect.y + (Grid.endSelect.height - 1) / 2);
+
+                //Session.set('menu.x', (Grid.startSelect.x + Grid.endSelect.x) / 2);
+                //Session.set('menu.y', (Grid.startSelect.y + Grid.endSelect.y) / 2);
 
             } else if (Grid.selectLink) {
 
@@ -1080,11 +1114,14 @@ if (Meteor.isClient) {
                     }
                 })(this._id));
             } else {
-
+                Utility.deselect();
                 Grid.startSelect = this;
 
-                Session.set('menu.x', this.x + (this.width - 1) / 2);
-                Session.set('menu.y', this.y + (this.height - 1) / 2);
+                Session.set('menu.x', this.x + this.width);
+                Session.set('menu.y', this.y + this.height);
+
+                //Session.set('menu.x', this.x + (this.width - 1) / 2) + this.width;
+                //Session.set('menu.y', this.y + (this.height - 1) / 2) + this.height;
 
 
             }
@@ -1125,11 +1162,11 @@ if (Meteor.isClient) {
     Session.set('menu.page', 1);
 
     Template.menu.xpos = function() {
-        return Session.get('menu.x') * 100;
+        return Session.get('menu.x') * 100 - 20;
     };
 
     Template.menu.ypos = function() {
-        return Session.get('menu.y') * 100;
+        return Session.get('menu.y') * 100 - 22;
     };
 
     Template.menu.isPage = function(p) {
@@ -1139,14 +1176,14 @@ if (Meteor.isClient) {
     Template.menu.nextPage = function() {
         Session.set('menu.page', Session.get('menu.page') + 1);
         _.defer(function() {
-            $('.open-close-button').focus();
+            $('.caret').click()
         });
     };
 
     Template.menu.prevPage = function() {
         Session.set('menu.page', Session.get('menu.page') - 1);
         _.defer(function() {
-            $('.open-close-button').focus();
+            $('.caret').click();
         });
     };
 
@@ -1163,14 +1200,14 @@ if (Meteor.isClient) {
         'click .link-button': Action.editLinks,
         'click .merge-button': Action.merge,
         'click .pin-button': Action.addStencil,
+        'click .delete-button': Action.delete,
         'click .next-page-button': Template.menu.nextPage,
 
         //Page 3
         'click .previous-page-button': Template.menu.prevPage,
         'click .cut-button': Action.cut,
         'click .copy-button': Action.copy,
-        'click .paste-button': Action.paste,
-        'click .delete-button': Action.delete
+        'click .paste-button': Action.paste
 
 
     };

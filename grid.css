@@ -804,3 +804,12 @@ give them a red background to see them */
     width: 20px;
     height: 20px;
 }*/
+
+.btn-grid {
+    background-color: #c9353b;
+    border-color: #d43f3a;
+}
+
+.btn-grid:hover {
+    background-color: #d9534f;
+};
