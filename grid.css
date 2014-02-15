@@ -26,6 +26,9 @@
 }
 .square.linked {
     background-color: #faff8f;
+    border-style: dashed;
+    border-width: medium;
+    border-color: rgb(117, 117, 109);
 }
 .square img {
     max-width: 100%;
