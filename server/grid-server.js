@@ -1,6 +1,6 @@
 if (Meteor.isServer) {
     var cheerio = Meteor.require('cheerio');
-    var FB_ACCESS_TOKEN = "CAACEdEose0cBACupbUdgZCZB34JmHKeHeOZAPO7VaYrtPdfycH9ZBjYYRYZCZBfP70SoiJs5ZCBTIZBnaVun9BWmKoSD3o5S46ZCmkGSD0ZCQEAYNwv1rx0plClhY9QzHnY8JQyZBNmIp9vDwHQVEEOlRPTzrW9wrfJcES7p7NrRW8oEeyyqwN540XRkTPThf68hooZD";
+    var FB_ACCESS_TOKEN = "CAACEdEose0cBAKxNfxOAeGN2j6tw5PvBP0nev8i9P7o0AZAKn9sWdwxe9r7WGMuqEtRz1CBQlYv4gpJD2Mqk4dZCOov2gdzZBVvvJRFZAvPHUFvp78wsIKZCL6ZB4h5qWZAtef0FZAirJkNivPzZAAzw2ABZC7iFAVlXaYBvVCl98NZBXfnd96tMlIEusBy2UlXvZCC3b4cv2ubkcgZDZD";
 
     Meteor.methods({
         fetch: function(url, statements, _id) {

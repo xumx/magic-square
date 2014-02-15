@@ -18,12 +18,12 @@ _.templateSettings = {
 };
 
 FUNCTION_BANK = {
-    "^(favourite music of)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;}Meteor.call('getFavouriteMusic', facebookUserID, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
-    "^(people attending)": "if (link[0].value._type == 'fb_event') {var fbEventId = link[0].value.id} else {fbEventId = link[0].value;}Meteor.call('getEventAttendees', fbEventId, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
-    "^(users called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
-    "^(event called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'event'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
+    "^(favourite music of)[ ]?": "if (query == '') {\nif (link[0].value._type == 'fb_user') {\nquery = link[0].value.id\n} else {\nquery = link[0].value;\n}\n}\nMeteor.call('getFavouriteMusic', query, function(err, result) {\nif (err) console.log(err);\nSquares.update(id, {\n$set: {\nvalue: result\n}\n});\n});\n",
+    "^(people attending)[ ]?": "if (query == '') {\tif (link[0].value._type == 'fb_event') {\t\tquery = link[0].value.id\t} else {\t\tquery = link[0].value;\t}}Meteor.call('getEventAttendees', query, function(err, result) {\tif (err) console.log(err);\tSquares.update(id, {\t\t$set: {\t\t\tvalue: result\t\t}\t});});",
+    "^(users called)[ ]?": "if (query == '') {\n\tif (link[0].value._type == 'fb_user') {\n\t\tquery = link[0].value.id\n\t} else {\n\t\tquery = link[0].value;\n\t}\n}\nvar data = {\n\tq: query,\n\ttype: 'user'\n};\nMeteor.call('search-fb', data, function(err, searchReturn) {\n\tif (err) console.log(err);\n\tif (searchReturn && searchReturn.data.data.length > 1) {\n\t\tSquares.update(id, {\n\t\t\t$set: {\n\t\t\t\tvalue: searchReturn.data.data\n\t\t\t}\n\t\t});\n\t}\n});",
+    "^(event called)[ ]?": "if (query == '') {if (link[0].value._type == 'fb_user') {query = link[0].value.id} else {query = link[0].value;}}var data = {q: query,type: 'event'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
     "^(count)": "if (Array.isArray(link[0].value)) {\n\treturn link[0].value.length;\n}",
-    "^(spotify)": "var query;\nif (Array.isArray(link[0].value)) {\n\tquery = link[0].value[0].name;\n} else if (typeof link[0].value == 'string'){\n\tquery = link[0].value;\n} else if (link[0].value.name != undefined) {\n\tquery = link[0].value.name;\n}\n\n\nMeteor.http.get('http://ws.spotify.com/search/1/track.json?q=' + query, function(err, data) {\n\tvar array = _.map(data.data.tracks, function(element) {\n\t\treturn {\n\t\t\t_type: 'spotify_track',\n\t\t\ttext: element.name,\n\t\t\thref: element.href\n\t\t}\n\t});\n\n\tSquares.update(id, {\n\t\t$set: {\n\t\t\tvalue: array\n\t\t}\n\t});\n});"
+    "^(spotify)[ ]?": "if (query == '') {if (Array.isArray(link[0].value)) {query = link[0].value[0].name;} else if (typeof link[0].value == 'string') {query = link[0].value;} else if (link[0].value.name != undefined) {query = link[0].value.name;}}Meteor.http.get('http://ws.spotify.com/search/1/track.json?q=' + query, function(err, data) {var array = _.map(data.data.tracks, function(element) {return {_type: 'spotify_track',text: element.name,href: element.href}});Squares.update(id, {$set: {value: array}});});"
 }
 
 Utility = {
@@ -658,7 +658,7 @@ if (Meteor.isClient) {
 
                             if (input.match(re)) {
                                 var query = input.replace(re, '');
-                                var statements = value;
+                                var statements = 'var query = "' + query + '";\n' + value;
 
                                 try {
                                     var fn = new Function(['$', 'link', 'id'], statements);
