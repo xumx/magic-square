@@ -1,6 +1,6 @@
 if (Meteor.isServer) {
     var cheerio = Meteor.require('cheerio');
-    var FB_ACCESS_TOKEN = "CAACEdEose0cBAKxNfxOAeGN2j6tw5PvBP0nev8i9P7o0AZAKn9sWdwxe9r7WGMuqEtRz1CBQlYv4gpJD2Mqk4dZCOov2gdzZBVvvJRFZAvPHUFvp78wsIKZCL6ZB4h5qWZAtef0FZAirJkNivPzZAAzw2ABZC7iFAVlXaYBvVCl98NZBXfnd96tMlIEusBy2UlXvZCC3b4cv2ubkcgZDZD";
+    var FB_ACCESS_TOKEN = "CAACEdEose0cBAIQEhUGC5hMx1UYBB0cNEhZCFjro0dFkZA9g6xC0cexOZA5Jf7M3n2ZBnUNBshqRKWZARn7x6rJD2juZAb6pDYIOVgQhlhFVDLI0JHq0AxY6k8w1spACE60JoMt0e3je2IhPN5tky2DX7H4ZAEiAZBOJe97YZAYnworqFGT7zpiFFEozvQtoUz9IZD";
 
     Meteor.methods({
         fetch: function(url, statements, _id) {
@@ -275,7 +275,7 @@ if (Meteor.isServer) {
                 var aggrLikes = this[key];
                 var aggrLikeObj = {
                     count: aggrLikes.length,
-                    name: aggrLikes[0]["name"],
+                    name: aggrLikes[0]["name"] + " (" + aggrLikes.length + ")",
                     id: aggrLikes[0]["id"]
                 };
                 groupedMusicArray.push(aggrLikeObj);
