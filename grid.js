@@ -117,7 +117,11 @@ if (Meteor.isClient) {
 
     Action = {
         login: function() {
-			Meteor.loginWithFacebook(function(err){
+			Meteor.loginWithFacebook({
+                requestPermissions: [
+                    'user_events'
+                ]
+            },function(err){
 				if (err) console.log(err);
 				else console.log('Logged in!');
 			});
