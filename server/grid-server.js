@@ -132,7 +132,7 @@ if (Meteor.isServer) {
     //TESTING CODE
     Meteor.methods({
         'test': function(input) {
-            processSearchQuery(input);
+            aggregateMusicLikes(input);
             return;
         },
 		'search-fb': function(input) {
@@ -203,7 +203,8 @@ function getMutualFriends(facebookUserID) {
 
 function getFavouriteMusic(facebookUserID) {
     var response = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/music"
-        + "?access_token=" + Meteor.user().services.facebook.accessToken);
+        + "?access_token=" + Meteor.user().services.facebook.accessToken
+        + "&limit=100");
     var artistsFound = response.data.data;
     return artistsFound;
 }
@@ -218,4 +219,40 @@ function getFavouriteMoviesAndTVShows(facebookUserID) {
     var moviesFound = movieResponse.data.data;
     var mergedArr = _.union(tvShowsFound, moviesFound);
     return mergedArr;
+}
+
+function aggregateMusicLikes(userIDArray) {
+    if (!userIDArray && userIDArray.length === 0) return null;
+    var userMusicLikes = new Array();
+
+    //Get music likes for each individual user
+    _.each(userIDArray, function(userID) {
+        var musicLikes = getFavouriteMusic(userID);
+        _.each(musicLikes, function(like) {
+            userMusicLikes.push(like);
+        });
+    });
+
+    var groupedMusicObj = _.groupBy(userMusicLikes, function(like) {
+        return like.id;
+    });
+
+    var groupedMusicArray = new Array();
+
+    _.each(_.keys(groupedMusicObj), function(key) {
+        var aggrLikes = this[key];
+        var aggrLikeObj = {
+            count: aggrLikes.length,
+            name: aggrLikes[0]["name"],
+            id: aggrLikes[0]["id"]
+        };
+        groupedMusicArray.push(aggrLikeObj);
+    }, groupedMusicObj);
+
+    groupedMusicArray = _.sortBy(groupedMusicArray, function(artist) {
+        return - artist.count;
+    });
+
+    console.log(groupedMusicArray);
+    return groupedMusicArray;
 }
