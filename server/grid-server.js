@@ -135,8 +135,7 @@ if (Meteor.isServer) {
     *********************************************************************/
     Meteor.methods({
         test: function() {
-            console.log("Method is called");
-            var attendees = Meteor.call("getEventAttendees", "Facebook Singapore Hackathon");
+            var attendees = Meteor.call("getEventAttendees", "574877579268704");
             var attendeeIDs = _.map(attendees, function (attendee) {
                 return attendee.id;
             });
@@ -232,8 +231,14 @@ if (Meteor.isServer) {
                 + "&access_token=" + FB_ACCESS_TOKEN;
 
             var batchResponse = HTTP.post(batchRequestURL);
-            console.log(batchResponse);
-            return batchResponse;
+            var dataChunk = batchResponse.data;
+            var dataParts = new Array();
+            _.each(dataChunk, function(dataChunk) {
+                var dataChunkBody = _.pick(dataChunk, "body");
+                var bodyContent = JSON.parse(dataChunkBody.body);
+                dataParts.push(bodyContent.data);
+            });
+            return dataParts;
         },
         aggregateMusicLikes: function (userIDArray) {
             var startTime = new Date();
@@ -248,9 +253,12 @@ if (Meteor.isServer) {
                 if (batchUserIDs.length === 50 || index === (list.length - 1)) {
                     var musicLikes = Meteor.call("getFavouriteMusicBatched", batchUserIDs);
                     batchUserIDs = new Array(); //resetting the array to store new user IDs
-                    // _.each(musicLikes, function(like) {
-                    //     userMusicLikes.push(like);
-                    // });
+
+                    _.each(musicLikes, function(likesPerUser) {
+                        _.each(likesPerUser, function(like){
+                            userMusicLikes.push(like);
+                        });
+                    });
                 }
             });
 
