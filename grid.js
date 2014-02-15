@@ -158,7 +158,7 @@ if (Meteor.isClient) {
             _.each(value, function(row) {
                 if (typeof row == 'object') {
 
-                    if (row.name) {//This is an FB user result
+                    if (row.name) { //This is an FB user result
                         result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.name + '</li>\n'
                     } else if (typeof row.href == 'string' && typeof row.text == 'string') {
                         result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
@@ -500,17 +500,125 @@ if (Meteor.isClient) {
                 case 'left':
                     newX--;
                     break;
-
                 case 'right':
                     newX++;
                     break;
-
             }
 
             var newSquare = Squares.findOne({
                 x: newX,
                 y: newY
             });
+
+
+            var candidate, offset = 1,
+                found = false;
+
+            if (newSquare == null) {
+                switch (direction) {
+                    case 'up':
+                        candidate = Squares.findOne({
+                            x: Grid.startSelect.x,
+                            y: {
+                                $lt: Grid.startSelect.y
+                            }
+                        }, {
+                            sort: {
+                                y: -1
+                            }
+                        });
+
+                        console.log(candidate.x, candidate.y);
+
+                        if (candidate.height == Grid.startSelect.y - candidate.y) {
+                            newSquare = candidate;
+                        } else {
+                            while (!found) {
+                                c = Squares.findOne({
+                                    x: {
+                                        $lt: Grid.startSelect.x
+                                    },
+                                    y: candidate.y + offset
+                                }, {
+                                    sort: {
+                                        x: -1
+                                    }
+                                });
+
+                                if (c.height == Grid.startSelect.y - c.y) {
+                                    found = true;
+                                    newSquare = c;
+                                }
+
+                                offset++;
+                            }
+                        }
+
+                        break;
+                    case 'down':
+                        newSquare = Squares.findOne({
+                            x: {
+                                $lte: Grid.startSelect.x
+                            },
+                            y: Grid.startSelect.y + Grid.startSelect.height
+                        }, {
+                            sort: {
+                                x: -1
+                            }
+                        });
+
+                        break;
+                    case 'left':
+                        candidate = Squares.findOne({
+                            x: {
+                                $lt: Grid.startSelect.x
+                            },
+                            y: Grid.startSelect.y
+                        }, {
+                            sort: {
+                                x: -1
+                            }
+                        });
+
+                        if (candidate.width == Grid.startSelect.x - candidate.x) {
+                            newSquare = candidate;
+                        } else {
+                            while (!found) {
+                                c = Squares.findOne({
+                                    y: {
+                                        $lt: Grid.startSelect.y
+                                    },
+                                    x: candidate.x + offset
+                                }, {
+                                    sort: {
+                                        y: -1
+                                    }
+                                });
+
+                                if (c.width == Grid.startSelect.x - c.x) {
+                                    found = true;
+                                    newSquare = c;
+                                }
+
+                                offset++;
+                            }
+                        }
+                        break;
+
+                    case 'right':
+                        newSquare = Squares.findOne({
+                            y: {
+                                $lte: Grid.startSelect.y
+                            },
+                            x: Grid.startSelect.x + Grid.startSelect.width
+                        }, {
+                            sort: {
+                                y: -1
+                            }
+                        });
+                        break;
+                }
+            }
 
             if (newSquare) {
                 Grid.startSelect = newSquare;
@@ -533,14 +641,14 @@ if (Meteor.isClient) {
                     //TESTING FACEBOOK
                     if (typeof input == 'string' && input.match(/^(friends of) /i)) {
                         var query = input.replace(/^(friends of) /, '');
-                        
+
                         if (query.match(/(link\[[0-9]+\])/)) {
                             query = query + '.value';
                         } else {
                             query = '\'' + query + '\'';
                         }
 
-                        var statements = "var data = {q: "+query+" ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});";
+                        var statements = "var data = {q: " + query + " ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});";
 
                         try {
                             var fn = new Function(['$', 'link', 'id'], statements);
