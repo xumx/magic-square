@@ -156,7 +156,23 @@ if (Meteor.isServer) {
             console.log(result);
             return result;
         },
-        getEventAttendees: function(eventName) {
+        getEventAttendees: function(eventID) {
+            // if (!eventName || eventName.length === 0) return null; //No event name found
+            // //Search for the ID of the event
+            // var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";
+            // var eventIDresponse = HTTP.get("https://graph.facebook.com/fql?q=" + eventIDquery
+            //     + "&access_token=" + FB_ACCESS_TOKEN);
+            // var eventsFound = eventIDresponse.data.data;
+            // var eventID = eventsFound[0].eid;
+            // console.log("Event ID: " + eventID);
+
+            //Get the attendees for the event
+            var eventAttendeesResponse = HTTP.get("https://graph.facebook.com/" + eventID + "/attending"
+                + "?access_token=" + FB_ACCESS_TOKEN);
+            var eventAttendeesArray = eventAttendeesResponse.data.data;
+            return eventAttendeesArray;
+        },
+        getEventAttendeesByEventName: function(eventName) {
             if (!eventName || eventName.length === 0) return null; //No event name found
             //Search for the ID of the event
             var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";
