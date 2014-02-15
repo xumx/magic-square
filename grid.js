@@ -160,7 +160,7 @@ if (Meteor.isClient) {
         //Expected format ["London" ,"Tokyo" ,"Paris"]
         //Alternate format [{text:"Appple", href:"http://apple.com"} , {text:"Amazon",href:"http://amazon.com"}]
         if (Array.isArray(value)) {
-			result = '<ul class="objectarray ' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
+            result = '<ul class="objectarray ' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
             _.each(value, function(row) {
                 if (typeof row == 'object') {
 
@@ -431,9 +431,9 @@ if (Meteor.isClient) {
                     bootbox.alert(error.message);
                 }
             }
-            
+
             //TODO: Make this work
-	        setTimeout(refreshDraggable, 500);
+            Meteor.setTimeout(refreshDraggable, 500);
         },
         refreshAll: function() {
             //Placeholder
@@ -917,11 +917,11 @@ if (Meteor.isClient) {
     }
 
     Template.canvas.events({
-        'mousedown .main-container': function(e) {
-            Grid.drag = _.pick(e, 'x', 'y');
-            Grid.drag.scrollTop = $('body').scrollTop();
-            Grid.drag.scrollLeft = $('body').scrollLeft();
-        },
+        // 'mousedown .main-container': function(e) {
+        //     Grid.drag = _.pick(e, 'x', 'y');
+        //     Grid.drag.scrollTop = $('body').scrollTop();
+        //     Grid.drag.scrollLeft = $('body').scrollLeft();
+        // },
         'mousemove .main-container': function(e) {
             var sensitivity = 10;
 
@@ -938,22 +938,68 @@ if (Meteor.isClient) {
             $('body').css('cursor', 'default');
         },
         'dblclick .objectarray > li': function(e) {
-        	var $li = $(e.currentTarget);
-        	var arrItem = this.value[$li.index()];
-        	var newItem = {
-        		"_type": 'fb_user', //HARDCODED
-        		"id": arrItem.id,
-        		"name": arrItem.name
-        	};
+            var $li = $(e.currentTarget);
+            var arrItem = this.value[$li.index()];
+            var newItem = {
+                "_type": 'fb_user', //HARDCODED
+                "id": arrItem.id,
+                "name": arrItem.name
+            };
             Squares.update(this._id, {
-                $unset: {fn:null},
-                $set: {value: newItem}
+                $unset: {
+                    fn: null
+                },
+                $set: {
+                    value: newItem
+                }
             }, (function(id) {
                 return function() {
                     Action.refresh(Squares.findOne(id));
                 }
             })(this._id));
-        	return false;
+            return false;
+        },
+        'mouseover .objectarray > li': function(e) {
+            var $li = $(e.currentTarget);
+
+            $li.draggable({
+                appendTo: 'body',
+                containment: $('body'),
+                helper: 'clone'
+            });
+
+            return false;
+        },
+        'mouseover .square': function(e) {
+            if (!$(e.currentTarget).is(".ui-droppable")) {
+
+                $(e.currentTarget).droppable({
+                    drop: function(event, ui) {
+                        var newSquare = Squares.findOne($(this).attr('id'));
+                        var $li = $(ui.draggable); /////
+                        var oldSquare = Squares.findOne($li.closest('.square').attr('id'));
+                        var arrItem = oldSquare.value[$li.index()];
+                        var newItem = {
+                            "_type": 'fb_user', //HARDCODED
+                            "id": arrItem.id,
+                            "name": arrItem.name
+                        };
+                        Squares.update(newSquare._id, {
+                            $unset: {
+                                fn: null
+                            },
+                            $set: {
+                                value: newItem
+                            }
+                        }, (function(id) {
+                            return function() {
+                                Action.refresh(Squares.findOne(id));
+                            }
+                        })(newSquare._id));
+                        return false;
+                    }
+                });
+            }
         },
         'dblclick .square': function(e) {
             var next, link;
@@ -1119,7 +1165,6 @@ if (Meteor.isClient) {
 
             }
         },
-
         'dragover .square': function(event) {
             event.preventDefault()
         },
@@ -1394,44 +1439,6 @@ if (Meteor.isClient) {
                 }
             });
             // $('.loading').remove();
-
-            refreshDraggable();
-
         }, 500);
     });
-
-	function refreshDraggable() {
-		$('body').find('.objectarray > li').each(function(){
-			$(this).draggable({
-				appendTo: 'body',
-				containment: $('body'),
-				helper: 'clone'
-			});
-		});
-	    $('body').find('.square').each(function(){
-	    	$(this).droppable({
-		      	drop: function(event, ui) {
-		      		var newSquare = Squares.findOne($(this).attr('id'));
-		      		var $li = $(ui.draggable); /////
-		      		var oldSquare = Squares.findOne($li.closest('.square').attr('id'));
-		        	var arrItem = oldSquare.value[$li.index()];
-		        	var newItem = {
-		        		"_type": 'fb_user', //HARDCODED
-		        		"id": arrItem.id,
-		        		"name": arrItem.name
-		        	};
-		            Squares.update(newSquare._id, {
-		                $unset: {fn:null},
-		                $set: {value: newItem}
-		            }, (function(id) {
-		                return function() {
-		                    Action.refresh(Squares.findOne(id));
-		                }
-		            })(newSquare._id));
-		        	return false;
-	  			}
-		    });
-	    });
-	}
-
 }
