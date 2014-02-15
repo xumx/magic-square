@@ -116,6 +116,9 @@ if (Meteor.isClient) {
     }
 
     Action = {
+        login: function() {
+
+        },
         trySubscribe: function(error) {
             var password = null;
 
@@ -814,6 +817,7 @@ if (Meteor.isClient) {
     };
 
     Template.toolbox.events = {
+        'click button.login-button': Action.login,
         'click button.new-canvas-button': Action.newCanvas,
         'click button.add-stencil-button': Action.addStencil,
         'click button.clear-canvas-button': Action.resetCanvas,
