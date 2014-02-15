@@ -7,10 +7,6 @@ API = {
     google: {
         server: "AIzaSyCXobbe29WEsE7k1nxAXj5w",
         client: "AIzaSyBbEd2KpEdLZYMSxcQzhxD0mDHtab3nne0"
-    },
-    facebook: {
-        appID: 726903517340062,
-        appSecret: "d085baf22691cc4f59efaf0815162bb4"
     }
 }
 
