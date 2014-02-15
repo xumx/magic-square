@@ -167,7 +167,7 @@ if (Meteor.isClient) {
             if (typeof row == 'object') {
 
                     if (row.name) { //This is an FB user result
-                        result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.name + '</li>\n'
+                        result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/><a target="_blank" href="http://www.facebook.com/' + row.id + '">' + row.name + '</a></li>\n'
                     } else if (typeof row.href == 'string' && typeof row.text == 'string') {
                         result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
                     }
