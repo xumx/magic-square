@@ -223,6 +223,7 @@ function getFavouriteMoviesAndTVShows(facebookUserID) {
 
 function aggregateMusicLikes(userIDArray) {
     if (!userIDArray && userIDArray.length === 0) return null;
+    
     var userMusicLikes = new Array();
 
     //Get music likes for each individual user
@@ -252,7 +253,9 @@ function aggregateMusicLikes(userIDArray) {
     groupedMusicArray = _.sortBy(groupedMusicArray, function(artist) {
         return - artist.count;
     });
-
+    
+    groupedMusicArray = groupedMusicArray.slice(0,Math.min(groupedMusicArray.length, 10));
+    
     console.log(groupedMusicArray);
     return groupedMusicArray;
 }
