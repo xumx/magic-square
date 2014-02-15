@@ -155,14 +155,14 @@ function processSearchQuery(query) {
     console.log("Search query: " + query);
     var result;
 
-    //Event Attendee Search Options
-    if (query.indexOf("people going to ") === 0) {
+    
+    if (query.indexOf("people going to ") === 0) { //Event Attendee Search
         var eventName = query.split("people going to ")[1];
         result = getEventAttendees(eventName);
-    } else if (query.indexOf("people attending ") === 0) {
+    } else if (query.indexOf("people attending ") === 0) { //Event Attendee Search
         var eventName = query.split("people attending ")[1];
         result = getEventAttendees(eventName);
-    } else if (query.indexOf("attendees of") === 0) {
+    } else if (query.indexOf("attendees of") === 0) { //Event Attendee Search
         var eventName = query.split("attendees of ")[1];
         result = getEventAttendees(eventName);
     }
