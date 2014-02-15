@@ -23,7 +23,7 @@ FUNCTION_BANK = {
     "^(users called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
     "^(event called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'event'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
     "^(count)": "if (Array.isArray(link[0].value)) {\n\treturn link[0].value.length;\n}",
-    "^(spotify)": "var query;\nif (Array.isArray(link[0].value)) {\n\tquery = link[0].value[0].name;\n} else {\n\tquery = link[0].value;\n}\n\n\nMeteor.http.get('http://ws.spotify.com/search/1/track.json?q=' + query, function(data) {\n\tvar array = _.map(data.tracks, function(element) {\n\t\treturn {\n\t\t\t_type: 'spotify_track',\n\t\t\ttext: element.name,\n\t\t\thref: element.href\n\t\t}\n\t});\n\n\tSquares.update(id, {\n\t\t$set: {\n\t\t\tvalue: array\n\t\t}\n\t});\n});"
+    "^(spotify)": "var query;\nif (Array.isArray(link[0].value)) {\n\tquery = link[0].value[0].name;\n} else if (typeof link[0].value == 'string'){\n\tquery = link[0].value;\n} else if (link[0].value.name != undefined) {\n\tquery = link[0].value.name;\n}\n\n\nMeteor.http.get('http://ws.spotify.com/search/1/track.json?q=' + query, function(err, data) {\n\tvar array = _.map(data.data.tracks, function(element) {\n\t\treturn {\n\t\t\t_type: 'spotify_track',\n\t\t\ttext: element.name,\n\t\t\thref: element.href\n\t\t}\n\t});\n\n\tSquares.update(id, {\n\t\t$set: {\n\t\t\tvalue: array\n\t\t}\n\t});\n});"
 }
 
 Utility = {
@@ -161,8 +161,6 @@ if (Meteor.isClient) {
         //Alternate format [{text:"Appple", href:"http://apple.com"} , {text:"Amazon",href:"http://amazon.com"}]
         if (Array.isArray(value)) {
 
-
-
             result = '<ul class="' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
 
             _.each(value, function(row) {
@@ -198,7 +196,7 @@ if (Meteor.isClient) {
 
         return new Handlebars.SafeString(value);
     }
-    
+
     Template.toolbox.stencils = function() {
         return Stencils.find({});
     }
@@ -641,15 +639,17 @@ if (Meteor.isClient) {
 
                     if (typeof input == 'string') {
 
-                        if (input.match(/^me$/i)) {
-                            var value = _.extend(Meteor.user().services.facebook, {
+                        if (input.match(/^me$/)) {
+                            var v = _.extend(Meteor.user().services.facebook, {
                                 _type: 'fb_user'
                             });
+                            console.log(v);
                             Squares.update(Grid.startSelect._id, {
                                 $set: {
-                                    value: value
+                                    value: v
                                 }
                             });
+                            return;
                         }
 
                         //TESTING FACEBOOK
@@ -673,12 +673,10 @@ if (Meteor.isClient) {
                                 } catch (error) {
                                     bootbox.alert(error.message);
                                 }
-
+                                return;
                             }
                         });
                     }
-
-
 
                     try {
                         input = JSON.parse(input);
@@ -920,8 +918,6 @@ if (Meteor.isClient) {
 
     Template.canvas.events({
         'mousedown .main-container': function(e) {
-            console.log(e);
-
             Grid.drag = _.pick(e, 'x', 'y');
             Grid.drag.scrollTop = $('body').scrollTop();
             Grid.drag.scrollLeft = $('body').scrollLeft();
