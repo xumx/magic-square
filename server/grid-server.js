@@ -352,6 +352,10 @@ if (Meteor.isServer) {
                         userMutualFriends.push(mutualFriendObj);
                     });
 
+                    userMutualFriends = _.reject(userMutualFriends, function(userMutual) {
+                        return userMutual.count === 0;
+                    });
+
                     batchUserIDs = new Array(); //resetting the array to store new user IDs
                 }
             });
