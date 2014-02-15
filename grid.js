@@ -375,6 +375,7 @@ if (Meteor.isClient) {
 
         //TODO think about how to reduce refresh
         refresh: function(target) {
+
             var value, linkArray, url;
 
             if (_(target).has('url')) {
@@ -1049,15 +1050,14 @@ Template.menu.events = {
         'click .link-button': Action.editLinks,
         'click .merge-button': Action.merge,
         'click .pin-button': Action.addStencil,
-        'click .refresh-button': Action.refresh(Grid.startSelect),
+        'click .delete-button': Action.delete,
         'click .next-page-button': Template.menu.nextPage,
 
         //Page 3
         'click .previous-page-button': Template.menu.prevPage,
         'click .cut-button': Action.cut,
         'click .copy-button': Action.copy,
-        'click .paste-button': Action.paste,
-        'click .delete-button': Action.delete
+        'click .paste-button': Action.paste
 
 
     };
