@@ -145,14 +145,15 @@ function getEventAttendees(eventName) {
     //Search for the ID of the event
     var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";
     console.log("Event search Query: " + eventIDquery);
-    var eventIDresponse = HTTP.get("https://graph.facebook.com/fql?" + eventIDquery
+    var eventIDresponse = HTTP.get("https://graph.facebook.com/fql?q=" + eventIDquery
         + "&access_token=" + Meteor.user().services.facebook.accessToken);
-    var eventsFound = eventIDresponse.data;
+    var eventsFound = eventIDresponse.data.data;
     var eventID = eventsFound[0].eid;
+    console.log("Event ID: " + eventID);
 
     //Get the attendees for the event
     var eventAttendeesResponse = HTTP.get("https://graph.facebook.com/" + eventID + "/attending"
-        + "&access_token=" + Meteor.user.services.facebook.accessToken);
+        + "?access_token=" + Meteor.user().services.facebook.accessToken);
     var eventAttendeesArray = eventAttendeesResponse.data;
     return eventAttendeesArray;
 }
