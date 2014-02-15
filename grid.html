@@ -26,7 +26,7 @@
 			{{#if currentUser}}
 				<button class="btn btn-info logout-button">Logout: {{currentUser.profile.name}}</button>
 			{{else}}
-				<button class="btn btn-success login-button">Login with Facebook</button>
+				<button class="btn btn-info login-button">Login with Facebook</button>
 			{{/if}}
         </li>
         <li>
@@ -49,7 +49,6 @@
 </template>
 
 <template name="canvas">
-
     <div class="main-container">
         {{#each squares}}
         <div id="{{_id}}" class="square {{#if selected}}selected{{/if}} {{#if linked}}linked flash animated{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px;{{style}}">

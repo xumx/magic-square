@@ -23,7 +23,7 @@ if (Meteor.isClient) {
                 x: 2
             }
         });
-    };
+    }
 
     Template.canvas.xpos = function() {
         return this.x * 100
@@ -64,9 +64,24 @@ if (Meteor.isClient) {
 
         if (typeof value == 'string' && value.match(/^(map|map of) /i)) {
             query = value.replace(/^(map|map of) /, '');
-
             return new Handlebars.SafeString('<img src="http://maps.googleapis.com/maps/api/staticmap?center=' + query + '&markers=color:green|' + query + '&zoom=14&size=' + this.width * 100 + 'x' + this.height * 100 + '&sensor=false">');
         }
+		
+		//TESTING FACEBOOK
+		if (typeof value == 'string' && value.match(/^(search-fb) /i)) {
+			var data = {
+				q: value.split(' ')[2],
+				type: value.split(' ')[1]
+			};
+			Meteor.call('search-fb', data, function(err, searchTest){
+				if (err) console.log(err);
+				if (searchTest) var result = renderFBArray(searchTest.data.data);
+				Session.set('fb-result', result);
+			});
+			if (Session.get('fb-result')) {
+				return new Handlebars.SafeString(Session.get('fb-result'));
+			}
+		}
 
         // push url to url 
         if (typeof value == 'string' && value.match(/^https?:\/\/.+/)) {
@@ -78,15 +93,18 @@ if (Meteor.isClient) {
         //Alternate format [{text:"Appple", href:"http://apple.com"} , {text:"Amazon",href:"http://amazon.com"}]
 
         if (Array.isArray(value)) {
-
+			
             result = '<ul class="' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
 
             _.each(value, function(row) {
-                if (typeof row == 'object') {
+                if (typeof row == 'object' && row.href && row.text) {
                     if (typeof row.href == 'string' && typeof row.text == 'string') {
                         result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
                     }
-                } else {
+                } else if (typeof row == 'object' && row.name) {
+					//This is an FB user result
+					result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.text + '</li>\n'
+				} else {
                     result += '<li>' + row + '</li>\n'
                 }
             })
@@ -100,9 +118,29 @@ if (Meteor.isClient) {
             return new Handlebars.SafeString(result);
 
         }
-
         return new Handlebars.SafeString(value);
     }
+	
+	function renderFBArray(value) {
+		result = '<ul class="' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
+		_.each(value, function(row) {
+			if (typeof row == 'object' && row.href && row.text) {
+				if (typeof row.href == 'string' && typeof row.text == 'string') {
+					result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
+				}
+			} else if (typeof row == 'object' && row.name) {
+				//This is an FB user result
+				result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.text + '</li>\n'
+			} else {
+				result += '<li>' + row + '</li>\n'
+			}
+		})
+		result += '</ul>'
+		_.defer(function() {
+			stroll.bind('.square ul');
+		});
+		return result;
+	}
 
     Template.toolbox.stencils = function() {
         return Stencils.find({});
