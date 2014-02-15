@@ -131,9 +131,9 @@ if (Meteor.isServer) {
 
     //TESTING CODE
     Meteor.methods({
-        'test': function(userID) {
-            var response = getFavouriteMusic(userID);
-            console.log(response);
+        'test': function(input) {
+            processSearchQuery(input);
+            return;
         },
 		'search-fb': function(input) {
 			return Meteor.http.call("GET", 
@@ -151,13 +151,30 @@ if (Meteor.isServer) {
     SEARCH QUERY PROCESSING
 *********************************************************************/
 function processSearchQuery(query) {
-    
+    query.trim();
+    console.log("Search query: " + query);
+    var result;
+
+    //Event Attendee Search Options
+    if (query.indexOf("people going to ") === 0) {
+        var eventName = query.split("people going to ")[1];
+        result = getEventAttendees(eventName);
+    } else if (query.indexOf("people attending ") === 0) {
+        var eventName = query.split("people attending ")[1];
+        result = getEventAttendees(eventName);
+    } else if (query.indexOf("attendees of") === 0) {
+        var eventName = query.split("attendees of ")[1];
+        result = getEventAttendees(eventName);
+    }
+
+    console.log(JSON.stringify(result));
 }
 
 /*********************************************************************
     FACEBOOK API METHODS
 *********************************************************************/
 function getEventAttendees(eventName) {
+    if (!eventName || eventName.length === 0) return null; //No event name found
     //Search for the ID of the event
     var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";
     console.log("Event search Query: " + eventIDquery);
