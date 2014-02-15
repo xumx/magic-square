@@ -1049,6 +1049,7 @@ Template.menu.events = {
         'click .link-button': Action.editLinks,
         'click .merge-button': Action.merge,
         'click .pin-button': Action.addStencil,
+        'click .refresh-button': Action.refresh(Grid.startSelect),
         'click .next-page-button': Template.menu.nextPage,
 
         //Page 3
