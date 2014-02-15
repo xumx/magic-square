@@ -217,7 +217,8 @@ if (Meteor.isClient) {
         login: function() {
             Meteor.loginWithFacebook({
                 requestPermissions: [
-                    'user_events'
+                    'user_events',
+                    'user_friends'
                 ]
             }, function(err) {
                 if (err) console.log(err);
