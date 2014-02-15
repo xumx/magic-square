@@ -83,7 +83,7 @@ if (Meteor.isServer) {
             if (Squares.find({
                 canvasId: canvasId
             }).count() == 0) {
-                for (var i = 0; i < 10; i++) {
+                for (var i = 0; i < 15; i++) {
                     for (var j = 0; j < 10; j++) {
                         Squares.insert({
                             x: i,

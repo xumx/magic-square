@@ -18,10 +18,12 @@ _.templateSettings = {
 };
 
 FUNCTION_BANK = {
-    "^(favourite music of)": "if (link[0].value._type == 'fb_object') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;}Meteor.call('getFavouriteMusic', facebookUserID, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
-    "^(people attending)": "if (link[0].value._type == 'fb_object') {var fbEventId = link[0].value.id} else {fbEventId = link[0].value;}Meteor.call('getEventAttendees', fbEventId, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
-    "^(users called)": "if (link[0].value._type == 'fb_object') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
-    "^(event called)": "if (link[0].value._type == 'fb_object') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'event'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});"
+	"^(favourite music of)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;}Meteor.call('getFavouriteMusic', facebookUserID, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
+    "^(people attending)": "if (link[0].value._type == 'fb_event') {var fbEventId = link[0].value.id} else {fbEventId = link[0].value;}Meteor.call('getEventAttendees', fbEventId, function(err, result) {if (err) console.log(err);Squares.update(id, {$set: {value: result}});});",
+    "^(users called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'user'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
+    "^(event called)": "if (link[0].value._type == 'fb_user') {var facebookUserID = link[0].value.id} else {facebookUserID = link[0].value;} var data = {q:facebookUserID ,type: 'event'};Meteor.call('search-fb', data, function(err, searchReturn) {if (err) console.log(err);if (searchReturn && searchReturn.data.data.length > 1) {Squares.update(id, {$set: {value: searchReturn.data.data}});}});",
+    "^(count)": "if (Array.isArray(link[0].value)) {\n\treturn link[0].value.length;\n}",
+    "^(spotify)": "var query;\nif (Array.isArray(link[0].value)) {\n\tquery = link[0].value[0].name;\n} else if (typeof link[0].value == 'string'){\n\tquery = link[0].value;\n} else if (link[0].value.name != undefined) {\n\tquery = link[0].value.name;\n}\n\n\nMeteor.http.get('http://ws.spotify.com/search/1/track.json?q=' + query, function(err, data) {\n\tvar array = _.map(data.data.tracks, function(element) {\n\t\treturn {\n\t\t\t_type: 'spotify_track',\n\t\t\ttext: element.name,\n\t\t\thref: element.href\n\t\t}\n\t});\n\n\tSquares.update(id, {\n\t\t$set: {\n\t\t\tvalue: array\n\t\t}\n\t});\n});"
 }
 
 Utility = {
@@ -158,8 +160,7 @@ if (Meteor.isClient) {
         //Expected format ["London" ,"Tokyo" ,"Paris"]
         //Alternate format [{text:"Appple", href:"http://apple.com"} , {text:"Amazon",href:"http://amazon.com"}]
         if (Array.isArray(value)) {
-            result = '<ul class="objectarray ' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
-
+			result = '<ul class="objectarray ' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
             _.each(value, function(row) {
                 if (typeof row == 'object') {
 
@@ -186,33 +187,12 @@ if (Meteor.isClient) {
 
 
         //Render object TODO
-        if (value._type == "fb_object") {
+        if (value._type == "fb_user" || value._type == "fb_event" || value._type == "fb_music") {
             return new Handlebars.SafeString('<img src="http://graph.facebook.com/' + value.id + '/picture?type=large" width="' + this.width * 100 + '" height="' + this.height * 100 + '" ><div class="overlay">' + value.name + '</div>');
         }
 
 
         return new Handlebars.SafeString(value);
-    }
-
-    function renderFBArray(value) {
-        result = '<ul class="' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
-        _.each(value, function(row) {
-            if (typeof row == 'object' && row.href && row.text) {
-                if (typeof row.href == 'string' && typeof row.text == 'string') {
-                    result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
-                }
-            } else if (typeof row == 'object' && row.name) {
-                //This is an FB user result
-                result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/>' + row.name + '</li>\n'
-            } else {
-                result += '<li>' + row + '</li>\n'
-            }
-        })
-        result += '</ul>'
-        _.defer(function() {
-            stroll.bind('.square ul');
-        });
-        return result;
     }
 
     Template.toolbox.stencils = function() {
@@ -232,6 +212,7 @@ if (Meteor.isClient) {
                 requestPermissions: [
                     'user_events',
                     'user_friends'
+
                 ]
             }, function(err) {
                 if (err) console.log(err);
@@ -389,6 +370,7 @@ if (Meteor.isClient) {
 
         //TODO think about how to reduce refresh
         refresh: function(target) {
+
             var value, linkArray, url;
 
             if (_(target).has('url')) {
@@ -413,9 +395,6 @@ if (Meteor.isClient) {
                     }
                 }).done(function(results) {
                     if (results.length > 0) {
-
-
-
                         if (results[0].data) {
                             value = results[0].data;
                         } else if (results[0].html) {
@@ -431,8 +410,6 @@ if (Meteor.isClient) {
                         });
                     }
                 });
-
-                // Action.fetch(target.url);
             } else {
                 try {
                     var fn = new Function(['$', 'link', 'id'], target.fn);
@@ -520,6 +497,7 @@ if (Meteor.isClient) {
                 case 'right':
                     newX++;
                     break;
+
             }
 
             var newSquare = Squares.findOne({
@@ -640,8 +618,12 @@ if (Meteor.isClient) {
             if (newSquare) {
                 Grid.startSelect = newSquare;
 
-                Session.set('menu.x', Grid.startSelect.x + (Grid.startSelect.width - 1) / 2);
-                Session.set('menu.y', Grid.startSelect.y + (Grid.startSelect.height - 1) / 2);
+
+                Session.set('menu.x', Grid.startSelect.x + Grid.startSelect.width)
+                Session.set('menu.y', Grid.startSelect.y + Grid.startSelect.height);
+
+                //Session.set('menu.x', Grid.startSelect.x + (Grid.startSelect.width - 1) / 2);
+                //Session.set('menu.y', Grid.startSelect.y + (Grid.startSelect.height - 1) / 2);
             }
         },
         edit: function() {
@@ -657,16 +639,17 @@ if (Meteor.isClient) {
 
 
                     if (typeof input == 'string') {
-
-                        if (input.match(/^me$/i)) {
-                            var value = _.extend(Meteor.user().services.facebook, {
-                                _type: 'fb_object'
+                        if (input.match(/^me$/)) {
+                            var v = _.extend(Meteor.user().services.facebook, {
+                                _type: 'fb_user'
                             });
+                            console.log(v);
                             Squares.update(Grid.startSelect._id, {
                                 $set: {
-                                    value: value
+                                    value: v
                                 }
                             });
+                            return;
                         }
 
                         //TESTING FACEBOOK
@@ -690,12 +673,10 @@ if (Meteor.isClient) {
                                 } catch (error) {
                                     bootbox.alert(error.message);
                                 }
-
+                                return;
                             }
                         });
                     }
-
-
 
                     try {
                         input = JSON.parse(input);
@@ -852,11 +833,24 @@ if (Meteor.isClient) {
                         }
                     }
                 }
+
+                Grid.startSelect = Squares.findOne({
+                    x: x,
+                    y: y
+                });
+                Session.set('menu.x', Grid.startSelect.x + Grid.startSelect.width)
+                Session.set('menu.y', Grid.startSelect.y + Grid.startSelect.height);
+
             }
         },
         merge: function() {
             var toMerge = Squares.find({
                 selected: true
+            }, {
+                sort: {
+                    x: 1,
+                    y: 2
+                }
             }).fetch();
 
             var result = _.reduce(toMerge, function(memo, e) {
@@ -897,6 +891,13 @@ if (Meteor.isClient) {
                 }
             });
 
+            Grid.startSelect = Squares.findOne({
+                x: result[2],
+                y: result[3]
+            });
+            Session.set('menu.x', Grid.startSelect.x + Grid.startSelect.width)
+            Session.set('menu.y', Grid.startSelect.y + Grid.startSelect.height);
+
             // TODO            
             // //Remove self from other cells linking to it. 
             // Squares.find({
@@ -917,8 +918,6 @@ if (Meteor.isClient) {
 
     Template.canvas.events({
         'mousedown .main-container': function(e) {
-            console.log(e);
-
             Grid.drag = _.pick(e, 'x', 'y');
             Grid.drag.scrollTop = $('body').scrollTop();
             Grid.drag.scrollLeft = $('body').scrollLeft();
@@ -942,7 +941,7 @@ if (Meteor.isClient) {
         	var $li = $(e.currentTarget);
         	var arrItem = this.value[$li.index()];
         	var newItem = {
-        		"_type": 'fb_object', //HARDCODED
+        		"_type": 'fb_user', //HARDCODED
         		"id": arrItem.id,
         		"name": arrItem.name
         	};
@@ -1038,8 +1037,15 @@ if (Meteor.isClient) {
                     }
                 }).fetch();
 
-                Session.set('menu.x', (Grid.startSelect.x + Grid.endSelect.x) / 2);
-                Session.set('menu.y', (Grid.startSelect.y + Grid.endSelect.y) / 2);
+
+                Session.set('menu.x', Grid.endSelect.x + Grid.endSelect.width);
+                Session.set('menu.y', Grid.endSelect.y + Grid.endSelect.height);
+
+                //Session.set('menu.x', Grid.endSelect.x + (Grid.endSelect.width - 1) / 2);
+                //Session.set('menu.y', Grid.endSelect.y + (Grid.endSelect.height - 1) / 2);
+
+                //Session.set('menu.x', (Grid.startSelect.x + Grid.endSelect.x) / 2);
+                //Session.set('menu.y', (Grid.startSelect.y + Grid.endSelect.y) / 2);
 
             } else if (Grid.selectLink) {
 
@@ -1101,11 +1107,14 @@ if (Meteor.isClient) {
                     }
                 })(this._id));
             } else {
-
+                Utility.deselect();
                 Grid.startSelect = this;
 
-                Session.set('menu.x', this.x + (this.width - 1) / 2);
-                Session.set('menu.y', this.y + (this.height - 1) / 2);
+                Session.set('menu.x', this.x + this.width);
+                Session.set('menu.y', this.y + this.height);
+
+                //Session.set('menu.x', this.x + (this.width - 1) / 2) + this.width;
+                //Session.set('menu.y', this.y + (this.height - 1) / 2) + this.height;
 
 
             }
@@ -1146,11 +1155,11 @@ if (Meteor.isClient) {
     Session.set('menu.page', 1);
 
     Template.menu.xpos = function() {
-        return Session.get('menu.x') * 100;
+        return Session.get('menu.x') * 100 - 20;
     };
 
     Template.menu.ypos = function() {
-        return Session.get('menu.y') * 100;
+        return Session.get('menu.y') * 100 - 22;
     };
 
     Template.menu.isPage = function(p) {
@@ -1160,14 +1169,14 @@ if (Meteor.isClient) {
     Template.menu.nextPage = function() {
         Session.set('menu.page', Session.get('menu.page') + 1);
         _.defer(function() {
-            $('.open-close-button').focus();
+            $('.caret').click()
         });
     };
 
     Template.menu.prevPage = function() {
         Session.set('menu.page', Session.get('menu.page') - 1);
         _.defer(function() {
-            $('.open-close-button').focus();
+            $('.caret').click();
         });
     };
 
@@ -1184,14 +1193,14 @@ if (Meteor.isClient) {
         'click .link-button': Action.editLinks,
         'click .merge-button': Action.merge,
         'click .pin-button': Action.addStencil,
+        'click .delete-button': Action.delete,
         'click .next-page-button': Template.menu.nextPage,
 
         //Page 3
         'click .previous-page-button': Template.menu.prevPage,
         'click .cut-button': Action.cut,
         'click .copy-button': Action.copy,
-        'click .paste-button': Action.paste,
-        'click .delete-button': Action.delete
+        'click .paste-button': Action.paste
 
 
     };
@@ -1407,7 +1416,7 @@ if (Meteor.isClient) {
 		      		var oldSquare = Squares.findOne($li.closest('.square').attr('id'));
 		        	var arrItem = oldSquare.value[$li.index()];
 		        	var newItem = {
-		        		"_type": 'fb_object', //HARDCODED
+		        		"_type": 'fb_user', //HARDCODED
 		        		"id": arrItem.id,
 		        		"name": arrItem.name
 		        	};

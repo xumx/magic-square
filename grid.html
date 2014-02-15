@@ -1,5 +1,6 @@
 <head>
     <title>Magic Square</title>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 </head>
 
 <body>
@@ -62,80 +63,93 @@
 
 <template name="menu">
 
-    <div style="position:absolute; top:{{ypos}}px;left:{{xpos}}px">
-        <a class='open-close-button ctrl' tabindex='1'></a>
+    <div style="position:absolute; top:{{ypos}}px;left:{{xpos}}px" class="btn-group">
+        <button class="btn btn-grid btn-xs dropdown-toggle" type="button" data-toggle="dropdown" tabindex="1">
+        <span class="caret"></span>
+        </button>
 
-        <ul class='tip ctrl'>
+        <ul class='dropdown-menu'>
             {{#if isPage 1}}
-            <li class='slice edit-button'>
+            <li class='edit-button'>
                 <div>
-                    <i class="glyphicon glyphicon-pencil"></i>
+                    &nbsp;<i class="glyphicon glyphicon-pencil"></i> Text (↵)
                 </div>
             </li>
-            <li class='slice function-button'>
-                <div>ƒ(x)</div>
+            <li class='function-button'>
+                <div>&nbsp;<i class="fa fa-code"></i> ƒ(x) (F)</div>
             </li>
-            <li class='slice url-button'>
-                <div>URL</div>
+            <li class='url-button'>
+                <div>&nbsp;<i class="fa fa-link"></i> URL (U) </div>
             </li>
-            <li class='slice style-button'>
-                <div>CSS</div>
+            <li class='style-button'>
+                <div>&nbsp;<i class="fa fa-css3"></i> CSS (C) </div>
             </li>
-            <li class='slice next-page-button'>
+            <li class='next-page-button'>
                 <div>
-                    <i class="glyphicon glyphicon-forward"></i>
+                    <i class="glyphicon glyphicon-forward"></i> Next&nbsp;
                 </div>
             </li>
             {{/if}} {{#if isPage 2}}
-            <li class='slice previous-page-button'>
+            <li class='merge-button'>
                 <div>
-                    <i class="glyphicon glyphicon-backward"></i>
+                    &nbsp;<i class="fa fa-compress"></i> Merge (M)
                 </div>
             </li>
-            <li class='slice merge-button'>
-                <div>merge</div>
-            </li>
-            <li class='slice link-button'>
+            <li class='link-button'>
                 <div>
-                    link
+                    &nbsp;<i class="fa fa-external-link"></i> Link (L)
                 </div>
             </li>
-            <li class='slice pin-button'>
+            <li class='pin-button'>
                 <div>
-                    <i class="glyphicon glyphicon-pushpin"></i>
+                    &nbsp;<i class="fa fa-bookmark"></i></i> Bookmark
                 </div>
             </li>
-            <li class='slice next-page-button'>
+            <!--li class="refresh-button">
                 <div>
-                    <i class="glyphicon glyphicon-forward"></i>
+                    &nbsp;<i class="fa fa-refresh"></i> Refresh (R)
+                </div>
+            </li-->
+            <li class='delete-button'>
+                <div>
+                    &nbsp;<i class="glyphicon glyphicon-trash"></i> Delete (Del)
+                </div>
+            </li>
+            <li class='previous-page-button'>
+                <div>
+                    &nbsp;<i class="glyphicon glyphicon-backward"></i> Prev
+                </div>
+            </li>
+            <li class='next-page-button'>
+                <div>
+                    <i class="glyphicon glyphicon-forward"></i> Next&nbsp;
                 </div>
             </li>
             {{/if}} {{#if isPage 3}}
 
-            <li class='slice previous-page-button'>
+            <li class='cut-button'>
                 <div>
-                    <i class="glyphicon glyphicon-backward"></i>
+                    &nbsp;<i class="fa fa-scissors"></i> Cut (Ctrl + X)
                 </div>
             </li>
-
-            <li class='slice cut-button'>
+            <li class='copy-button'>
                 <div>
-                    cut
+                    &nbsp;<i class="fa fa-files-o"></i> Copy (Ctrl + C)
                 </div>
             </li>
-            <li class='slice copy-button'>
+            <li class='paste-button'>
                 <div>
-                    copy
+                    &nbsp;<i class="fa fa-clipboard"></i> Paste (Ctrl + V)
                 </div>
             </li>
-            <li class='slice paste-button'>
+            <li class='paste-button'>
                 <div>
-                    paste
+                    &nbsp;
                 </div>
             </li>
-            <li class='slice delete-button'>
+            <li class='previous-page-button'>
                 <div>
-                    <i class="glyphicon glyphicon-trash"></i>
+                    &nbsp;<i class="glyphicon glyphicon-backward"></i> Prev
                 </div>
             </li>
             {{/if}}
