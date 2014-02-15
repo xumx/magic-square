@@ -7,10 +7,6 @@ API = {
     google: {
         server: "AIzaSyCXobbe29WEsE7k1nxAXj5w",
         client: "AIzaSyBbEd2KpEdLZYMSxcQzhxD0mDHtab3nne0"
-    },
-    facebook: {
-        appID: 726903517340062,
-        appSecret: "d085baf22691cc4f59efaf0815162bb4"
     }
 }
 
@@ -120,6 +116,9 @@ if (Meteor.isClient) {
     }
 
     Action = {
+        login: function() {
+
+        },
         trySubscribe: function(error) {
             var password = null;
 
@@ -818,6 +817,7 @@ if (Meteor.isClient) {
     };
 
     Template.toolbox.events = {
+        'click button.login-button': Action.login,
         'click button.new-canvas-button': Action.newCanvas,
         'click button.add-stencil-button': Action.addStencil,
         'click button.clear-canvas-button': Action.resetCanvas,
