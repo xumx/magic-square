@@ -316,6 +316,9 @@ if (Meteor.isServer) {
             return groupedMusicArray;
         },
         aggregateMutualFriends: function(userArray) {
+            userArray = _.reject(userArray, function(user) {
+                return user.id === Meteor.user().services.facebook.id;
+            });
             if (!userArray && userArray.length === 0) return null;
 
             var userMutualFriends = new Array();
@@ -345,6 +348,10 @@ if (Meteor.isServer) {
 
                     batchUserIDs = new Array(); //resetting the array to store new user IDs
                 }
+            });
+
+            userMutualFriends = _.sortBy(userMutualFriends, function(userMutual) {
+                return - userMutual.count;
             });
 
             return userMutualFriends;
