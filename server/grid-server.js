@@ -180,7 +180,6 @@ function getEventAttendees(eventName) {
     if (!eventName || eventName.length === 0) return null; //No event name found
     //Search for the ID of the event
     var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";
-    console.log("Event search Query: " + eventIDquery);
     var eventIDresponse = HTTP.get("https://graph.facebook.com/fql?q=" + eventIDquery
         + "&access_token=" + Meteor.user().services.facebook.accessToken);
     var eventsFound = eventIDresponse.data.data;
@@ -190,7 +189,7 @@ function getEventAttendees(eventName) {
     //Get the attendees for the event
     var eventAttendeesResponse = HTTP.get("https://graph.facebook.com/" + eventID + "/attending"
         + "?access_token=" + Meteor.user().services.facebook.accessToken);
-    var eventAttendeesArray = eventAttendeesResponse.data;
+    var eventAttendeesArray = eventAttendeesResponse.data.data;
     return eventAttendeesArray;
 }
 
@@ -256,6 +255,5 @@ function aggregateMusicLikes(userIDArray) {
     
     groupedMusicArray = groupedMusicArray.slice(0,Math.min(groupedMusicArray.length, 10));
     
-    console.log(groupedMusicArray);
     return groupedMusicArray;
 }
