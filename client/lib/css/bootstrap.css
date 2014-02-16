@@ -427,3 +427,28 @@ hr {
 .next-page-button {
   float: right;
 }
+
+#popup {
+        display: none;
+        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+        font-weight: 300;
+        font-size: 25px;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        width: 500px;
+        height: 55px;
+        margin-top: -25px;
+        margin-left: -250px;
+        background: #ecf0f1;
+        border-radius: 5px;
+        z-index: 100000;
+        padding: 10px;
+        -webkit-box-shadow: inset 0 0 8px rgba(41, 37, 37, 0), 0 0 8px rgba(134, 126, 126, 1);
+        -moz-box-shadow: inset 0 0 8px rgba(0,0,0,0.1), 0 0 16px rgba(0,0,0,0.1);
+        box-shadow: inset 0 0 8px rgba(0,0,0,0.1), 0 0 8px rgba(95, 90, 90, 1);
+    }
+
+    #popup:focus{
+        outline:none;
+    };

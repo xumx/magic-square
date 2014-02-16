@@ -1,5 +1,5 @@
 /* Main CSS script */
- .square {
+.square {
     border: 1px dotted rgba(0, 0, 0, 0.25);
     margin: 0;
     display: block;
@@ -26,6 +26,9 @@
 }
 .square.linked {
     background-color: #faff8f;
+    border-style: dashed;
+    border-width: medium;
+    border-color: rgb(117, 117, 109);
 }
 .square img {
     max-width: 100%;
@@ -33,243 +36,243 @@
 }
 /*.square .has-overlay:hover {
     margin-top: -100px;
-}*/
-.square .overlay {
-    height: 100px;
-    width: 100%;
-    background-color: rgba(44, 62, 80, 0.70);
-    position: absolute;
-    bottom:0;
-    color: whitesmoke;
-    font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
-    font-size: 20px;
-    line-height: 20px;
-    padding-top: 20px;
-    text-align: center;
-}
+    }*/
+    .square .overlay {
+        height: 100px;
+        width: 100%;
+        background-color: rgba(44, 62, 80, 0.70);
+        position: absolute;
+        bottom:0;
+        color: whitesmoke;
+        font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
+        font-size: 20px;
+        line-height: 20px;
+        padding-top: 20px;
+        text-align: center;
+    }
 
-.sidebar-toggle {
-    position: fixed;
-    top:65px;
-    left: -20px;
-    width: 60px;
-    height: 35px;
-    z-index: 10;
-    text-align: right;
-}
-.sidebar-toggle:hover {
-    transition: 0.5s;
-    left: -3px;
-}
-.navmenu-nav > li > button {
-    height:100px;
-    width:100px;
-    border-radius:0;
-    white-space: normal;
-}
-body, html, .main-container {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-}
-/*====*/
+    .sidebar-toggle {
+        position: fixed;
+        top:65px;
+        left: -20px;
+        width: 60px;
+        height: 35px;
+        z-index: 10;
+        text-align: right;
+    }
+    .sidebar-toggle:hover {
+        transition: 0.5s;
+        left: -3px;
+    }
+    .navmenu-nav > li > button {
+        height:100px;
+        width:100px;
+        border-radius:0;
+        white-space: normal;
+    }
+    body, html, .main-container {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    /*====*/
 
-/* Left will inherit from right (so we don't need to duplicate code */
- .github-fork-ribbon {
-    /* The right and left lasses determine the side we attach our banner to */
-    position: absolute;
-    /* Add a bit of padding to give some substance outside the "stitching" */
-    padding: 2px 0;
-    /* Set the base colour */
-    background-color: #a00;
-    /* Set a gradient: transparent black at the top to almost-transparent black at the bottom */
-    background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.00)), to(rgba(0, 0, 0, 0.15)));
-    background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.15));
-    background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.15));
-    background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.15));
-    background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.15));
-    background-image: linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.15));
-    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, StartColorStr='#000000', EndColorStr='#000000');
-    /* Add a drop shadow */
-    -webkit-box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.5);
-    box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    pointer-events: auto;
-}
-.github-fork-ribbon a, .github-fork-ribbon a:hover {
-    /* Set the font */
-    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    color: white;
-    /* Set the text properties */
-    text-decoration: none;
-    text-shadow: 0 -1px rgba(0, 0, 0, 0.5);
-    text-align: center;
-    /* Set the geometry. If you fiddle with these you'll also need to tweak the top and right values in #github-fork-ribbon. */
-    width: 200px;
-    line-height: 20px;
-    /* Set the layout properties */
-    display: inline-block;
-    padding: 2px 0;
-    /* Add "stitching" effect */
-    border-width: 1px 0;
-    border-style: dotted;
-    border-color: rgba(255, 255, 255, 0.7);
-}
-.github-fork-ribbon-wrapper {
-    width: 150px;
-    height: 150px;
-    position: absolute;
-    overflow: hidden;
-    top: 0;
-    z-index: 9999;
-    pointer-events: none;
-}
-.github-fork-ribbon-wrapper.fixed {
-    position: fixed;
-}
-.github-fork-ribbon-wrapper.right {
-    right: 0;
-}
-.github-fork-ribbon-wrapper.right .github-fork-ribbon {
-    top: 42px;
-    right: -43px;
-    /* Rotate the banner 45 degrees */
-    -webkit-transform: rotate(45deg);
-    -moz-transform: rotate(45deg);
-    -o-transform: rotate(45deg);
-    transform: rotate(45deg);
-}
-/*=====*/
+    /* Left will inherit from right (so we don't need to duplicate code */
+       .github-fork-ribbon {
+        /* The right and left lasses determine the side we attach our banner to */
+        position: absolute;
+        /* Add a bit of padding to give some substance outside the "stitching" */
+        padding: 2px 0;
+        /* Set the base colour */
+        background-color: #a00;
+        /* Set a gradient: transparent black at the top to almost-transparent black at the bottom */
+        background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.00)), to(rgba(0, 0, 0, 0.15)));
+        background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.15));
+        background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.15));
+        background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.15));
+        background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.15));
+        background-image: linear-gradient(top, rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.15));
+        filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, StartColorStr='#000000', EndColorStr='#000000');
+        /* Add a drop shadow */
+        -webkit-box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.5);
+        box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        pointer-events: auto;
+    }
+    .github-fork-ribbon a, .github-fork-ribbon a:hover {
+        /* Set the font */
+        font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: white;
+        /* Set the text properties */
+        text-decoration: none;
+        text-shadow: 0 -1px rgba(0, 0, 0, 0.5);
+        text-align: center;
+        /* Set the geometry. If you fiddle with these you'll also need to tweak the top and right values in #github-fork-ribbon. */
+        width: 200px;
+        line-height: 20px;
+        /* Set the layout properties */
+        display: inline-block;
+        padding: 2px 0;
+        /* Add "stitching" effect */
+        border-width: 1px 0;
+        border-style: dotted;
+        border-color: rgba(255, 255, 255, 0.7);
+    }
+    .github-fork-ribbon-wrapper {
+        width: 150px;
+        height: 150px;
+        position: absolute;
+        overflow: hidden;
+        top: 0;
+        z-index: 9999;
+        pointer-events: none;
+    }
+    .github-fork-ribbon-wrapper.fixed {
+        position: fixed;
+    }
+    .github-fork-ribbon-wrapper.right {
+        right: 0;
+    }
+    .github-fork-ribbon-wrapper.right .github-fork-ribbon {
+        top: 42px;
+        right: -43px;
+        /* Rotate the banner 45 degrees */
+        -webkit-transform: rotate(45deg);
+        -moz-transform: rotate(45deg);
+        -o-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+    /*=====*/
 
-/* generic styles for button & circular menu */
- .ctrl {
-    font: 1.5em/1.13 Verdana, sans-serif;
-    -webkit-transition: .5s;
-    -moz-transition: .5s;
-    -o-transition: .5s;
-    -ms-transition: .5s;
-    transition: .5s;
-}
-/* generic link styles */
- a.ctrl, .ctrl div {
-    display: block;
-    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
-    filter: alpha(opacity=80);
-    opacity: .80;
-    background: #c9353b;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    cursor: pointer;
-}
-a.ctrl:hover, .ctrl div:hover, a.ctrl:focus {
-    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
-    filter: alpha(opacity=100);
-    opacity: 1;
-}
-a.ctrl:focus {
-    outline: none;
-}
-.open-close-button {
-    position: absolute;
-    top:30px;
-    left:30px;
-    width: 2em;
-    height: 2em;
-    border: 0.1em solid #f4d6d7;
-    border-radius: 50%;
-    -webkit-transition: 0.5s;
-    -moz-transition: 0.5s;
-    -o-transition: 0.5s;
-    transition: 0.5s;
-    -webkit-transform: translateZ(0);
-    -moz-transform: translateZ(0);
-    -ms-transform: translateZ(0);
-    -o-transform: translateZ(0);
-    transform: translateZ(0);
-}
-.open-close-button:before {
-    content:"";
-    display: block;
-    position: absolute;
-    background-color: #f4d6d7;
-    width: 80%;
-    height: 6%;
-    left: 10%;
-    top: 47%;
-}
-.open-close-button:after {
-    content:"";
-    display: block;
-    position: absolute;
-    background-color: #f4d6d7;
-    width: 6%;
-    height: 80%;
-    left: 47%;
-    top: 10%;
-}
-.open-close-button:focus {
-    background-color: #f4d6d7;
-    -webkit-transform: rotate(225deg);
-    -moz-transform: rotate(225deg);
-    -ms-transform: rotate(225deg);
-    -o-transform: rotate(225deg);
-    transform: rotate(225deg);
-}
-.open-close-button:focus:after {
-    background-color: #c9353b;
-}
-.open-close-button:focus:before {
-    background-color: #c9353b;
-}
-/* circular menu */
- .tip {
-    font-size: 2em;
-    position: absolute;
-    top: 50px;
-    left: 50px;
-    z-index: 1;
-    margin: -5em;
-    padding: 0;
-    width: 10em;
-    height: 10em;
-    -webkit-transform: scale(.001);
-    -moz-transform: scale(.001);
-    -o-transform: scale(.001);
-    -ms-transform: scale(.001);
-    transform: scale(.001);
-    list-style: none;
-    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-    filter: alpha(opacity=0);
-    opacity: 0;
-}
-/* make the menu appear on click */
- .open-close-button:focus + .tip {
-    -webkit-transform: scale(1);
-    -moz-transform: scale(1);
-    -o-transform: scale(1);
-    -ms-transform: scale(1);
-    transform: scale(1);
-    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
-    filter: alpha(opacity=100);
-    opacity: 1;
-}
-/* slices of the circular menu */
- .slice {
-    overflow: hidden;
-    position: absolute;
-    /**outline:  dotted 1px yellow; /**/
-    width: 50%;
-    height: 50%;
-    -webkit-transform-origin: 100% 100%;
-    -moz-transform-origin: 100% 100%;
-    -o-transform-origin: 100% 100%;
-    -ms-transform-origin: 100% 100%;
-    transform-origin: 100% 100%;
-}
+    /* generic styles for button & circular menu */
+    .ctrl {
+        font: 1.5em/1.13 Verdana, sans-serif;
+        -webkit-transition: .5s;
+        -moz-transition: .5s;
+        -o-transition: .5s;
+        -ms-transition: .5s;
+        transition: .5s;
+    }
+    /* generic link styles */
+    a.ctrl, .ctrl div {
+        display: block;
+        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+        filter: alpha(opacity=80);
+        opacity: .80;
+        background: #c9353b;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    a.ctrl:hover, .ctrl div:hover, a.ctrl:focus {
+        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+        filter: alpha(opacity=100);
+        opacity: 1;
+    }
+    a.ctrl:focus {
+        outline: none;
+    }
+    .open-close-button {
+        position: absolute;
+        top:30px;
+        left:30px;
+        width: 2em;
+        height: 2em;
+        border: 0.1em solid #f4d6d7;
+        border-radius: 50%;
+        -webkit-transition: 0.5s;
+        -moz-transition: 0.5s;
+        -o-transition: 0.5s;
+        transition: 0.5s;
+        -webkit-transform: translateZ(0);
+        -moz-transform: translateZ(0);
+        -ms-transform: translateZ(0);
+        -o-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+    .open-close-button:before {
+        content:"";
+        display: block;
+        position: absolute;
+        background-color: #f4d6d7;
+        width: 80%;
+        height: 6%;
+        left: 10%;
+        top: 47%;
+    }
+    .open-close-button:after {
+        content:"";
+        display: block;
+        position: absolute;
+        background-color: #f4d6d7;
+        width: 6%;
+        height: 80%;
+        left: 47%;
+        top: 10%;
+    }
+    .open-close-button:focus {
+        background-color: #f4d6d7;
+        -webkit-transform: rotate(225deg);
+        -moz-transform: rotate(225deg);
+        -ms-transform: rotate(225deg);
+        -o-transform: rotate(225deg);
+        transform: rotate(225deg);
+    }
+    .open-close-button:focus:after {
+        background-color: #c9353b;
+    }
+    .open-close-button:focus:before {
+        background-color: #c9353b;
+    }
+    /* circular menu */
+    .tip {
+        font-size: 2em;
+        position: absolute;
+        top: 50px;
+        left: 50px;
+        z-index: 1;
+        margin: -5em;
+        padding: 0;
+        width: 10em;
+        height: 10em;
+        -webkit-transform: scale(.001);
+        -moz-transform: scale(.001);
+        -o-transform: scale(.001);
+        -ms-transform: scale(.001);
+        transform: scale(.001);
+        list-style: none;
+        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+        filter: alpha(opacity=0);
+        opacity: 0;
+    }
+    /* make the menu appear on click */
+    .open-close-button:focus + .tip {
+        -webkit-transform: scale(1);
+        -moz-transform: scale(1);
+        -o-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+        filter: alpha(opacity=100);
+        opacity: 1;
+    }
+    /* slices of the circular menu */
+    .slice {
+        overflow: hidden;
+        position: absolute;
+        /**outline:  dotted 1px yellow; /**/
+        width: 50%;
+        height: 50%;
+        -webkit-transform-origin: 100% 100%;
+        -moz-transform-origin: 100% 100%;
+        -o-transform-origin: 100% 100%;
+        -ms-transform-origin: 100% 100%;
+        transform-origin: 100% 100%;
+    }
 /*
  * rotate each slice at the right angle = (A/2)° + (k -(n+1)/2)*A°
  * where A is the angle of 1 slice (30° in this case)
@@ -284,7 +287,7 @@ a.ctrl:focus {
  * after rotating, skew on Y by 90°-A°;
    here A° = the angle for 1 slice = 30°
    */
- .slice:first-child {
+   .slice:first-child {
     -webkit-transform: rotate(-45deg) skewY(60deg);
     -moz-transform: rotate(-45deg) skewY(60deg);
     -o-transform: rotate(-45deg) skewY(60deg);
@@ -322,7 +325,7 @@ a.ctrl:focus {
 /* covers for the inner part of the links so there's no hover trigger between
 star button & menu links;
 give them a red background to see them */
- .slice:after {
+.slice:after {
     position: absolute;
     top: 32%;
     left: 32%;
@@ -338,7 +341,7 @@ give them a red background to see them */
     content:'';
 }
 /* menu links */
- .slice div {
+.slice div {
     width: 200%;
     height: 200%;
     border-radius: 50%;
@@ -359,7 +362,7 @@ give them a red background to see them */
     line-height: 1.4;
 }
 /* arrow for middle link */
- .slice:hover div:after {
+.slice:hover div:after {
     position: absolute;
     top: 13%;
     left: 50%;
@@ -386,7 +389,7 @@ give them a red background to see them */
 }
 
 /* Stroll.js */
- .square ul {
+.square ul {
     position: relative;
     width: 100%;
     height: 100%;
@@ -803,13 +806,38 @@ give them a red background to see them */
     border: 5px solid white;
     width: 20px;
     height: 20px;
-}*/
+    }*/
 
-.btn-grid {
-    background-color: #c9353b;
-    border-color: #d43f3a;
-}
+    .btn-grid {
+        background-color: #c9353b;
+        border-color: #d43f3a;
+    }
 
-.btn-grid:hover {
-    background-color: #d9534f;
-};
+    .btn-grid:hover {
+        background-color: #d9534f;
+    };
+
+    #popup {
+        display: none;
+        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+        font-weight: 300;
+        font-size: 25px;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        width: 500px;
+        height: 55px;
+        margin-top: -25px;
+        margin-left: -250px;
+        background: #ecf0f1;
+        border-radius: 5px;
+        z-index: 100000;
+        padding: 10px;
+        -webkit-box-shadow: inset 0 0 8px rgba(41, 37, 37, 0), 0 0 8px rgba(134, 126, 126, 1);
+        -moz-box-shadow: inset 0 0 8px rgba(0,0,0,0.1), 0 0 16px rgba(0,0,0,0.1);
+        box-shadow: inset 0 0 8px rgba(0,0,0,0.1), 0 0 8px rgba(95, 90, 90, 1);
+    }
+
+    #popup:focus{
+        outline:none;
+    };
