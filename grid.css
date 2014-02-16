@@ -824,11 +824,11 @@ give them a red background to see them */
         font-size: 25px;
         position: fixed;
         left: 50%;
-        top: 50%;
-        width: 500px;
-        height: 55px;
-        margin-top: -25px;
-        margin-left: -250px;
+        top: 35%;
+        width: 600px;
+        height: 80px;
+        margin-top: -50px;
+        margin-left: -300px;
         background: #ecf0f1;
         border-radius: 5px;
         z-index: 100000;
