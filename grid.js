@@ -163,7 +163,7 @@ if (Meteor.isClient) {
         //Alternate format [{text:"Appple", href:"http://apple.com"} , {text:"Amazon",href:"http://amazon.com"}]
         if (Array.isArray(value)) {
 
-            result = '<ul class="objectarray ' + _.sample(['fly', 'cards', 'wave', 'curl', 'papercut']) + '">\n';
+            result = '<ul class="objectarray ' + _.sample(['cards', 'wave', 'curl', 'papercut']) + '">\n';
             _.each(value, function(row) {
                 if (typeof row == 'object') {
 
@@ -431,7 +431,7 @@ if (Meteor.isClient) {
                         }
                     });
                 } catch (error) {
-                    bootbox.alert(error.message);
+                    console.log(error.message);
                 }
             }
         },
@@ -944,26 +944,94 @@ if (Meteor.isClient) {
             $('body').css('cursor', 'default');
         },
         'dblclick .objectarray > li': function(e) {
-            var $li = $(e.currentTarget);
-            var arrItem = this.value[$li.index()];
-            var newItem = {
-                "_type": 'fb_user', //HARDCODED
-                "id": arrItem.id,
-                "name": arrItem.name
-            };
-            Squares.update(this._id, {
-                $unset: {
-                    fn: null
-                },
-                $set: {
-                    value: newItem
+
+            if (e.shiftKey) {
+
+                var next, link;
+
+                var direction = 'down';
+                var offset = 0;
+
+                while (true) {
+
+                    next = Utility.findNextSquare(Grid.startSelect, direction, offset);
+
+                    var payload = _.pick(Grid.startSelect, 'fn', 'value', 'style', 'url');
+
+                    payload.link = [];
+
+                    for (var i = 0; i < Grid.startSelect.link.length; i++) {
+                        link = Squares.findOne(Grid.startSelect.link[i]);
+                        nextLink = Utility.findNextSquare(link, direction, offset);
+
+                        //If cell is blank
+                        if (!nextLink.value || typeof nextLink.value !== typeof link.value) {
+                            return;
+                        }
+
+                        payload.link.push(nextLink._id);
+                    }
+
+                    Squares.update(next._id, {
+                        $set: payload
+                    }, (function(id) {
+                        return function() {
+                            Action.refresh(Squares.findOne(id));
+                        }
+                    })(next._id));
+
+                    offset++;
                 }
-            }, (function(id) {
-                return function() {
-                    Action.refresh(Squares.findOne(id));
+
+            } else {
+
+                var $li = $(e.currentTarget);
+                var arrItem = this.value[$li.index()];
+                var newItem;
+
+                //HARDCODED
+                if (arrItem.href) {
+                    if (arrItem.href.match(/spotify:track:(.+)/)) {
+                        var trackID = arrItem.href.match(/spotify:track:(.+)/)[1]
+                        url = 'https://play.spotify.com/track/' + trackID;
+
+                        Squares.update(this._id, {
+                            $unset: {
+                                fn: null
+                            },
+                            $set: {
+                                url: url
+                            }
+                        }, (function(id) {
+                            return function() {
+                                Action.refresh(Squares.findOne(id));
+                            }
+                        })(this._id));
+                    }
+
+                } else {
+
+                    newItem = {
+                        "_type": 'fb_user',
+                        "id": arrItem.id,
+                        "name": arrItem.name
+                    };
+
+                    Squares.update(this._id, {
+                        $unset: {
+                            fn: null
+                        },
+                        $set: {
+                            value: newItem
+                        }
+                    }, (function(id) {
+                        return function() {
+                            Action.refresh(Squares.findOne(id));
+                        }
+                    })(this._id));
+
                 }
-            })(this._id));
-            return false;
+            }
         },
         'mouseover .objectarray > li': function(e) {
             var $li = $(e.currentTarget);
@@ -1005,43 +1073,6 @@ if (Meteor.isClient) {
                         return false;
                     }
                 });
-            }
-        },
-        'dblclick .square': function(e) {
-            var next, link;
-
-            var direction = 'down';
-            var offset = 0;
-
-            while (true) {
-
-                next = Utility.findNextSquare(Grid.startSelect, direction, offset);
-
-                var payload = _.pick(Grid.startSelect, 'fn', 'value', 'style', 'url');
-
-                payload.link = [];
-
-                for (var i = 0; i < Grid.startSelect.link.length; i++) {
-                    link = Squares.findOne(Grid.startSelect.link[i]);
-                    nextLink = Utility.findNextSquare(link, direction, offset);
-
-                    //If cell is blank
-                    if (!nextLink.value || typeof nextLink.value !== typeof link.value) {
-                        return;
-                    }
-
-                    payload.link.push(nextLink._id);
-                }
-
-                Squares.update(next._id, {
-                    $set: payload
-                }, (function(id) {
-                    return function() {
-                        Action.refresh(Squares.findOne(id));
-                    }
-                })(next._id));
-
-                offset++;
             }
         },
         'click .square': function(e) {
@@ -1336,16 +1367,16 @@ if (Meteor.isClient) {
                         Action.copy();
                     }
                 },
-                // 'super+v': function(e) {
-                //     if ($(e.target).is('body')) {
-                //         Action.paste();
-                //     }
-                // },
-                // 'ctrl+v': function(e) {
-                //     if ($(e.target).is('body')) {
-                //         Action.paste();
-                //     }
-                // },
+                'super+v': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.paste();
+                    }
+                },
+                'ctrl+v': function(e) {
+                    if ($(e.target).is('body')) {
+                        Action.paste();
+                    }
+                },
                 'super+x': function(e) {
                     if ($(e.target).is('body')) {
                         Action.cut();
@@ -1398,7 +1429,7 @@ if (Meteor.isClient) {
                                 var v = _.extend(Meteor.user().services.facebook, {
                                     _type: 'fb_user'
                                 });
-                                console.log(v);
+
                                 Squares.update(Grid.startSelect._id, {
                                     $set: {
                                         value: v
@@ -1426,7 +1457,7 @@ if (Meteor.isClient) {
                                             Action.refresh(Grid.startSelect);
                                         });
                                     } catch (error) {
-                                        bootbox.alert(error.message);
+                                        console.log(error.message);
                                     }
                                     return;
                                 }
@@ -1503,28 +1534,55 @@ if (Meteor.isClient) {
                 }
             });
 
-            $('body').bind('paste', function(e) {
+            // $('body').bind('paste', function(e) {
 
-                var value = e.originalEvent.clipboardData.getData('text');
+            //     var value = e.originalEvent.clipboardData.getData('text');
 
-                if (value.match(/^www/)) {
-                    value = 'http://' + value;
-                }
+            //     if (value.match(/^www/)) {
+            //         value = 'http://' + value;
+            //     }
 
-                if (typeof value == 'string' && value.match(/^https?:\/\/.+/)) {
-                    Squares.update(Grid.startSelect._id, {
+            //     if (typeof value == 'string' && value.match(/^https?:\/\/.+/)) {
+            //         Squares.update(Grid.startSelect._id, {
+            //             $set: {
+            //                 url: value
+            //             }
+            //         }, function() {
+            //             Grid.startSelect.url = value;
+            //             Action.refresh(Grid.startSelect);
+            //         });
+            //     } else {
+            //         Action.paste()
+            //     }
+            // });
+
+
+            $('.main-container .square').droppable({
+                drop: function(event, ui) {
+                    var newSquare = Squares.findOne($(this).attr('id'));
+                    var $li = $(ui.draggable); /////
+                    var oldSquare = Squares.findOne($li.closest('.square').attr('id'));
+                    var arrItem = oldSquare.value[$li.index()];
+                    var newItem = {
+                        "_type": 'fb_user', //HARDCODED
+                        "id": arrItem.id,
+                        "name": arrItem.name
+                    };
+                    Squares.update(newSquare._id, {
+                        $unset: {
+                            fn: null
+                        },
                         $set: {
-                            url: value
+                            value: newItem
                         }
-                    }, function() {
-                        Grid.startSelect.url = value;
-                        Action.refresh(Grid.startSelect);
-                    });
-                } else {
-                    Action.paste()
+                    }, (function(id) {
+                        return function() {
+                            Action.refresh(Squares.findOne(id));
+                        }
+                    })(newSquare._id));
+                    return false;
                 }
             });
-            // $('.loading').remove();
         }, 500);
     });
 }
