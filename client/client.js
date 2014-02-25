@@ -11,17 +11,9 @@ Deps.autorun(function() {
 });
 
 Template.canvas.squares = function() {
+    var box = Session.get('box');
 
-	Session.get('updateViewport');
-
-    var buffer = 3;
-
-    var box = {
-        top: Math.ceil(window.scrollY / 100) - buffer,
-        bottom: Math.ceil((window.scrollY + window.innerHeight) / 100) + buffer,
-        left: Math.ceil(window.scrollX / 100) - buffer,
-        right: Math.ceil((window.scrollX + window.innerWidth) / 100) + buffer
-    }
+    var limit = 100;
 
     return Squares.find({
         x: {
@@ -38,23 +30,23 @@ Template.canvas.squares = function() {
             x: 2
         }
     });
-}
+};
 
 Template.canvas.xpos = function() {
-    return this.x * 100
-}
+    return this.x * 100;
+};
 
 Template.canvas.ypos = function() {
-    return this.y * 100
-}
+    return this.y * 100;
+};
 
 Template.canvas.heightpx = function() {
     return this.height * 100;
-}
+};
 
 Template.canvas.widthpx = function() {
     return this.width * 100;
-}
+};
 
 Template.canvas.read = function() {
     var query, value = this.value;
@@ -101,15 +93,15 @@ Template.canvas.read = function() {
                 if (row.name) { //This is an FB user result
                     result += '<li><img src="http://graph.facebook.com/' + row.id + '/picture"/><a target="_blank" href="http://www.facebook.com/' + row.id + '">' + row.name + '</a></li>\n'
                 } else if (typeof row.href == 'string' && typeof row.text == 'string') {
-                    result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n'
+                    result += '<li><a href="' + row.href + '">' + row.text + '</a></li>\n';
                 }
 
             } else {
-                result += '<li>' + row + '</li>\n'
+                result += '<li>' + row + '</li>\n';
             }
-        })
+        });
 
-        result += '</ul>'
+        result += '</ul>';
 
         _.defer(function() {
             stroll.bind('.square ul');
@@ -127,19 +119,16 @@ Template.canvas.read = function() {
 
 
     return new Handlebars.SafeString(value);
-}
-
+};
 Template.toolbox.stencils = function() {
     return Stencils.find({});
-}
-
+};
 Grid = {
     startSelect: null,
     endSelect: null,
     copy: null,
     cut: null
-}
-
+};
 Action = {
     login: function() {
         Meteor.loginWithFacebook({
@@ -163,7 +152,7 @@ Action = {
             console.error(error);
             bootbox.prompt('Password', function(p) {
 
-                if (p == null) {
+                if (p === null) {
                     bootbox.alert('Unable to view canvas because it is secured by a canvas password.');
                     return;
                 } else {
@@ -231,7 +220,7 @@ Action = {
                 });
             });
 
-        } else if (Grid.startSelect.value != undefined) {
+        } else if (Grid.startSelect.value !== undefined) {
 
             Squares.update(Grid.startSelect._id, {
                 $unset: {
@@ -333,8 +322,6 @@ Action = {
                         value = results[0].data;
                     } else if (results[0].html) {
                         value = results[0].html;
-                    } else if (results[0].thumbnail_url) {
-                        value = '<a target="_blank" data-toggle="tooltip" title="first tooltip" href="' + results[0].url + '"><img src="' + results[0].thumbnail_url + '"></a>';
                     }
 
                     Squares.update(target._id, {
@@ -549,14 +536,11 @@ Action = {
         if (newSquare) {
             Grid.startSelect = newSquare;
 
-
-            Session.set('menu.x', Grid.startSelect.x + Grid.startSelect.width)
+            Session.set('menu.x', Grid.startSelect.x + Grid.startSelect.width);
             Session.set('menu.y', Grid.startSelect.y + Grid.startSelect.height);
-
-            //Session.set('menu.x', Grid.startSelect.x + (Grid.startSelect.width - 1) / 2);
-            //Session.set('menu.y', Grid.startSelect.y + (Grid.startSelect.height - 1) / 2);
         }
     },
+
     edit: function() {
         if ($('#popup').is(":hidden")) {
             $('#popup').show().val(Grid.startSelect.value).focus();
@@ -564,84 +548,6 @@ Action = {
         } else {
             $('#popup').hide().val('');
         }
-        /*bootbox.prompt({
-				title: 'Cell Value',
-				inputType: 'text',
-				instruction: $('<b>You can try these examples:</b><br><ul><li>map of singapore management university</li></ul>'),
-				value: Grid.startSelect.value,
-				callback: function(input) {
-					if (input == null) {
-						return;
-					}
-
-
-					if (typeof input == 'string') {
-						if (input.match(/^me$/)) {
-							var v = _.extend(Meteor.user().services.facebook, {
-								_type: 'fb_user'
-							});
-							console.log(v);
-							Squares.update(Grid.startSelect._id, {
-								$set: {
-									value: v
-								}
-							});
-							return;
-						}
-
-						//TESTING FACEBOOK
-						_.each(FUNCTION_BANK, function(value, key) {
-							var re = new RegExp(key, 'i');
-
-							if (input.match(re)) {
-								var query = input.replace(re, '');
-								var statements = 'var query = "' + query + '";\n' + value;
-
-								try {
-									var fn = new Function(['$', 'link', 'id'], statements);
-
-									Squares.update(Grid.startSelect._id, {
-										$set: {
-											fn: statements
-										}
-									}, function() {
-										Action.refresh(Grid.startSelect);
-									});
-								} catch (error) {
-									bootbox.alert(error.message);
-								}
-								return;
-							}
-						});
-					}
-
-					try {
-						input = JSON.parse(input);
-					} catch (e) {
-						console.log(input)
-						console.warn("Cannot parse value as JSON: " + e.message);
-					}
-
-					//if there is a change
-					if (input != Grid.startSelect.value) {
-						Squares.update(Grid.startSelect._id, {
-							$set: {
-								value: input
-							}
-						});
-
-						//TODO Recursive propagation
-						//Propagate changes
-						Squares.find({
-							link: Grid.startSelect._id
-						}, {
-							transform: function(e) {
-								Action.refresh(e);
-							}
-						}).fetch();
-					}
-				}
-			});*/
     },
 
     escape: function() {
@@ -685,6 +591,7 @@ Action = {
             }
         });
     },
+
     editFunction: function() {
         bootbox.prompt({
             title: 'Attach a Javascript Function',
@@ -693,7 +600,7 @@ Action = {
             instruction: $('<b>Objects available: </b><br><ul><li>$: jQuery Object</li><li>link: javascript array of linked cells</li><li>data: JSON response from webservice</li></ul>'),
             value: Grid.startSelect.fn || "return null;",
             callback: function(statements) {
-                if (statements == null) {
+                if (statements === null) {
                     return;
                 }
 
@@ -1226,7 +1133,7 @@ Template.toolbox.events = {
     'click button.clear-canvas-button': Action.resetCanvas,
     'click .square': Action.copyStencil,
     'dblclick .square': Action.deleteStencil
-}
+};
 
 Meteor.startup(function() {
 
@@ -1239,7 +1146,7 @@ Meteor.startup(function() {
             before: [
                 function() {
 
-                    var reservedNames = ['about', 'canvas', 'admin']
+                    var reservedNames = ['about', 'canvas', 'admin'];
 
                     if (_.contains(reservedNames, this.params.canvasId)) {
                         console.error('reserved name');
@@ -1263,6 +1170,18 @@ Meteor.startup(function() {
         })
     })
 
+
+    var box = Session.get('box');
+    if (box === undefined) {
+        box = {
+            left: 0,
+            right: 0,
+            top: 10,
+            bottom: 10
+        };
+        Session.set('box', box);
+    }
+    
     //No idea when this will load.
     setTimeout(function() {
         Meteor.Keybindings.add({
@@ -1354,28 +1273,26 @@ Meteor.startup(function() {
                         return;
                     }
 
-                    if (typeof input == 'string') {
+                    //Use regex to find regex key to match regex... uber Hack ಠ_ಠ
+                    var hint = input.match(/^\w+/)[0];
 
-                        if (input.match(/^me$/)) {
-                            var v = _.extend(Meteor.user().services.facebook, {
-                                _type: 'fb_user'
-                            });
-
-                            Squares.update(Grid.startSelect._id, {
-                                $set: {
-                                    value: v
-                                }
-                            });
-                            return;
+                    Fn.find({
+                        _id: {
+                            $regex: hint,
+                            $options: 'i'
                         }
-
-                        //TESTING FACEBOOK
-                        _.each(FUNCTION_BANK, function(value, key) {
-                            var re = new RegExp(key, 'i');
+                    }, {
+                        transform: function(row) {
+                            var re = new RegExp(row._id, 'i');
 
                             if (input.match(re)) {
                                 var query = input.replace(re, '');
-                                var statements = 'var query = "' + query + '";\n' + value;
+
+                                //TODO Check safe query
+
+                                var statements = 'var query = "' + query + '";\n' + row.client[0];
+
+                                var that = Grid.startSelect;
 
                                 try {
                                     var fn = new Function(['$', 'link', 'id'], statements);
@@ -1385,25 +1302,24 @@ Meteor.startup(function() {
                                             fn: statements
                                         }
                                     }, function() {
-                                        Action.refresh(Grid.startSelect);
+                                        Action.refresh(that);
                                     });
                                 } catch (error) {
                                     console.log(error.message);
                                 }
-                                return;
                             }
-                        });
-                    }
+                        }
+                    }).fetch();
 
-                    try {
-                        input = JSON.parse(input);
-                    } catch (e) {
-                        console.log(input)
-                        console.warn("Cannot parse value as JSON: " + e.message);
-                    }
+                    // try {
+                    //     input = JSON.parse(input);
+                    // } catch (e) {
+                    //     console.log(input)
+                    //     console.warn("Cannot parse value as JSON: " + e.message);
+                    // }
 
                     //if there is a change
-                    if (input != Grid.startSelect.value) {
+                    if (input !== Grid.startSelect.value) {
                         Squares.update(Grid.startSelect._id, {
                             $set: {
                                 value: input
@@ -1465,35 +1381,82 @@ Meteor.startup(function() {
             }
         });
 
-		//Important code for infinite scrolling
-		var updateViewport = function () {
-			Session.set('updateViewport', Math.random());
-		}
+        //Important code for infinite scrolling
+        var updateViewport = function() {
 
-		var throttled = _.throttle(updateViewport, 500);
-		$(window).scroll(throttled);
+            var buffer = 5;
 
-        // $('body').bind('paste', function(e) {
+            var box = Session.get('box');
 
-        //     var value = e.originalEvent.clipboardData.getData('text');
 
-        //     if (value.match(/^www/)) {
-        //         value = 'http://' + value;
-        //     }
 
-        //     if (typeof value == 'string' && value.match(/^https?:\/\/.+/)) {
-        //         Squares.update(Grid.startSelect._id, {
-        //             $set: {
-        //                 url: value
-        //             }
-        //         }, function() {
-        //             Grid.startSelect.url = value;
-        //             Action.refresh(Grid.startSelect);
-        //         });
-        //     } else {
-        //         Action.paste()
-        //     }
-        // });
+            var newBox = {
+                top: Math.ceil(window.scrollY / 100) - buffer,
+                bottom: Math.ceil((window.scrollY + window.innerHeight) / 100) + buffer,
+                left: Math.ceil(window.scrollX / 100) - buffer,
+                right: Math.ceil((window.scrollX + window.innerWidth) / 100) + buffer
+            };
+
+            var count = Squares.find({
+                x: {
+                    $gte: newBox.left,
+                    $lte: newBox.right
+                },
+                y: {
+                    $gte: newBox.top,
+                    $lte: newBox.bottom
+                }
+            }).count();
+
+            var shouldHave = (newBox.bottom - newBox.top + 1) * (newBox.right - newBox.left + 1);
+            if (count < shouldHave) {
+
+                Meteor.call('fillBox', newBox, Session.get('canvasId'));
+                //Create new cells;
+
+            }
+
+
+            if (box === undefined) {
+                box = {
+                    left: 0,
+                    right: 0,
+                    top: 10,
+                    bottom: 10
+                };
+            }
+
+            //Determine Transition
+            if (Math.abs(box.right - newBox.right) >= buffer) {
+                Session.set('box', newBox);
+            }
+
+        };
+
+        var throttled = _.throttle(updateViewport, 500);
+        $(window).scroll(throttled);
+
+        $('body').bind('paste', function(e) {
+
+            var value = e.originalEvent.clipboardData.getData('text');
+
+            if (value.match(/^www/)) {
+                value = 'http://' + value;
+            }
+
+            if (typeof value == 'string' && value.match(/^https?:\/\/.+/)) {
+                Squares.update(Grid.startSelect._id, {
+                    $set: {
+                        url: value
+                    }
+                }, function() {
+                    Grid.startSelect.url = value;
+                    Action.refresh(Grid.startSelect);
+                });
+            } else {
+                Action.paste()
+            }
+        });
 
 
         $('.main-container .square').droppable({
