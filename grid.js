@@ -20,6 +20,9 @@ _.templateSettings = {
 
 Meteor.methods({
     fillBox: function(box, canvasId) {
+
+        console.log('fill box', box);
+
         var s;
         for (var i = box.top; i < box.bottom; i++) {
             for (var j = box.left; j < box.right; j++) {
@@ -29,7 +32,7 @@ Meteor.methods({
                     canvasId: canvasId
                 });
 
-                if (s === null) {
+                if (s === undefined) {
                     console.log("insert", i, j);
 
                     Squares.insert({
@@ -41,6 +44,8 @@ Meteor.methods({
                         link: [],
                         selected: false
                     });
+
+                    
                 }
             }
         }

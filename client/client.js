@@ -15,6 +15,15 @@ Template.canvas.squares = function() {
 
     var limit = 100;
 
+    if (box === undefined) {
+        box = {
+            left: 0,
+            right: 0,
+            top: 10,
+            bottom: 10
+        };
+    }
+
     return Squares.find({
         x: {
             $gte: box.left,
@@ -272,15 +281,29 @@ Action = {
     },
 
     addStencil: function() {
+        // bootbox.prompt({
+        //     title: 'Title for Stencil',
+        //     inputType: 'text',
+        //     callback: function(title) {
+        //         if (title == null) return;
+        //         var stencil = _.pick(Grid.startSelect, 'fn', 'value', 'style', 'url');
+        //         stencil.title = title;
+
+        //         Stencils.insert(stencil);
+        //     }
+        // });
+
         bootbox.prompt({
-            title: 'Title for Stencil',
+            title: 'Regular Expression for Function Bank',
             inputType: 'text',
             callback: function(title) {
                 if (title == null) return;
                 var stencil = _.pick(Grid.startSelect, 'fn', 'value', 'style', 'url');
                 stencil.title = title;
-
-                Stencils.insert(stencil);
+                // {
+                //     client:Grid.startSelect.fn
+                // }
+                // Stencils.insert(stencil);
             }
         });
     },
@@ -333,13 +356,15 @@ Action = {
             });
         } else {
             try {
-                var fn = new Function(['$', 'link', 'id'], target.fn);
+                var fn = new Function(['link', 'id'], target.fn);
 
                 var linkArray = _.map(target.link, function(link) {
                     return Squares.findOne(link);
                 });
 
-                var result = fn($, linkArray, target._id);
+                fn = _.bind(fn, target, linkArray, target._id);
+
+                var result = fn();
 
                 if (result == null || result == undefined) return;
 
@@ -1181,7 +1206,7 @@ Meteor.startup(function() {
         };
         Session.set('box', box);
     }
-    
+
     //No idea when this will load.
     setTimeout(function() {
         Meteor.Keybindings.add({
@@ -1388,8 +1413,6 @@ Meteor.startup(function() {
 
             var box = Session.get('box');
 
-
-
             var newBox = {
                 top: Math.ceil(window.scrollY / 100) - buffer,
                 bottom: Math.ceil((window.scrollY + window.innerHeight) / 100) + buffer,
@@ -1433,7 +1456,7 @@ Meteor.startup(function() {
 
         };
 
-        var throttled = _.throttle(updateViewport, 500);
+        var throttled = _.throttle(updateViewport, 1000);
         $(window).scroll(throttled);
 
         $('body').bind('paste', function(e) {
