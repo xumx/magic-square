@@ -81,9 +81,7 @@ Meteor.methods({
         });
     },
     exportFunctionBank: function() {
-<<<<<<< HEAD
-        return Fn.find().fetch();
-=======
+
         var fns = Fn.find({}).fetch();
         _.each(fns, function(fn){
             fn["fn_base64"] = btoa(fn.fn);
@@ -91,7 +89,6 @@ Meteor.methods({
         var fields = ['keyword', 'description', 'fn_base64', 'regex'];
         var csvText = JSON2CSV(fns, fields);
         return csvText;
->>>>>>> b807b1a241c1ba595b6b551f085499c9ea173658
     },
     //'canvasId: public' will be used as public demo
     initialize: function(canvasId) {
