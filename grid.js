@@ -19,11 +19,18 @@ _.templateSettings = {
 };
 
 Meteor.methods({
-    fillBox: function(box, canvasId) {
+    fillBox: function(box, canvasId, direction) {
 
         console.log('fill box', box);
 
         var s;
+
+        box.top = _.max([box.top, 0]);
+        box.bottom = _.min([box.top, 100]);
+
+        box.left = _.max([box.top, 0]);
+        box.right = _.min([box.top, 100]);
+
         for (var i = box.top; i < box.bottom; i++) {
             for (var j = box.left; j < box.right; j++) {
                 s = Squares.findOne({
@@ -44,8 +51,6 @@ Meteor.methods({
                         link: [],
                         selected: false
                     });
-
-                    
                 }
             }
         }

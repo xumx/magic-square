@@ -21,7 +21,7 @@ Template.canvas.squares = function() {
     var box = Session.get('box');
 
     var limit = 100;
-    
+
     return Squares.find({
         x: {
             $gte: box.left,
@@ -153,9 +153,9 @@ Action = {
         Meteor.logout();
     },
     exportFunctions: function() {
-        Meteor.call('exportFunctionBank', function(err, data){
+        Meteor.call('exportFunctionBank', function(err, data) {
             if (err) console.log(err);
-            saveAs(data, 'functions.csv');
+            window.open("data:text/json;charset=utf-8, " + escape(data));
         });
     },
     trySubscribe: function(error) {
@@ -291,12 +291,15 @@ Action = {
             callback: function(title) {
                 if (title == null) return;
 
-                Fn.insert({
+                var newFn = {
                     keyword: title,
                     description: title,
                     fn: Grid.startSelect.fn,
                     regex: title
-                });
+                }
+
+                console.log(newFn)
+                Fn.insert(newFn);
             }
         });
     },
@@ -1157,6 +1160,7 @@ Template.toolbox.events = {
 Meteor.startup(function() {
 
     Meteor.subscribe('users');
+    Meteor.subscribe('functions');
 
     // Basic Router
     Router.map(function() {
@@ -1283,40 +1287,54 @@ Meteor.startup(function() {
                     //Use regex to find regex key to match regex... uber Hack ಠ_ಠ
                     var hint = input.match(/^\w+/)[0];
 
-                    Fn.find({
-                        _id: {
+                    var fns = Fn.find({
+                        regex: {
                             $regex: hint,
                             $options: 'i'
                         }
-                    }, {
-                        transform: function(row) {
-                            var re = new RegExp(row._id, 'i');
-
-                            if (input.match(re)) {
-                                var query = input.replace(re, '');
-
-                                //TODO Check safe query
-
-                                var statements = 'var query = "' + query + '";\n' + row.client[0];
-
-                                var that = Grid.startSelect;
-
-                                try {
-                                    var fn = new Function(['$', 'link', 'id'], statements);
-
-                                    Squares.update(Grid.startSelect._id, {
-                                        $set: {
-                                            fn: statements
-                                        }
-                                    }, function() {
-                                        Action.refresh(that);
-                                    });
-                                } catch (error) {
-                                    console.log(error.message);
-                                }
-                            }
-                        }
                     }).fetch();
+
+                    var flag = _.any(fns, function(row) {
+                        var re = new RegExp(row.regex, 'i');
+
+                        if (input.match(re)) {
+                            var query = input.replace(re, '');
+
+                            //TODO Check safe query
+
+                            var statements = 'var query = "' + query + '";\n' + row.fn;
+
+                            var that = Grid.startSelect;
+
+                            try {
+                                var target = Grid.startSelect;
+                                var fn = new Function(['link', 'id'], statements);
+
+
+                                var linkArray = _.map(target.link, function(link) {
+                                    return Squares.findOne(link);
+                                });
+
+                                fn = _.bind(fn, target, linkArray, target._id);
+
+                                var result = fn();
+
+                                if (result == null || result == undefined) return false;
+
+                                Squares.update(target._id, {
+                                    $set: {
+                                        fn: statements,
+                                        value: result
+                                    }
+                                });
+
+                            } catch (error) {
+                                console.log(error.message);
+                            }
+
+                            return true;
+                        }
+                    });
 
                     // try {
                     //     input = JSON.parse(input);
@@ -1326,7 +1344,8 @@ Meteor.startup(function() {
                     // }
 
                     //if there is a change
-                    if (input !== Grid.startSelect.value) {
+
+                    if (!flag && input !== Grid.startSelect.value) {
                         Squares.update(Grid.startSelect._id, {
                             $set: {
                                 value: input
@@ -1391,9 +1410,7 @@ Meteor.startup(function() {
         //Important code for infinite scrolling
         var updateViewport = function() {
 
-            var buffer = 5;
-
-            var box = Session.get('box');
+            var buffer = 8;
 
             var newBox = {
                 top: Math.ceil(window.scrollY / 100) - buffer,
@@ -1414,31 +1431,23 @@ Meteor.startup(function() {
             }).count();
 
             var shouldHave = (newBox.bottom - newBox.top + 1) * (newBox.right - newBox.left + 1);
+
             if (count < shouldHave) {
-
-                Meteor.call('fillBox', newBox, Session.get('canvasId'));
-                //Create new cells;
-
+                // Meteor.call('fillBox', newBox, Session.get('canvasId'));
             }
 
-
-            if (box === undefined) {
-                box = {
-                    left: 0,
-                    right: 0,
-                    top: 10,
-                    bottom: 10
-                };
-            }
-
+            var box = Session.get('box');
             //Determine Transition
-            if (Math.abs(box.right - newBox.right) >= buffer) {
+            if (Math.abs(box.right - newBox.right) >= 5 || Math.abs(box.bottom - newBox.bottom) >= 5) {
                 Session.set('box', newBox);
             }
 
         };
 
-        var throttled = _.throttle(updateViewport, 1000);
+        var throttled = _.throttle(updateViewport, 1000, {
+            leading: false,
+            trailing: false
+        });
         $(window).scroll(throttled);
 
         $('body').bind('paste', function(e) {

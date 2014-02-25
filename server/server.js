@@ -84,11 +84,17 @@ Meteor.methods({
 
         var fns = Fn.find({}).fetch();
         _.each(fns, function(fn){
-            fn["fn_base64"] = btoa(fn.fn);
+            fn["fn_base64"] = new Buffer(fn.client[0]).toString('base64');
+            fn["keyword"] = '';
+            fn["description"] = '';
+            fn["regex"] = fn._id;
         });
         var fields = ['keyword', 'description', 'fn_base64', 'regex'];
         var csvText = JSON2CSV(fns, fields);
         return csvText;
+    },
+    emptyFunctionBank:function() {
+        Fn.remove({});
     },
     //'canvasId: public' will be used as public demo
     initialize: function(canvasId) {
@@ -96,8 +102,8 @@ Meteor.methods({
         if (Squares.find({
             canvasId: canvasId
         }).count() == 0) {
-            for (var i = 0; i < 15; i++) {
-                for (var j = 0; j < 15; j++) {
+            for (var i = 0; i < 20; i++) {
+                for (var j = 0; j < 20; j++) {
                     Squares.insert({
                         x: i,
                         y: j,
