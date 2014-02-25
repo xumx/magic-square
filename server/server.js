@@ -77,16 +77,11 @@ Meteor.methods({
     },
     importFunctionBank: function(array) {
         _.each(array, function(row) {
-            Fn.upsert(row._id, {
-                $set: {
-                    'client': row.client,
-                    'server': row.server,
-                }
-            });
+            Fn.insert(row);
         });
     },
     exportFunctionBank: function() {
-        console.log(Fn.find({}).fetch());
+        return Fn.find().fetch();
     },
     //'canvasId: public' will be used as public demo
     initialize: function(canvasId) {

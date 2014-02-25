@@ -10,20 +10,18 @@ Deps.autorun(function() {
     }
 });
 
+Session.set('box', {
+    left: 0,
+    right: 0,
+    top: 10,
+    bottom: 10
+});
+
 Template.canvas.squares = function() {
     var box = Session.get('box');
 
     var limit = 100;
-
-    if (box === undefined) {
-        box = {
-            left: 0,
-            right: 0,
-            top: 10,
-            bottom: 10
-        };
-    }
-
+    
     return Squares.find({
         x: {
             $gte: box.left,
@@ -281,42 +279,32 @@ Action = {
     },
 
     addStencil: function() {
-        // bootbox.prompt({
-        //     title: 'Title for Stencil',
-        //     inputType: 'text',
-        //     callback: function(title) {
-        //         if (title == null) return;
-        //         var stencil = _.pick(Grid.startSelect, 'fn', 'value', 'style', 'url');
-        //         stencil.title = title;
-
-        //         Stencils.insert(stencil);
-        //     }
-        // });
-
         bootbox.prompt({
             title: 'Regular Expression for Function Bank',
             inputType: 'text',
             callback: function(title) {
                 if (title == null) return;
-                var stencil = _.pick(Grid.startSelect, 'fn', 'value', 'style', 'url');
-                stencil.title = title;
-                // {
-                //     client:Grid.startSelect.fn
-                // }
-                // Stencils.insert(stencil);
+
+                Fn.insert({
+                    keyword: title,
+                    description: title,
+                    fn: Grid.startSelect.fn,
+                    regex: title
+                });
             }
         });
     },
+
     copyStencil: function() {
         Grid.copy = _.pick(this, 'fn', 'value', 'style', 'url');
     },
+
     deleteStencil: function() {
         Stencils.remove(this._id);
     },
 
     //TODO think about how to reduce refresh
     refresh: function(target) {
-
         var value, linkArray, url;
 
         if (_(target).has('url')) {
@@ -1194,18 +1182,6 @@ Meteor.startup(function() {
             ]
         })
     })
-
-
-    var box = Session.get('box');
-    if (box === undefined) {
-        box = {
-            left: 0,
-            right: 0,
-            top: 10,
-            bottom: 10
-        };
-        Session.set('box', box);
-    }
 
     //No idea when this will load.
     setTimeout(function() {
