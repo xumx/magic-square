@@ -86,7 +86,13 @@ Meteor.methods({
         });
     },
     exportFunctionBank: function() {
-        console.log(Fn.find({}).fetch());
+        var fns = Fn.find({}).fetch();
+        _.each(fns, function(fn){
+            fn["fn_base64"] = btoa(fn.fn);
+        });
+        var fields = ['keyword', 'description', 'fn_base64', 'regex'];
+        var csvText = JSON2CSV(fns, fields);
+        return csvText;
     },
     //'canvasId: public' will be used as public demo
     initialize: function(canvasId) {
@@ -361,3 +367,27 @@ Meteor.startup(function() {
 
     // Meteor.call('importFunctionBank', arr);
 });
+
+
+function JSON2CSV(objArray, fields) {
+    var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+    var str = '';
+    var line = '';
+    for (var index in fields) {
+        var value = fields[index] + "";
+        line += '"' + value.replace(/"/g, '""') + '",';
+    }
+    line = line.slice(0, -1);
+    str += line + '\r\n';
+    for (var i = 0; i < array.length; i++) {
+        var line = '';
+        array[i] = _.pick(array[i], fields);
+        for (var index in array[i]) {
+            var value = array[i][index] + "";
+            line += '"' + value.replace(/"/g, '""') + '",';
+        }
+        line = line.slice(0, -1);
+        str += line + '\r\n';
+    }
+    return str;
+}

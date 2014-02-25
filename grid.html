@@ -39,6 +39,9 @@
         <li>
             <button class="btn btn-warning add-stencil-button">Add Stencil</button>
         </li>
+        <li>
+            <button class="btn btn-primary export-functions">Export Functions</button>
+        </li>
         {{#each stencils}}
         <li>
             <div class="square" style="position:relative;">
@@ -62,7 +65,9 @@
 
 
 <template name="menu">
-    <input type="text" id="popup"></input>
+    <div id="popupcontainer">
+        <input type="text" id="popup"></input>
+    </div>
     <div style="position:absolute; top:{{ypos}}px;left:{{xpos}}px" class="btn-group">
         <button class="btn btn-grid btn-xs dropdown-toggle" type="button" data-toggle="dropdown" tabindex="1">
         <span class="caret"></span>

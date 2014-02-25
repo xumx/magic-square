@@ -154,6 +154,12 @@ Action = {
     logout: function() {
         Meteor.logout();
     },
+    exportFunctions: function() {
+        Meteor.call('exportFunctionBank', function(err, data){
+            if (err) console.log(err);
+            saveAs(data, 'functions.csv');
+        });
+    },
     trySubscribe: function(error) {
         var password = null;
 
@@ -569,7 +575,6 @@ Action = {
     edit: function() {
         if ($('#popup').is(":hidden")) {
             $('#popup').show().val(Grid.startSelect.value).focus();
-
         } else {
             $('#popup').hide().val('');
         }
@@ -1152,6 +1157,7 @@ Template.menu.events = {
 
 Template.toolbox.events = {
     'click button.login-button': Action.login,
+    'click button.export-functions': Action.exportFunctions,
     'click button.logout-button': Action.logout,
     'click button.new-canvas-button': Action.newCanvas,
     'click button.add-stencil-button': Action.addStencil,
