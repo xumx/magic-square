@@ -1,33 +1,47 @@
 Magic Square 
 ============
 
-Magic Square reimagines Excel for the web, and accept javascript as a cell's formula.
+Magic Square reimagines Excel for the web, and accept javascript as a cell's formula. It also allows you to call various web services/APIs by invoking keywords and providing the required parameters/information.
 
+This project was extended for a proof of concept built for the Facebook Singapore Hackathon held from 15th to 16th Feb 2014. For more information about the prototype, please click <a href="#facebook-singapore-hackathon">here</a>.
 
+## Supported Web Services/APIs
+* Facebook Graph API
+* Spotify
+* Google Maps
+* YouTube
 
-### Facebook Hackathon Demo
+## Facebook Singapore Hackathon
+We built a prototype to demonstrate how Facebook's Graph search (search box on top of the Facebook page) could be extended to provide more meaningful information to users and allow them do interesting things with it. For the hackathon, we built two examples/use cases around Facebook events.
 
-Demo use case
+### Demo Use Case 1: Music Preferences Amongst Event Attendees
+We allowed people to find out the favourite music artists/bands amongst all the people attending a particular event. Once they know the artists, we gave them an option to play songs from those artists through Spotify.
+
 1. People going to Facebook Singapore Hackathon
 2. FQL -> SELECT people FROM event....
 3. Render photos within selected area
 4. Hover name (Low priority)
-
 5. Detect input on the left
 6. Auto replicate question downwards
-
 7. Profile block that takes a person object as input
 8. Drag drop person square to input
 
+### Demo Use Case 2: Mutual Friends Amongst Event Attendees
+Second, we built an example from the point of view of an attendee. We allowed people to search for mutual friends amongst all the people attending an event.
 
-
+1. People going to Facebook Singapore Hackathon
+2. FQL -> SELECT people FROM event....
+3. Render photos within selected area
+4. Hover name (Low priority)
+5. Detect input on the left
+6. Auto replicate question downwards
+7. Profile block that takes a person object as input
+8. Drag drop person square to input
 
 ==
 
-v0.1 by @xumx
-
 ### Demo
-http://grid.meteor.com
+http://graphpaper.meteor.com
 
 ### How to run the app on your own machine
 
@@ -156,4 +170,4 @@ Magic Square makes use of multiple javascript techniques that are considered ins
 
 
 
-Copyright 2013 Max Xu
+&copy; 2013 Max Xu
