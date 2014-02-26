@@ -3,7 +3,7 @@ Magic Square
 
 Magic Square reimagines Excel for the web, and accept javascript as a cell's formula. It also allows you to call various web services/APIs by invoking keywords and providing the required parameters/information.
 
-This project was extended for a proof of concept built for the Facebook Singapore Hackathon held from 15th to 16th Feb 2014. For more information about the prototype, please click <a href="#facebook-singapore-hackathon">here</a>.
+This project was extended for a proof of concept built for the Facebook Singapore Hackathon held from 15th to 16th Feb 2014. Click <a href="#facebook-singapore-hackathon">here</a> for more information about the prototype.
 
 ## Supported Web Services/APIs
 * Facebook Graph API
