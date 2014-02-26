@@ -1524,5 +1524,10 @@ Template.popupcontainer.events = {
                 $(row).hide();
             }
         });
+    },
+    'click tr': function(e) {
+        var text = $(e.currentTarget).find('td').text();
+        console.log(text);
+        $('#popup').val(text.split(' - ')[0]).change();
     }
 }
