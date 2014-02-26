@@ -65,9 +65,7 @@
 
 
 <template name="menu">
-    <div id="popupcontainer">
-        <input type="text" id="popup"></input>
-    </div>
+    {{> popupcontainer}}
     <div style="position:absolute; top:{{ypos}}px;left:{{xpos}}px" class="btn-group">
         <button class="btn btn-grid btn-xs dropdown-toggle" type="button" data-toggle="dropdown" tabindex="1">
         <span class="caret"></span>
@@ -161,4 +159,13 @@
         </ul>
     </div>
 
+</template>
+
+<template name="popupcontainer">
+    <div id="popupcontainer">
+        <input type="text" id="popup"></input>
+        <table id="fnTable" class="table-hover table-striped">
+            {{#each fns}}<tr><td>{{keyword}} - {{description}}</td></tr>{{/each}}
+        </table>
+    </div>
 </template>

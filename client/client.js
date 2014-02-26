@@ -564,10 +564,10 @@ Action = {
     },
 
     edit: function() {
-        if ($('#popup').is(":hidden")) {
-            $('#popup').show().val(Grid.startSelect.value).focus();
+        if ($('#popupcontainer').is(":hidden")) {
+            $('#popupcontainer').show().val(Grid.startSelect.value).focus();
         } else {
-            $('#popup').hide().val('');
+            $('#popupcontainer').hide().val('');
         }
     },
 
@@ -1501,3 +1501,28 @@ Meteor.startup(function() {
         });
     }, 500);
 });
+
+Template.popupcontainer.fns = function(){
+    return Fn.find({});
+}
+
+Template.popupcontainer.events = {
+    'keyup #popup': function(){
+        var input = $('#popup').val();
+        var $table = $('#fnTable').children('tbody');
+        var $options = $table.children();
+        if (!input) {
+            $table.find('tr').show();
+            return false;
+        }
+        _.each($options, function(row) {
+            var textInRow = $(row).children().text();
+            console.log(textInRow);
+            if (textInRow.indexOf(input) !== -1) {
+                $(row).show();
+            } else {
+                $(row).hide();
+            }
+        });
+    }
+}
