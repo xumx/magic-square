@@ -1,7 +1,7 @@
 Magic Square 
 ============
 
-Magic Square reimagines Excel for the web, and accept javascript as a cell's formula. It also allows you to call various web services/APIs by invoking keywords and providing the required parameters/information.
+Magic Square reimagines Excel for the web. It introduces a new concept of linking cells together and enables users to input custom JavaScript functions as a cell's formula. It also allows you to call various web services/APIs by invoking keywords and providing the required parameters.
 
 This project was extended for a proof of concept built for the Facebook Singapore Hackathon held from 15th to 16th Feb 2014. Click <a href="#facebook-singapore-hackathon">here</a> for more information about the prototype.
 
@@ -17,26 +17,24 @@ We built a prototype to demonstrate how Facebook's Graph search (search box on t
 ### Demo Use Case 1: Music Preferences Amongst Event Attendees
 We allowed people to find out the favourite music artists/bands amongst all the people attending a particular event. Once they know the artists, we gave them an option to play songs from those artists through Spotify.
 
-1. People going to Facebook Singapore Hackathon
-2. FQL -> SELECT people FROM event....
-3. Render photos within selected area
-4. Hover name (Low priority)
-5. Detect input on the left
-6. Auto replicate question downwards
-7. Profile block that takes a person object as input
-8. Drag drop person square to input
+1. Enter `Facebook Singapore Hackathon` in a cell of your choice
+2. In another cell, type in `event called` and link it to the cell used in step 1 (Cmd/Ctrl + click)
+3. The cell will load the event picture and title. This cell can now be used to identify the event in future API calls
+4. In any blank cell, type in `people going to` and link it to the cell used in step 3 (Cmd/Ctrl + click)
+5. A list of all the people attending the event will be rendered in the chosen cell. This cell can be used to identify the event attendees in future API calls
+6. In yet another blank cell, enter `favourite music of` and then link it to the list of people created in step 5
+7. A list of the most popular artists amongst all the attendees will be rendered within the cell (in descending order)
 
 ### Demo Use Case 2: Mutual Friends Amongst Event Attendees
 Second, we built an example from the point of view of an attendee. We allowed people to search for mutual friends amongst all the people attending an event.
 
-1. People going to Facebook Singapore Hackathon
-2. FQL -> SELECT people FROM event....
-3. Render photos within selected area
-4. Hover name (Low priority)
-5. Detect input on the left
-6. Auto replicate question downwards
-7. Profile block that takes a person object as input
-8. Drag drop person square to input
+1. Enter `Facebook Singapore Hackathon` in a cell of your choice
+2. In another cell, type in `event called` and link it to the cell used in step 1 (Cmd/Ctrl + click)
+3. The cell will load the event picture and title. This cell can now be used to identify the event in future Facebook Graph API calls
+4. In any blank cell, type in `people going to` and link it to the cell used in step 3 (Cmd/Ctrl + click)
+5. A list of all the people attending the event will be rendered in the chosen cell. This cell can be used to identify the event attendees in future API calls
+6. In yet another blank cell, enter `favourite music of` and then link it to the list of people created in step 5
+7. A list of the most popular artists amongst all the attendees will be rendered within the cell (in descending order)
 
 ==
 
