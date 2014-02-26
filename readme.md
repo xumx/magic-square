@@ -33,8 +33,8 @@ Second, we built an example from the point of view of an attendee. We allowed pe
 3. The cell will load the event picture and title. This cell can now be used to identify the event in future Facebook Graph API calls
 4. In any blank cell, type in `people going to` and link it to the cell used in step 3 (Cmd/Ctrl + click)
 5. A list of all the people attending the event will be rendered in the chosen cell. This cell can be used to identify the event attendees in future API calls
-6. In yet another blank cell, enter `favourite music of` and then link it to the list of people created in step 5
-7. A list of the most popular artists amongst all the attendees will be rendered within the cell (in descending order)
+6. In yet another blank cell, enter `mutual friends of` and then link it to the list of people created in step 5
+7. A list of people you share mutual friends with will be rendered within the cell (in descending order)
 
 ==
 
