@@ -4,11 +4,11 @@
 </head>
 
 <body>
-    <div class="github-fork-ribbon-wrapper right fixed">
+ <!--    <div class="github-fork-ribbon-wrapper right fixed">
         <div class="github-fork-ribbon">
             <a href="https://github.com/xumx/magic-square">Fork me on GitHub</a>
         </div>
-    </div>
+    </div> -->
 
     <div class="navmenu navmenu-default navmenu-fixed-left offcanvas" style="width:100px;">
         {{> toolbox}}
@@ -60,9 +60,11 @@
     </div>
 </template>
 
-
+    
+<template name="public">
+</template>
 <template name="menu">
-    <input type="text" id="popup"></input>
+    <input type="text" id="popup"/>
     <div style="position:absolute; top:{{ypos}}px;left:{{xpos}}px" class="btn-group">
         <button class="btn btn-grid btn-xs dropdown-toggle" type="button" data-toggle="dropdown" tabindex="1">
         <span class="caret"></span>
@@ -102,7 +104,7 @@
             </li>
             <li class='pin-button'>
                 <div>
-                    &nbsp;<i class="fa fa-bookmark"></i></i> Bookmark
+                    &nbsp;<i class="fa fa-bookmark"></i> Bookmark
                 </div>
             </li>
             <!--li class="refresh-button">

@@ -11,7 +11,7 @@ API = {
 }
 
 // Facebook Singapore Hackathon": 574877579268704
-// HACKATHON_EVENTID = ""
+// HACKATHON_EVENTID = "504311396358169"
 
 _.templateSettings = {
     interpolate: /(link\[[0-9]+\])/g
@@ -39,6 +39,8 @@ Utility = {
                         selected: false
                     }
                 });
+
+                return e;
             }
         }).fetch();
     },
@@ -263,6 +265,8 @@ if (Meteor.isClient) {
                             selected: false
                         }
                     });
+
+                    return e;
                 }
             }).fetch();
         },
@@ -453,6 +457,8 @@ if (Meteor.isClient) {
                                 linked: false
                             }
                         });
+
+                        return e;
                     }
                 }).fetch();
 
@@ -472,6 +478,8 @@ if (Meteor.isClient) {
                                 linked: true
                             }
                         });
+
+                        return e;
                     }
                 }).fetch();
             }
@@ -633,84 +641,6 @@ if (Meteor.isClient) {
             } else {
                 $('#popup').hide().val('');
             }
-            /*bootbox.prompt({
-                title: 'Cell Value',
-                inputType: 'text',
-                instruction: $('<b>You can try these examples:</b><br><ul><li>map of singapore management university</li></ul>'),
-                value: Grid.startSelect.value,
-                callback: function(input) {
-                    if (input == null) {
-                        return;
-                    }
-
-
-                    if (typeof input == 'string') {
-                        if (input.match(/^me$/)) {
-                            var v = _.extend(Meteor.user().services.facebook, {
-                                _type: 'fb_user'
-                            });
-                            console.log(v);
-                            Squares.update(Grid.startSelect._id, {
-                                $set: {
-                                    value: v
-                                }
-                            });
-                            return;
-                        }
-
-                        //TESTING FACEBOOK
-                        _.each(FUNCTION_BANK, function(value, key) {
-                            var re = new RegExp(key, 'i');
-
-                            if (input.match(re)) {
-                                var query = input.replace(re, '');
-                                var statements = 'var query = "' + query + '";\n' + value;
-
-                                try {
-                                    var fn = new Function(['$', 'link', 'id'], statements);
-
-                                    Squares.update(Grid.startSelect._id, {
-                                        $set: {
-                                            fn: statements
-                                        }
-                                    }, function() {
-                                        Action.refresh(Grid.startSelect);
-                                    });
-                                } catch (error) {
-                                    bootbox.alert(error.message);
-                                }
-                                return;
-                            }
-                        });
-                    }
-
-                    try {
-                        input = JSON.parse(input);
-                    } catch (e) {
-                        console.log(input)
-                        console.warn("Cannot parse value as JSON: " + e.message);
-                    }
-
-                    //if there is a change
-                    if (input != Grid.startSelect.value) {
-                        Squares.update(Grid.startSelect._id, {
-                            $set: {
-                                value: input
-                            }
-                        });
-
-                        //TODO Recursive propagation
-                        //Propagate changes
-                        Squares.find({
-                            link: Grid.startSelect._id
-                        }, {
-                            transform: function(e) {
-                                Action.refresh(e);
-                            }
-                        }).fetch();
-                    }
-                }
-            });*/
         },
 
         escape: function() {
@@ -903,19 +833,6 @@ if (Meteor.isClient) {
             });
             Session.set('menu.x', Grid.startSelect.x + Grid.startSelect.width)
             Session.set('menu.y', Grid.startSelect.y + Grid.startSelect.height);
-
-            // TODO            
-            // //Remove self from other cells linking to it. 
-            // Squares.find({
-            //     link: id
-            // }, {
-            //     transform: function(e) {
-            //         Squares.update(e._id)
-            //     }
-            // })
-
-            // Squares.remove(id);
-
         },
         fetch: function(url) {
             Meteor.call('fetch', url, Grid.startSelect.fn, Grid.startSelect._id)
@@ -923,11 +840,6 @@ if (Meteor.isClient) {
     }
 
     Template.canvas.events({
-        // 'mousedown .main-container': function(e) {
-        //     Grid.drag = _.pick(e, 'x', 'y');
-        //     Grid.drag.scrollTop = $('body').scrollTop();
-        //     Grid.drag.scrollLeft = $('body').scrollLeft();
-        // },
         'mousemove .main-container': function(e) {
             var sensitivity = 10;
 
@@ -1117,18 +1029,13 @@ if (Meteor.isClient) {
                                 selected: true
                             }
                         });
+                        
+                        return e;
                     }
                 }).fetch();
 
-
                 Session.set('menu.x', Grid.endSelect.x + Grid.endSelect.width);
                 Session.set('menu.y', Grid.endSelect.y + Grid.endSelect.height);
-
-                //Session.set('menu.x', Grid.endSelect.x + (Grid.endSelect.width - 1) / 2);
-                //Session.set('menu.y', Grid.endSelect.y + (Grid.endSelect.height - 1) / 2);
-
-                //Session.set('menu.x', (Grid.startSelect.x + Grid.endSelect.x) / 2);
-                //Session.set('menu.y', (Grid.startSelect.y + Grid.endSelect.y) / 2);
 
             } else if (Grid.selectLink) {
 
@@ -1486,6 +1393,7 @@ if (Meteor.isClient) {
                             }, {
                                 transform: function(e) {
                                     Action.refresh(e);
+                                    return e;
                                 }
                             }).fetch();
                         }

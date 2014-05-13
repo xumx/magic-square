@@ -4,7 +4,7 @@
     "animate-css": {},
     "keybindings": {},
     "npm": {},
-    "houston": {},
-    "jquery-ui": {}
+    "jquery-ui": {},
+    "iron-router": {}
   }
 }

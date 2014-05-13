@@ -1,6 +1,6 @@
 if (Meteor.isServer) {
     var cheerio = Meteor.require('cheerio');
-    var EXPLORER_ACCESS_TOKEN = "CAACEdEose0cBADi6MPRVIynUavQQVTEXZCuZB8HumtZBC4vvjmRqyvfbF6etSjZCZCMFbZCqnrOA8MPFWv02bmNe4YabViIonJgQxZBLGZCGrSEvPy3IkXIzvXxBhaYMbLMDivNRDxMlF0S8zoqVfnU4jZA1z5w3gZAl89pxeuwSts978FOT0i6LuJNJGTPIMJ6C8ZD";
+    var EXPLORER_ACCESS_TOKEN = "CAACEdEose0cBAD9KBXjC24tCZBhzZAH2l5pZB63gP8kxD4vgRb7ZAlUTZCkcaHWYSgOkPg7pqzXdxrcpGDuypffjhfSNYqKodJYjZB7BEH8PQ851C2jaI6R6cBJhIokbhIrQaRkvRZBBRr8uhfZBXnlORdtJ26qn6T8D67Px4lQWtEJDKv9CZBAoGnHENB3uooqZCR2omVPLVHfwZDZD";
 
     Meteor.methods({
         fetch: function(url, statements, _id) {
@@ -135,9 +135,9 @@ if (Meteor.isServer) {
     *********************************************************************/
     Meteor.methods({
         'test': function() {
-            var attendees = Meteor.call("getEventAttendees", "574877579268704");
-            var aggregatedMutualFriends = Meteor.call("aggregateMutualFriends", attendees);
-            console.log(aggregatedMutualFriends);
+            // var attendees = Meteor.call("getEventAttendees", "574877579268704");
+            // var aggregatedMutualFriends = Meteor.call("aggregateMutualFriends", attendees);
+            console.dir(HTTP.get("https://graph.facebook.com/" + 504311396358169 + "/attending" + "?access_token=" + Meteor.user().services.facebook.accessToken));
 
             return;
         },
@@ -164,8 +164,7 @@ if (Meteor.isServer) {
             // console.log("Event ID: " + eventID);
 
             //Get the attendees for the event
-            var eventAttendeesResponse = HTTP.get("https://graph.facebook.com/" + eventID + "/attending"
-                + "?access_token=" + Meteor.user().services.facebook.accessToken);
+            var eventAttendeesResponse = HTTP.get("https://graph.facebook.com/" + 504311396358169 + "/attending" + "?access_token=" + Meteor.user().services.facebook.accessToken);
             var eventAttendeesArray = eventAttendeesResponse.data.data;
             return eventAttendeesArray;
         },
@@ -173,15 +172,13 @@ if (Meteor.isServer) {
             if (!eventName || eventName.length === 0) return null; //No event name found
             //Search for the ID of the event
             var eventIDquery = "SELECT eid FROM event WHERE name='" + eventName + "'";
-            var eventIDresponse = HTTP.get("https://graph.facebook.com/fql?q=" + eventIDquery
-                + "&access_token=" + Meteor.user().services.facebook.accessToken);
+            var eventIDresponse = HTTP.get("https://graph.facebook.com/fql?q=" + eventIDquery + "&access_token=" + Meteor.user().services.facebook.accessToken);
             var eventsFound = eventIDresponse.data.data;
             var eventID = eventsFound[0].eid;
             console.log("Event ID: " + eventID);
 
             //Get the attendees for the event
-            var eventAttendeesResponse = HTTP.get("https://graph.facebook.com/" + eventID + "/attending"
-                + "?access_token=" + Meteor.user().services.facebook.accessToken);
+            var eventAttendeesResponse = HTTP.get("https://graph.facebook.com/" + eventID + "/attending" + "?access_token=" + Meteor.user().services.facebook.accessToken);
             var eventAttendeesArray = eventAttendeesResponse.data.data;
             return eventAttendeesArray;
         },
@@ -206,9 +203,7 @@ if (Meteor.isServer) {
                 batchJSONArray.push(requestObj);
             });
 
-            var batchRequestURL = "https://graph.facebook.com/"
-                + "?batch=" + JSON.stringify(batchJSONArray)
-                + "&access_token=" + Meteor.user().services.facebook.accessToken;
+            var batchRequestURL = "https://graph.facebook.com/" + "?batch=" + JSON.stringify(batchJSONArray) + "&access_token=" + Meteor.user().services.facebook.accessToken;
 
             var batchResponse = HTTP.post(batchRequestURL);
             var dataChunk = batchResponse.data;
@@ -221,19 +216,15 @@ if (Meteor.isServer) {
             return dataParts;
         },
         getFavouriteMusic: function(facebookUserID) {
-            var response = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/music"
-                + "?access_token=" + EXPLORER_ACCESS_TOKEN
-                + "&limit=100");
+            var response = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/music" + "?access_token=" + EXPLORER_ACCESS_TOKEN + "&limit=100");
             var artistsFound = response.data.data;
             return artistsFound;
         },
         getFavouriteMoviesAndTVShows: function(facebookUserID) {
-            var tvResponse = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/television"
-                + "?access_token=" + Meteor.user().services.facebook.accessToken);
+            var tvResponse = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/television" + "?access_token=" + Meteor.user().services.facebook.accessToken);
             var tvShowsFound = tvResponse.data.data;
-            
-            var movieResponse = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/movies"
-                + "?access_token=" + Meteor.user().services.facebook.accessToken);
+
+            var movieResponse = HTTP.get("https://graph.facebook.com/" + facebookUserID + "/movies" + "?access_token=" + Meteor.user().services.facebook.accessToken);
             var moviesFound = movieResponse.data.data;
             var mergedArr = _.union(tvShowsFound, moviesFound);
             return mergedArr;
@@ -254,9 +245,7 @@ if (Meteor.isServer) {
                 batchJSONArray.push(requestObj);
             });
 
-            var batchRequestURL = "https://graph.facebook.com/"
-                + "?batch=" + JSON.stringify(batchJSONArray)
-                + "&access_token=" + EXPLORER_ACCESS_TOKEN;
+            var batchRequestURL = "https://graph.facebook.com/" + "?batch=" + JSON.stringify(batchJSONArray) + "&access_token=" + EXPLORER_ACCESS_TOKEN;
 
             var batchResponse = HTTP.post(batchRequestURL);
             var dataChunk = batchResponse.data;
@@ -274,23 +263,23 @@ if (Meteor.isServer) {
             var usersWhoLike = new Array();
             return usersWhoLike;
         },
-        aggregateMusicLikes: function (userIDArray) {
+        aggregateMusicLikes: function(userIDArray) {
             if (!userIDArray && userIDArray.length === 0) return null;
-            
+
             var userMusicLikes = new Array();
             var batchUserIDs = new Array(); //Array to store the user IDs to make the batched API call
 
             //Get music likes for each individual user
             _.each(userIDArray, function(userID, index, list) {
                 batchUserIDs.push(userID);
-                
+
                 if (batchUserIDs.length === 50 || index === (list.length - 1)) {
                     var musicLikes = Meteor.call("getFavouriteMusicBatched", batchUserIDs);
 
                     batchUserIDs = new Array(); //resetting the array to store new user IDs
 
                     _.each(musicLikes, function(likesPerUser) {
-                        _.each(likesPerUser, function(like){
+                        _.each(likesPerUser, function(like) {
                             userMusicLikes.push(like);
                         });
                     });
@@ -314,11 +303,11 @@ if (Meteor.isServer) {
             }, groupedMusicObj);
 
             groupedMusicArray = _.sortBy(groupedMusicArray, function(artist) {
-                return - artist.count;
+                return -artist.count;
             });
-            
-            groupedMusicArray = groupedMusicArray.slice(0,Math.min(groupedMusicArray.length, 10));
-            
+
+            groupedMusicArray = groupedMusicArray.slice(0, Math.min(groupedMusicArray.length, 10));
+
             return groupedMusicArray;
         },
         aggregateMutualFriends: function(userArray) {
@@ -361,14 +350,13 @@ if (Meteor.isServer) {
             });
 
             userMutualFriends = _.sortBy(userMutualFriends, function(userMutual) {
-                return - userMutual.count;
+                return -userMutual.count;
             });
 
             return userMutualFriends;
         },
         getEventMetaData: function(eventID) {
-            var response = HTTP.get("https://graph.facebook.com/" + eventID
-                + "?access_token=" + Meteor.user().services.facebook.accessToken);
+            var response = HTTP.get("https://graph.facebook.com/" + eventID + "?access_token=" + Meteor.user().services.facebook.accessToken);
             var eventObj = response.data;
             var eventMeta = _.pick(eventObj, "id", "name", "owner", "start_time", "end_time", "location", "venue");
             return eventMeta;

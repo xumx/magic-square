@@ -3,11 +3,11 @@ var facebook = {
     secret: "d085baf22691cc4f59efaf0815162bb4"
 };
 
-Accounts.loginServiceConfiguration.remove({
+ServiceConfiguration.configurations.remove({
 	service: "facebook"
 });
 
-Accounts.loginServiceConfiguration.insert({
+ServiceConfiguration.configurations.insert({
 	service: "facebook",
 	appId: facebook.appId,
 	secret: facebook.secret

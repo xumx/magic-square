@@ -5,15 +5,14 @@
 
 standard-app-packages
 insecure
-preserve-inputs
 underscore
 jquery
 bootstrap-3
 animate-css
 keybindings
 http
-houston
-iron-router
 npm
 accounts-facebook
 jquery-ui
+service-configuration
+iron-router
