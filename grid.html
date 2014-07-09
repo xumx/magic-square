@@ -45,13 +45,14 @@
 
 <template name="canvas">
     <div class="main-container">
-        {{#transition}}
         {{#each squares}}
         <div id="{{_id}}" class="square {{#if selected}}selected{{/if}} {{#if linked}}linked flash animated{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px;{{style}}">
             {{#if value}} {{read}} {{/if}}
         </div>
-        {{/each}} {{> menu}}
-        {{/transition}}
+        {{/each}} 
+        
+
+        {{> menu}}
     </div>
 </template>
 
@@ -62,7 +63,7 @@
 <template name="menu">
     <input type="text" id="popup"/>
     <div style="position:absolute; top:{{ypos}}px;left:{{xpos}}px" class="btn-group">
-    <button class="btn btn-grid btn-xs dropdown-toggle" type="button" data-toggle="dropdown-menu" tabindex="1">
+        <button class="btn btn-grid btn-xs dropdown-toggle" type="button" data-toggle="dropdown" tabindex="1">
             <span class="caret"></span>
         </button>
 
