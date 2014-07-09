@@ -4,12 +4,6 @@
 </head>
 
 <body>
- <!--    <div class="github-fork-ribbon-wrapper right fixed">
-        <div class="github-fork-ribbon">
-            <a href="https://github.com/xumx/magic-square">Fork me on GitHub</a>
-        </div>
-    </div> -->
-
     <div class="navmenu navmenu-default navmenu-fixed-left offcanvas" style="width:100px;">
         {{> toolbox}}
     </div>
@@ -24,135 +18,102 @@
 <template name="toolbox">
     <ul class="nav navmenu-nav">
         <li>
-			{{#if currentUser}}
-				<button class="btn btn-info logout-button">Logout: {{currentUser.profile.name}}</button>
-			{{else}}
-				<button class="btn btn-info login-button">Login with Facebook</button>
-			{{/if}}
-        </li>
-        <li>
-            <button class="btn btn-warning new-canvas-button">Create New Canvas</button>
-        </li>
-        <li>
-            <button class="btn btn-danger clear-canvas-button">Clear All</button>
-        </li>
-        <li>
-            <button class="btn btn-warning add-stencil-button">Add Stencil</button>
-        </li>
-        {{#each stencils}}
-        <li>
-            <div class="square" style="position:relative;">
-                {{title}}
-            </div>
-        </li>
-        {{/each}}
-    </ul>
+         {{#if currentUser}}
+         <button class="btn btn-info logout-button">Logout: {{currentUser.profile.name}}</button>
+         {{else}}
+         <button class="btn btn-info login-button">Login with Facebook</button>
+         {{/if}}
+     </li>
+     <li>
+        <button class="btn btn-warning new-canvas-button">Create New Canvas</button>
+    </li>
+    <li>
+        <button class="btn btn-danger clear-canvas-button">Clear All</button>
+    </li>
+    <li>
+        <button class="btn btn-warning add-stencil-button">Add Stencil</button>
+    </li>
+    {{#each stencils}}
+    <li>
+        <div class="square" style="position:relative;">
+            {{title}}
+        </div>
+    </li>
+    {{/each}}
+</ul>
 </template>
 
 <template name="canvas">
     <div class="main-container">
+        {{#transition}}
         {{#each squares}}
         <div id="{{_id}}" class="square {{#if selected}}selected{{/if}} {{#if linked}}linked flash animated{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px;{{style}}">
             {{#if value}} {{read}} {{/if}}
         </div>
         {{/each}} {{> menu}}
-
+        {{/transition}}
     </div>
 </template>
 
-    
+
 <template name="public">
 </template>
+
 <template name="menu">
     <input type="text" id="popup"/>
     <div style="position:absolute; top:{{ypos}}px;left:{{xpos}}px" class="btn-group">
-        <button class="btn btn-grid btn-xs dropdown-toggle" type="button" data-toggle="dropdown" tabindex="1">
-        <span class="caret"></span>
+    <button class="btn btn-grid btn-xs dropdown-toggle" type="button" data-toggle="dropdown-menu" tabindex="1">
+            <span class="caret"></span>
         </button>
 
         <ul class='dropdown-menu'>
             {{#if isPage 1}}
             <li class='edit-button'>
-                <div>
-                    &nbsp;<i class="glyphicon glyphicon-pencil"></i> Text (↵)
-                </div>
+                <i class="glyphicon glyphicon-pencil"></i> Text (↵)    
             </li>
             <li class='function-button'>
-                <div>&nbsp;<i class="fa fa-code"></i> ƒ(x) (F)</div>
+                <i class="fa fa-code"></i> ƒ(x) (F)
             </li>
             <li class='url-button'>
-                <div>&nbsp;<i class="fa fa-link"></i> URL (U) </div>
+                <i class="fa fa-link"></i> URL (U) 
             </li>
             <li class='style-button'>
-                <div>&nbsp;<i class="fa fa-css3"></i> CSS (C) </div>
+                <i class="fa fa-css3"></i> CSS (C) 
             </li>
             <li class='next-page-button'>
-                <div>
-                    <i class="glyphicon glyphicon-forward"></i> Next&nbsp;
-                </div>
+                <i class="glyphicon glyphicon-forward"></i> Next
             </li>
             {{/if}} {{#if isPage 2}}
             <li class='merge-button'>
-                <div>
-                    &nbsp;<i class="fa fa-compress"></i> Merge (M)
-                </div>
+                <i class="fa fa-compress"></i> Merge (M)
             </li>
             <li class='link-button'>
-                <div>
-                    &nbsp;<i class="fa fa-external-link"></i> Link (L)
-                </div>
+                <i class="fa fa-external-link"></i> Link (L)
             </li>
             <li class='pin-button'>
-                <div>
-                    &nbsp;<i class="fa fa-bookmark"></i> Bookmark
-                </div>
+                <i class="fa fa-bookmark"></i> Bookmark
             </li>
-            <!--li class="refresh-button">
-                <div>
-                    &nbsp;<i class="fa fa-refresh"></i> Refresh (R)
-                </div>
-            </li-->
             <li class='delete-button'>
-                <div>
-                    &nbsp;<i class="glyphicon glyphicon-trash"></i> Delete (Del)
-                </div>
+                <i class="glyphicon glyphicon-trash"></i> Delete (Del)
             </li>
             <li class='previous-page-button'>
-                <div>
-                    &nbsp;<i class="glyphicon glyphicon-backward"></i> Prev
-                </div>
+                <i class="glyphicon glyphicon-backward"></i> Prev
             </li>
             <li class='next-page-button'>
-                <div>
-                    <i class="glyphicon glyphicon-forward"></i> Next&nbsp;
-                </div>
+                <i class="glyphicon glyphicon-forward"></i> Next
             </li>
             {{/if}} {{#if isPage 3}}
-
             <li class='cut-button'>
-                <div>
-                    &nbsp;<i class="fa fa-scissors"></i> Cut (Ctrl + X)
-                </div>
+                <i class="fa fa-scissors"></i> Cut (Ctrl + X)
             </li>
             <li class='copy-button'>
-                <div>
-                    &nbsp;<i class="fa fa-files-o"></i> Copy (Ctrl + C)
-                </div>
+                <i class="fa fa-files-o"></i> Copy (Ctrl + C)
             </li>
             <li class='paste-button'>
-                <div>
-                    &nbsp;<i class="fa fa-clipboard"></i> Paste (Ctrl + V)
-                </div>
-            </li>
-            <li class='paste-button'>
-                <div>
-                    &nbsp;
-                </div>
+                <i class="fa fa-clipboard"></i> Paste (Ctrl + V)
             </li>
             <li class='previous-page-button'>
-                <div>
-                    &nbsp;<i class="glyphicon glyphicon-backward"></i> Prev
-                </div>
+                <i class="glyphicon glyphicon-backward"></i> Prev
             </li>
             {{/if}}
         </ul>

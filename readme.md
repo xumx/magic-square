@@ -168,4 +168,4 @@ Magic Square makes use of multiple javascript techniques that are considered ins
 
 
 
-&copy; 2013 Max Xu
+&copy; 2014 Max Xu
