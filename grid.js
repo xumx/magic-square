@@ -1042,8 +1042,6 @@ Template.canvas.events({
 			}
 		},
 		'click .square': function(e) {
-
-			console.log(e.ctrlKey);
 			if (e.shiftKey) {
 				Grid.endSelect = this;
 				Utility.multiselect(Grid.startSelect, Grid.endSelect);
@@ -1124,8 +1122,6 @@ Template.canvas.events({
 
 				//Session.set('menu.x', this.x + (this.width - 1) / 2) + this.width;
 				//Session.set('menu.y', this.y + (this.height - 1) / 2) + this.height;
-
-
 			}
 		},
 		'dragover .square': function(event) {

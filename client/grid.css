@@ -1,0 +1,704 @@
+body, html, .main-container {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    font-family: RobotoDraft, 'Helvetica Neue', Helvetica, Arial;
+}
+
+/* Main CSS script */
+ .square {
+    border: 1px dotted rgba(0, 0, 0, 0.25);
+    margin: 0;
+    display: block;
+    height: 100px;
+    width: 100px;
+    overflow: hidden;
+    position: absolute;
+    font-size: 2em;
+    line-height: 100px;
+    text-align: center;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.square:hover {
+    border-color: #408000;
+    box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.4);
+}
+.square.selected {
+    background-color: #d7ffd5;
+}
+.square.linked {
+    background-color: #faff8f;
+    border-style: dashed;
+    border-width: medium;
+    border-color: rgb(117, 117, 109);
+}
+.square img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+ .square .overlay {
+    height: 100px;
+    width: 100%;
+    background-color: rgba(44, 62, 80, 0.70);
+    position: absolute;
+    bottom:0;
+    color: whitesmoke;
+    font-family:'lucida grande', tahoma, verdana, arial, sans-serif;
+    font-size: 20px;
+    line-height: 20px;
+    padding-top: 20px;
+    text-align: center;
+}
+
+.sidebar-toggle {
+    position: fixed;
+    top:65px;
+    left: -20px;
+    width: 60px;
+    height: 35px;
+    z-index: 10;
+    text-align: right;
+}
+.sidebar-toggle:hover {
+    transition: 0.5s;
+    left: -3px;
+}
+.navmenu-nav > li > button {
+    height:100px;
+    width:100px;
+    border-radius:0;
+    white-space: normal;
+}
+
+/* generic styles for button & circular menu */
+ .ctrl {
+    font: 1.5em/1.13 Verdana, sans-serif;
+    -webkit-transition: .5s;
+    -moz-transition: .5s;
+    -o-transition: .5s;
+    -ms-transition: .5s;
+    transition: .5s;
+}
+/* generic link styles */
+ a.ctrl, .ctrl div {
+    display: block;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+    filter: alpha(opacity=80);
+    opacity: .80;
+    background: #c9353b;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+a.ctrl:hover, .ctrl div:hover, a.ctrl:focus {
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+    filter: alpha(opacity=100);
+    opacity: 1;
+}
+a.ctrl:focus {
+    outline: none;
+}
+.open-close-button {
+    position: absolute;
+    top:30px;
+    left:30px;
+    width: 2em;
+    height: 2em;
+    border: 0.1em solid #f4d6d7;
+    border-radius: 50%;
+    -webkit-transition: 0.5s;
+    -moz-transition: 0.5s;
+    -o-transition: 0.5s;
+    transition: 0.5s;
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+}
+.open-close-button:before {
+    content:"";
+    display: block;
+    position: absolute;
+    background-color: #f4d6d7;
+    width: 80%;
+    height: 6%;
+    left: 10%;
+    top: 47%;
+}
+.open-close-button:after {
+    content:"";
+    display: block;
+    position: absolute;
+    background-color: #f4d6d7;
+    width: 6%;
+    height: 80%;
+    left: 47%;
+    top: 10%;
+}
+.open-close-button:focus {
+    background-color: #f4d6d7;
+    -webkit-transform: rotate(225deg);
+    -moz-transform: rotate(225deg);
+    -ms-transform: rotate(225deg);
+    -o-transform: rotate(225deg);
+    transform: rotate(225deg);
+}
+.open-close-button:focus:after {
+    background-color: #c9353b;
+}
+.open-close-button:focus:before {
+    background-color: #c9353b;
+}
+/* circular menu */
+ .tip {
+    font-size: 2em;
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    z-index: 1;
+    margin: -5em;
+    padding: 0;
+    width: 10em;
+    height: 10em;
+    -webkit-transform: scale(.001);
+    -moz-transform: scale(.001);
+    -o-transform: scale(.001);
+    -ms-transform: scale(.001);
+    transform: scale(.001);
+    list-style: none;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    filter: alpha(opacity=0);
+    opacity: 0;
+}
+/* make the menu appear on click */
+ .open-close-button:focus + .tip {
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -o-transform: scale(1);
+    -ms-transform: scale(1);
+    transform: scale(1);
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+    filter: alpha(opacity=100);
+    opacity: 1;
+}
+/* slices of the circular menu */
+ .slice {
+    overflow: hidden;
+    position: absolute;
+    /**outline:  dotted 1px yellow; /**/
+    width: 50%;
+    height: 50%;
+    -webkit-transform-origin: 100% 100%;
+    -moz-transform-origin: 100% 100%;
+    -o-transform-origin: 100% 100%;
+    -ms-transform-origin: 100% 100%;
+    transform-origin: 100% 100%;
+}
+/*
+ * rotate each slice at the right angle = (A/2)° + (k -(n+1)/2)*A°
+ * where A is the angle of 1 slice (30° in this case)
+ * k is the number of the slice (in  {
+  1,2,3,4,5}
+
+ here)
+ * and n is the number of slices (5 in this case)
+ * formula works for odd number of slices (n odd)
+ * for even number of slices (n even) the rotation angle is (k -n/2)*A°
+ *
+ * after rotating, skew on Y by 90°-A°;
+   here A° = the angle for 1 slice = 30°
+   */
+ .slice:first-child {
+    -webkit-transform: rotate(-45deg) skewY(60deg);
+    -moz-transform: rotate(-45deg) skewY(60deg);
+    -o-transform: rotate(-45deg) skewY(60deg);
+    -ms-transform: rotate(-45deg) skewY(60deg);
+    transform: rotate(-45deg) skewY(60deg);
+}
+.slice:nth-child(2) {
+    -webkit-transform: rotate(-15deg) skewY(60deg);
+    -moz-transform: rotate(-15deg) skewY(60deg);
+    -o-transform: rotate(-15deg) skewY(60deg);
+    -ms-transform: rotate(-15deg) skewY(60deg);
+    transform: rotate(-15deg) skewY(60deg);
+}
+.slice:nth-child(3) {
+    -webkit-transform: rotate(15deg) skewY(60deg);
+    -moz-transform: rotate(15deg) skewY(60deg);
+    -o-transform: rotate(15deg) skewY(60deg);
+    -ms-transform: rotate(15deg) skewY(60deg);
+    transform: rotate(15deg) skewY(60deg);
+}
+.slice:nth-child(4) {
+    -webkit-transform: rotate(45deg) skewY(60deg);
+    -moz-transform: rotate(45deg) skewY(60deg);
+    -o-transform: rotate(45deg) skewY(60deg);
+    -ms-transform: rotate(45deg) skewY(60deg);
+    transform: rotate(45deg) skewY(60deg);
+}
+.slice:last-child {
+    -webkit-transform: rotate(75deg) skewY(60deg);
+    -moz-transform: rotate(75deg) skewY(60deg);
+    -o-transform: rotate(75deg) skewY(60deg);
+    -ms-transform: rotate(75deg) skewY(60deg);
+    transform: rotate(75deg) skewY(60deg);
+}
+/* covers for the inner part of the links so there's no hover trigger between
+star button & menu links;
+give them a red background to see them */
+ .slice:after {
+    position: absolute;
+    top: 32%;
+    left: 32%;
+    width: 136%;
+    height: 136%;
+    border-radius: 50%;
+    /* "unskew" = skew by minus the same angle by which parent was skewed */
+    -webkit-transform: skewY(-60deg);
+    -moz-transform: skewY(-60deg);
+    -o-transform: skewY(-60deg);
+    -ms-transform: skewY(-60deg);
+    transform: skewY(-60deg);
+    content:'';
+}
+/* menu links */
+ .slice div {
+    width: 200%;
+    height: 200%;
+    border-radius: 50%;
+    /* "unskew" & rotate by -A°/2 */
+    -webkit-transform: skewY(-60deg) rotate(-15deg);
+    -moz-transform: skewY(-60deg) rotate(-15deg);
+    -o-transform: skewY(-60deg) rotate(-15deg);
+    -ms-transform: skewY(-60deg) rotate(-15deg);
+    transform: skewY(-60deg) rotate(-15deg);
+    background: -webkit-linear-gradient(75deg, transparent 50%, white 50%, transparent 54%) no-repeat 36.5% 0, -webkit-linear-gradient(-75deg, transparent 50%, white 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
+    background: -moz-linear-gradient(75deg, transparent 50%, white 50%, transparent 54%) no-repeat 36.5% 0, -moz-linear-gradient(-75deg, transparent 50%, white 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
+    background: -o-linear-gradient(75deg, transparent 50%, white 50%, transparent 54%) no-repeat 36.5% 0, -o-linear-gradient(-75deg, transparent 50%, white 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
+    background: -ms-linear-gradient(75deg, transparent 50%, white 50%, transparent 54%) no-repeat 36.5% 0, -ms-linear-gradient(-75deg, transparent 50%, white 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
+    background: linear-gradient(75deg, transparent 50%, white 50%, transparent 54%) no-repeat 36.5% 0, linear-gradient(-75deg, transparent 50%, white 50%, transparent 54%) no-repeat 63.5% 0, radial-gradient(rgba(127, 127, 127, 0) 49%, rgba(255, 255, 255, .7) 51%, #c9353b 52%);
+    -webkit-background-size: 15% 15%, 15% 15%, cover;
+    -moz-background-size: 15% 15%, 15% 15%, cover;
+    background-size: 15% 15%, 15% 15%, cover;
+    line-height: 1.4;
+}
+/* arrow for middle link */
+ .slice:hover div:after {
+    position: absolute;
+    top: 13%;
+    left: 50%;
+    margin: -.25em;
+    width: .7em;
+    height: .7em;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+    background: -webkit-linear-gradient(-45deg, #c9353b 50%, transparent 50%);
+    background: -moz-linear-gradient(-45deg, #c9353b 50%, transparent 50%);
+    background: -o-linear-gradient(-45deg, #c9353b 50%, transparent 50%);
+    background: -ms-linear-gradient(-45deg, #c9353b 50%, transparent 50%);
+    background: linear-gradient(-45deg, #c9353b 50%, transparent 50%);
+    content:'';
+}
+/*Sizing Embedly*/
+ .square > iframe {
+    height: 100% !important;
+    width: 100% !important;
+}
+/* Stroll.js */
+ .square ul {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    list-style: none;
+    text-align: left;
+    -webkit-perspective: 400px;
+    -moz-perspective: 400px;
+    -ms-perspective: 400px;
+    -o-perspective: 400px;
+    perspective: 400px;
+}
+.square ul li {
+    position: relative;
+    padding: 2px 5px 2px 5px;
+    background: #e67e22;
+    color: #fff;
+    font-size: 18px;
+    height: 25px;
+    line-height: 21px;
+    z-index: 2;
+    -webkit-transform: translateZ(0px);
+    -moz-transform: translateZ(0px);
+    -ms-transform: translateZ(0px);
+    -o-transform: translateZ(0px);
+    transform: translateZ(0px);
+}
+.square ul li a {
+    text-decoration: none;
+    color: #fff;
+}
+.square ul li:nth-child(odd) {
+    background: #d35400;
+}
+/*!
+ * stroll.js 1.2 - CSS scroll effects
+ * http://lab.hakim.se/scroll-effects
+ * MIT licensed
+ * 
+ * Copyright (C) 2012 Hakim El Hattab, http://hakim.se
+ */
+
+/**
+ * Shrink styles
+ */
+ .cards {
+    -webkit-perspective: 300px;
+    -moz-perspective: 300px;
+    -ms-perspective: 300px;
+    -o-perspective: 300px;
+    perspective: 300px;
+    -webkit-perspective-origin: 50% 50%;
+    -moz-perspective-origin: 50% 50%;
+    -ms-perspective-origin: 50% 50%;
+    -o-perspective-origin: 50% 50%;
+    perspective-origin: 50% 50%;
+}
+.cards li {
+    -webkit-transition: all 600ms ease;
+    -moz-transition: all 600ms ease;
+    -ms-transition: all 600ms ease;
+    -o-transition: all 600ms ease;
+    transition: all 600ms ease;
+    -webkit-transform-origin: 100% 50%;
+    -moz-transform-origin: 100% 50%;
+    -ms-transform-origin: 100% 50%;
+    -o-transform-origin: 100% 50%;
+    transform-origin: 100% 50%;
+}
+.cards li.past {
+    -webkit-transform: translate3d(0, -100px, -100px) rotateX(-90deg);
+    -moz-transform: translate3d(0, -100px, -100px) rotateX(-90deg);
+    -ms-transform: translate3d(0, -100px, -100px) rotateX(-90deg);
+    -o-transform: translate3d(0, -100px, -100px) rotateX(-90deg);
+    transform: translate3d(0, -100px, -100px) rotateX(-90deg);
+}
+.cards li.future {
+    -webkit-transform: translate3d(0, 100px, -100px) rotateX(90deg);
+    -moz-transform: translate3d(0, 100px, -100px) rotateX(90deg);
+    -ms-transform: translate3d(0, 100px, -100px) rotateX(90deg);
+    -o-transform: translate3d(0, 100px, -100px) rotateX(90deg);
+    transform: translate3d(0, 100px, -100px) rotateX(90deg);
+}
+/**
+ * Wave styles
+ */
+ .wave li {
+    -webkit-transition: all 600ms cubic-bezier(0.260, 0.860, 0.440, 0.985);
+    -moz-transition: all 600ms cubic-bezier(0.260, 0.860, 0.440, 0.985);
+    -ms-transition: all 600ms cubic-bezier(0.260, 0.860, 0.440, 0.985);
+    -o-transition: all 600ms cubic-bezier(0.260, 0.860, 0.440, 0.985);
+    transition: all 600ms cubic-bezier(0.260, 0.860, 0.440, 0.985);
+}
+.wave li.past {
+    -webkit-transform: translateX(-70%);
+    -moz-transform: translateX(-70%);
+    -ms-transform: translateX(-70%);
+    -o-transform: translateX(-70%);
+    transform: translateX(-70%);
+}
+.wave li.future {
+    -webkit-transform: translateX(-70%);
+    -moz-transform: translateX(-70%);
+    -ms-transform: translateX(-70%);
+    -o-transform: translateX(-70%);
+    transform: translateX(-70%);
+}
+/**
+ * Curl styles
+ */
+ .curl {
+    -webkit-perspective: 600px;
+    -moz-perspective: 600px;
+    -ms-perspective: 600px;
+    -o-perspective: 600px;
+    perspective: 600px;
+    -webkit-perspective-origin: 0% 50%;
+    -moz-perspective-origin: 0% 50%;
+    -ms-perspective-origin: 0% 50%;
+    -o-perspective-origin: 0% 50%;
+    perspective-origin: 0% 50%;
+}
+.curl li {
+    -webkit-transition: all 600ms ease, opacity 200ms ease;
+    -moz-transition: all 600ms ease;
+    -ms-transition: all 600ms ease, opacity 200ms ease;
+    -o-transition: all 600ms ease, opacity 200ms ease;
+    transition: all 600ms ease, opacity 200ms ease;
+    -webkit-transform-origin: 0% 0%;
+    -moz-transform-origin: 0% 0%;
+    -ms-transform-origin: 0% 0%;
+    -o-transform-origin: 0% 0%;
+    transform-origin: 0% 0%;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -ms-backface-visibility: hidden;
+    -o-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+.curl li.past {
+    opacity: 0;
+    -webkit-transform: rotateY(90deg);
+    -moz-transform: rotateY(90deg);
+    -ms-transform: rotateY(90deg);
+    -o-transform: rotateY(90deg);
+    transform: rotateY(90deg);
+}
+.curl li.future {
+    opacity: 0;
+    -webkit-transform: rotateY(90deg);
+    -moz-transform: rotateY(90deg);
+    -ms-transform: rotateY(90deg);
+    -o-transform: rotateY(90deg);
+    transform: rotateY(90deg);
+}
+.papercut {
+    -webkit-perspective: 600px;
+    -moz-perspective: 600px;
+    -ms-perspective: 600px;
+    -o-perspective: 600px;
+    perspective: 600px;
+    -webkit-perspective-origin: 0% 0%;
+    -moz-perspective-origin: 0% 0%;
+    -ms-perspective-origin: 0% 0%;
+    -o-perspective-origin: 0% 0%;
+    perspective-origin: 0% 0%;
+}
+.papercut li {
+    -webkit-transition: all 600ms ease;
+    -moz-transition: all 600ms ease;
+    -ms-transition: all 600ms ease;
+    -o-transition: all 600ms ease;
+    transition: all 600ms ease;
+    -webkit-transform-origin: 0% 0%;
+    -moz-transform-origin: 0% 0%;
+    -ms-transform-origin: 0% 0%;
+    -o-transform-origin: 0% 0%;
+    transform-origin: 0% 0%;
+}
+.papercut li.past {
+    -webkit-transform: skewY(-30deg);
+    -moz-transform: skewY(-30deg);
+    -ms-transform: skewY(-30deg);
+    -o-transform: skewY(-30deg);
+    transform: skewY(-30deg);
+}
+.papercut li.future {
+    -webkit-transform: skewY(30deg);
+    -moz-transform: skewY(30deg);
+    -ms-transform: skewY(30deg);
+    -o-transform: skewY(30deg);
+    transform: skewY(30deg);
+}
+/*Loading Animation*/
+
+/*@keyframes "loading" {
+ 0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    transform: rotate(0deg);
+ }
+ 25% {
+    -webkit-transform: rotate(160deg);
+    -moz-transform: rotate(160deg);
+    -o-transform: rotate(160deg);
+    -ms-transform: rotate(160deg);
+    transform: rotate(160deg);
+ }
+ 50% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    transform: rotate(0deg);
+ }
+ 75% {
+    -webkit-transform: rotate(160deg);
+    -moz-transform: rotate(160deg);
+    -o-transform: rotate(160deg);
+    -ms-transform: rotate(160deg);
+    transform: rotate(160deg);
+ }
+ 100% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    transform: rotate(0deg);
+ }
+
+}
+
+@-moz-keyframes loading {
+ 0% {
+   -moz-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ 25% {
+   -moz-transform: rotate(160deg);
+   transform: rotate(160deg);
+ }
+ 50% {
+   -moz-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ 75% {
+   -moz-transform: rotate(160deg);
+   transform: rotate(160deg);
+ }
+ 100% {
+   -moz-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+
+}
+
+@-webkit-keyframes "loading" {
+ 0% {
+   -webkit-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ 25% {
+   -webkit-transform: rotate(160deg);
+   transform: rotate(160deg);
+ }
+ 50% {
+   -webkit-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ 75% {
+   -webkit-transform: rotate(160deg);
+   transform: rotate(160deg);
+ }
+ 100% {
+   -webkit-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+
+}
+
+@-ms-keyframes "loading" {
+ 0% {
+   -ms-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ 25% {
+   -ms-transform: rotate(160deg);
+   transform: rotate(160deg);
+ }
+ 50% {
+   -ms-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ 75% {
+   -ms-transform: rotate(160deg);
+   transform: rotate(160deg);
+ }
+ 100% {
+   -ms-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+
+}
+
+@-o-keyframes "loading" {
+ 0% {
+   -o-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ 25% {
+   -o-transform: rotate(160deg);
+   transform: rotate(160deg);
+ }
+ 50% {
+   -o-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ 75% {
+   -o-transform: rotate(160deg);
+   transform: rotate(160deg);
+ }
+ 100% {
+   -o-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+
+}
+
+.loading {
+    background-color: transparent;
+    border-radius: 50%;
+    margin: 5px auto;
+
+    -webkit-animation: loading 5s infinite linear;
+    -moz-animation: loading 5s infinite linear;
+    -ms-animation: loading 5s infinite linear;
+    -o-animation: loading 5s infinite linear;
+    animation: loading 5s infinite linear;
+}
+
+.spin-2 {
+    border: 5px solid #d2d947;
+    border-top: 5px solid transparent;
+    border-left: 5px solid transparent;
+    width: 80px;
+    height: 80px;
+}
+
+.spin-3 {
+    border: 5px solid #f2a342;
+    border-top: 5px solid transparent;
+    border-left: 5px solid transparent;
+    width: 60px;
+    height: 60px;
+}
+
+.spin-4 {
+    border: 5px solid #f34d51;
+    border-top: 5px solid transparent;
+    border-left: 5px solid transparent;
+    width: 40px;
+    height: 40px;
+}
+
+.spin-5 {
+    border: 5px solid white;
+    width: 20px;
+    height: 20px;
+    }*/
+ .btn-grid {
+    background-color: #c9353b;
+    border-color: #d43f3a;
+}
+.btn-grid:hover {
+    background-color: #d9534f;
+}

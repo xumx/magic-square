@@ -1,6 +1,12 @@
 <head>
     <title>Magic Square</title>
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <script src="bower_components/platform/platform.js"></script>
+    <link rel="import" href="bower_components/polymer/polymer.html" >
+
+    <link rel="import" href="bower_components/font-roboto/roboto.html">
+    <link rel="import" href="bower_components/paper-ripple/paper-ripple.html">
+    <link rel="import" href="bower_components/paper-button/paper-button.html">
 </head>
 
 <body>
@@ -46,6 +52,7 @@
 <template name="canvas">
     <div class="main-container">
         {{#each squares}}
+
         <div id="{{_id}}" class="square {{#if selected}}selected{{/if}} {{#if linked}}linked flash animated{{/if}}" x="{{x}}" y="{{y}}" style="top:{{ypos}}px;left:{{xpos}}px;height:{{heightpx}}px;width:{{widthpx}}px;{{style}}">
             {{#if value}} {{read}} {{/if}}
         </div>
